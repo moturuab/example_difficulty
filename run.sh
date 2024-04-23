@@ -30,6 +30,9 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mail-type=ALL
 
+module use /pkgs/environment-modules/
+module load pytorch-1.7.1-cuda11.0-conda-python3.6
+
 total_runs=3
 epochs=10
 seed=0
