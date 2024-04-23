@@ -30,7 +30,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mail-type=ALL
 
-. pytorch13env
+$HOME/condaenvs/pytorch13env
 
 total_runs=3
 epochs=10
