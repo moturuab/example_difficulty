@@ -18,6 +18,21 @@
 # --fix_seed for conistency: where the seed is fixed and we assess model randomness
 
 # Set the parameterizable arguments
+
+#SBATCH --ntasks=1  
+#SBATCH --mem=4G  
+#SBATCH -c 2  
+#SBATCH --time=2:00:00  
+#SBATCH --partition=t4v1,t4v2,rtx6000  
+#SBATCH --qos=normal  
+#SBATCH --export=ALL  
+#SBATCH --output=%x.%j.log  
+#SBATCH --gres=gpu:1
+#SBATCH --mail-type=ALL
+
+module use /pkgs/environment-modules/
+module load pytorch-2.1-cuda11.8-python3.10
+
 total_runs=3
 epochs=10
 seed=0
