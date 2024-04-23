@@ -21,7 +21,7 @@ from src.utils import seed_everything
 
 def main(args):
     # Load the WANDB YAML file
-    with open("./wandb.yaml") as file:
+    with open("./wandb_config.yaml") as file:
         wandb_data = yaml.load(file, Loader=yaml.FullLoader)
 
     os.environ["WANDB_API_KEY"] = wandb_data["wandb_key"]
