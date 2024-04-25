@@ -14,7 +14,7 @@ from torchvision import datasets, models
 import torchvision.transforms.v2 as transforms
 from collections import Counter
 
-from src.dataloader import MultiFormatDataLoader
+from src.dataloader import MultiFormatDataLoader, SubsetDataset
 from src.evaluator import Evaluator
 from src.models import *
 from src.trainer import PyTorchTrainer
@@ -197,6 +197,8 @@ def main(args):
             )
             train_dataset, test_dataset = torch.utils.data.random_split(d, 
                 [int(0.8 * len(d)), len(d)-int(0.8 * len(d))])
+            train_dataset = SubsetDataset(train_dataset)
+            test_dataset = SubsetDataset(test_dataset)
             num_classes = 256
 
         elif dataset == "cifar100":

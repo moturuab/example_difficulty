@@ -14,6 +14,20 @@ from torchvision.transforms.functional import to_pil_image, to_tensor
 
 from .perturbations import *
 
+class SubsetDataset(Dataset):
+    def __init__(self, subset, transform=None):
+        self.subset = subset
+        self.transform = transform
+        
+    def __getitem__(self, index):
+        x, y = self.subset[index]
+        if self.transform:
+            x = self.transform(x)
+        return x, y
+        
+    def __len__(self):
+        return len(self.subset)
+
 
 class PerturbedDataset(Dataset):
     def __init__(
@@ -143,7 +157,7 @@ class PerturbedDataset(Dataset):
             else:
                 # Convert the list of tensors to a flat tensor and create a TensorDataset
                 flat_data = torch.stack(perturbed_data)
-            labels = self.dataset.dataset.targets
+            labels = self.dataset.targets
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
 
