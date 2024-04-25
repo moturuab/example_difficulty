@@ -455,7 +455,7 @@ def main(args):
         )
 
         # Train the model
-        trainer.fit(dataloader, dataloader_unshuffled)
+        trainer.fit(dataloader, dataloader_unshuffled, wandb_num=wandb.run.id)
 
         hardness_dict = trainer.get_hardness_methods()
 

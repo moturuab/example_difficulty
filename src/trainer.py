@@ -70,7 +70,7 @@ class PyTorchTrainer:
         self.num_classes = num_classes
         self.characterization_methods = characterization_methods
 
-    def fit(self, dataloader, dataloader_unshuffled):
+    def fit(self, dataloader, dataloader_unshuffled, wandb_num=0):
         """
         This function trains a model and updates various HCMs
         Args:
@@ -79,7 +79,7 @@ class PyTorchTrainer:
         certain metrics during training and/or after training.
         """
 
-        self.aum = AUM_Class() if "aum" in self.characterization_methods else None
+        self.aum = AUM_Class(save_dir=str(wandb_num)) if "aum" in self.characterization_methods else None
         self.data_uncert = (
             DataIQ_Maps_Class(dataloader=dataloader_unshuffled)
             if "data_uncert" in self.characterization_methods

@@ -6,6 +6,7 @@ import augly.image as imaugs
 import numpy as np
 import pandas as pd
 import torch
+import wandb
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torchvision.transforms import ToPILImage, ToTensor
@@ -162,18 +163,18 @@ class AUM_Class(Hardness_Base):
 
     def compute_scores(self):
         from os.path import exists
-
-        if exists("aum_values.csv"):
-            os.remove("aum_values.csv")
+        os.mkdir(save_dir)
+        if exists(save_dir + "/aum_values.csv"):
+            os.remove(save_dir + "/aum_values.csv")
 
         self.aum_calculator.finalize()
-        aum_df = pd.read_csv("aum_values.csv")
+        aum_df = pd.read_csv(save_dir + "/aum_values.csv")
         self.aum_scores = []
         for i in range(aum_df.shape[0]):
             aum_sc = aum_df[aum_df["sample_id"] == i].aum.values[0]
             self.aum_scores.append(aum_sc)
 
-        os.remove("aum_values.csv")
+        os.remove(save_dir + "/aum_values.csv")
         self._scores = self.aum_scores
 
     def get_scores(self):
