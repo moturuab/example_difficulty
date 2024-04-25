@@ -293,12 +293,12 @@ class ResNet(nn.Module):
             return logits
 
 
-def ResNet18MNIST():
-    return ResNetMNIST(BasicBlock, [2, 2, 2, 2])
+def ResNet18MNIST(num_classes=10):
+    return ResNetMNIST(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
 
 
-def ResNet18():
-    return ResNet(BasicBlock, [2, 2, 2, 2])
+def ResNet18(num_classes=10):
+    return ResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
 
 
 class MLP(nn.Module):  # old module4

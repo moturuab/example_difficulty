@@ -9,7 +9,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import wandb
-print(wandb.__path__)
 import yaml
 from torchvision import datasets
 import torchvision.transforms.v2 as transforms
@@ -22,7 +21,6 @@ from src.utils import seed_everything
 
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
-
 
 def main(args):
     # Load the WANDB YAML file
@@ -91,11 +89,27 @@ def main(args):
                     9: [1],  # truck -> automobile
                 }
 
+            if dataset == "fashionmnist":
+
+                rule_matrix = {
+                0: [2,4,6],   # t-shirt/top -> pullover or coat or shirt
+                1: [1],       # trouser (unchanged)
+                2: [0,4,6],   # pullover -> t-shirt/top or coat or shirt
+                3: [6],       # dress -> shirt
+                4: [0,2,6],   # coat -> t-shirt/top or pullover or shirt
+                5: [5],       # sandal (unchanged)
+                6: [0,2,3,4], # shirt -> t-shirt/top or pullover or dress or coat
+                7: [9],       # sneaker -> ankle boot
+                8: [8],       # bag (unchanged)
+                9: [7]        # ankle boot -> sneaker
+                }
+
         else:
             rule_matrix = None
 
         if dataset == "mnist":
             # Define transforms for the dataset
+            # 60K, 10K, already 28x28
             transform = transforms.Compose(
                 [transforms.ToTensor(), 
                 transforms.Normalize((0.5,), (0.5,))]
@@ -111,6 +125,7 @@ def main(args):
 
         elif dataset == "cifar10":
             # Define transforms for the dataset
+            # 50K, 10K, already 32x32
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
@@ -126,51 +141,52 @@ def main(args):
             )
             num_classes = 10
 
-        # ["mnist", "cifar10", "caltech256", "cifar100", "fashionmnist", "imagenet", "nih", "nihpneumonia", "padchest", "vindrcxr", "objectcxr", "siim"]
-
         elif dataset == "caltech256":
             # Define transforms for the dataset
+            # 30607, resize to 224x224
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
+                    transforms.Resize((224, 224)),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
-            # Load the CIFAR-10 dataset
-            train_dataset = datasets.Caltech256(
-                root="./data", train=True, download=True, transform=transform
+            # Load the Caltech 256 dataset
+            dataset = datasets.Caltech256(
+                root="./data", download=True, transform=transform
             )
-            test_dataset = datasets.Caltech256(
-                root="./data", train=False, download=True, transform=transform
-            )
-            num_classes = 10
+            train_dataset, test_dataset = torch.utils.data.random_split(dataset, 
+                [int(0.8 * len(full_dataset)), int(0.2 * len(full_dataset))])
+            num_classes = 256
 
         elif dataset == "cifar100":
             # Define transforms for the dataset
+            # 50K, 10K, already 32x32
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
-            # Load the CIFAR-10 dataset
+            # Load the CIFAR-100 dataset
             train_dataset = datasets.CIFAR100(
                 root="./data", train=True, download=True, transform=transform
             )
             test_dataset = datasets.CIFAR100(
                 root="./data", train=False, download=True, transform=transform
             )
-            num_classes = 10
+            num_classes = 100
 
         elif dataset == "fashionmnist":
             # Define transforms for the dataset
+            # 60K, 10K, already 28x28
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
-                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                    transforms.Normalize((0.5,), (0.5,)),
                 ]
             )
-            # Load the CIFAR-10 dataset
+            # Load the FashionMNIST dataset
             train_dataset = datasets.FashionMNIST(
                 root="./data", train=True, download=True, transform=transform
             )
@@ -181,103 +197,114 @@ def main(args):
 
         elif dataset == "imagenet":
             # Define transforms for the dataset
+            # 1281167, 50K, 100K, resize to 224x224
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
+                    transforms.Resize((224, 224)),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
-            # Load the CIFAR-10 dataset
+            # Load the ImageNet dataset
             train_dataset = datasets.ImageNet(
-                root="./data", train=True, download=True, transform=transform
+                root="/scratch/hdd001/datasets/imagenet/train", split="train", download=True, transform=transform
             )
             test_dataset = datasets.ImageNet(
-                root="./data", train=False, download=True, transform=transform
+                root="/scratch/hdd001/datasets/imagenet/val", split="val", download=True, transform=transform
             )
-            num_classes = 10
+            num_classes = 1000
+
+        # Source: https://github.com/mlmed/torchxrayvision
 
         elif dataset == "nih":
             # Define transforms for the dataset
+            # 112120, resize to 224x224
             transform = transforms.Compose(
                 [
+                    xrv.datasets.XRayResizer(224),
                     transforms.ToTensor(),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
-            # Load the CIFAR-10 dataset
-            train_dataset = datasets.CIFAR10(
-                root="./data", train=True, download=True, transform=transform
+            # National Institutes of Health ChestX-ray8 dataset. https://arxiv.org/abs/1705.02315
+            train_dataset = xrv.datasets.NIH_Dataset(
+                imgpath="/datasets/nih-chest-xrays", csvpath="/datasets/nih-chest-xrays/train_val_list.txt", transform=transform, unique_patients=False
             )
-            test_dataset = datasets.CIFAR10(
-                root="./data", train=False, download=True, transform=transform
+            test_dataset = xrv.datasets.NIH_Dataset(
+                imgpath="/datasets/nih-chest-xrays", csvpath="/datasets/nih-chest-xrays/test.txt", transform=transform, unique_patients=False
             )
-            num_classes = 10
+            num_classes = 14
 
-        elif dataset == "nihpneumonia":
+        elif dataset == "pneumonia":
             # Define transforms for the dataset
+            # 112120, resize to 224x224
             transform = transforms.Compose(
                 [
+                    xrv.datasets.XRayResizer(224),
                     transforms.ToTensor(),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
-            # Load the CIFAR-10 dataset
-            train_dataset = datasets.CIFAR10(
-                root="./data", train=True, download=True, transform=transform
+            # RSNA Pneumonia Detection Challenge. https://pubs.rsna.org/doi/full/10.1148/ryai.2019180041
+            train_dataset = xrv.datasets.RSNA_Pneumonia_Dataset(
+                imgpath="./data/pneumonia/stage_2_train_images_jpg", transform=transform
             )
-            test_dataset = datasets.CIFAR10(
-                root="./data", train=False, download=True, transform=transform
+            test_dataset = xrv.datasets.RSNA_Pneumonia_Dataset(
+                imgpath="./data/pneumonia/stage_2_test_images_jpg", transform=transform
             )
             num_classes = 10
 
         elif dataset == "padchest":
             # Define transforms for the dataset
+            # 160K, already 224x224
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
-            # Load the CIFAR-10 dataset
-            train_dataset = datasets.CIFAR10(
-                root="./data", train=True, download=True, transform=transform
+            # PadChest: A large chest x-ray image dataset with multi-label annotated reports. https://arxiv.org/abs/1901.07441
+            train_dataset = xrv.datasets.PC_Dataset(
+                imgpath="./data/padchest/pc/images-224", transform=transform
             )
-            test_dataset = datasets.CIFAR10(
-                root="./data", train=False, download=True, transform=transform
+            test_dataset = xrv.datasets.PC_Dataset(
+                imgpath="./data/padchest/pc/images-224", transform=transform
             )
             num_classes = 10
 
         elif dataset == "vindrcxr":
             # Define transforms for the dataset
+            # 160K, already 224x224
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
-            # Load the CIFAR-10 dataset
-            train_dataset = datasets.CIFAR10(
-                root="./data", train=True, download=True, transform=transform
+            # VinDr-CXR: An open dataset of chest X-rays with radiologist's annotations. https://arxiv.org/abs/2012.15029
+            train_dataset = xrv.datasets.VinBrain_Dataset(
+                imgpath=".data/vindrcxr/train", csvpath=".data/vindrcxr/train.csv",  transform=transform
             )
-            test_dataset = datasets.CIFAR10(
-                root="./data", train=False, download=True, transform=transform
+            test_dataset = xrv.datasets.VinBrain_Dataset(
+                imgpath=".data/vindrcxr/test", csvpath=".data/vindrcxr/sample_submission.csv", transform=transform
             )
             num_classes = 10
 
-        elif dataset == "objectcxv":
+        elif dataset == "objectcxr":
             # Define transforms for the dataset
+            # 10K, 
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
-            # Load the CIFAR-10 dataset
-            train_dataset = datasets.CIFAR10(
-                root="./data", train=True, download=True, transform=transform
+            # Object-CXR Dataset: Automatic detection of foreign objects on chest X-rays. https://academictorrents.com/details/fdc91f11d7010f7259a05403fc9d00079a09f5d5
+            train_dataset = xrv.datasets.ObjectCXR_Dataset(
+                imgzippath="./data/objectcxr/train.zip", csvpath="./data/objectcxr/train.csv", transform=transform
             )
-            test_dataset = datasets.CIFAR10(
-                root="./data", train=False, download=True, transform=transform
+            test_dataset = xrv.datasets.ObjectCXR_Dataset(
+                imgzippath="./data/objectcxr/dev.zip", csvpath="./data/objectcxr/dev.csv", transform=transform
             )
             num_classes = 10
 
@@ -289,20 +316,22 @@ def main(args):
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
-            # Load the CIFAR-10 dataset
-            train_dataset = datasets.CIFAR10(
-                root="./data", train=True, download=True, transform=transform
+            # SIIM Pneumothorax Dataset. https://www.kaggle.com/c/siim-acr-pneumothorax-segmentation
+            train_dataset = xrv.datasets.SIIM_Pneumothorax_Dataset(
+                imgpath="./data/siim/stage_2_images", csvpath="./data/siim/stage_2_train.csv", transform=transform
             )
-            test_dataset = datasets.CIFAR10(
-                root="./data", train=False, download=True, transform=transform
+            test_dataset = xrv.datasets.SIIM_Pneumothorax_Dataset(
+                imgpath="./data/siim/stage_2_images", csvpath="./data/siim/stage_2_sample_submission.csv", transform=transform
             )
             num_classes = 10
-
 
         else:
             raise ValueError("Invalid dataset!")
 
         total_samples = len(train_dataset)
+        print(total_samples)
+        print(train_dataset)
+        print(test_dataset)
 
         # Set device to use
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -349,21 +378,21 @@ def main(args):
         ####################
 
         # Instantiate the neural network
-        if dataset == "cifar10":
+        if dataset == "cifar10" or dataset == "caltech256" or dataset == "cifar100" or dataset == "fashionmnist" or dataset == "imagenet":
             if model_name == "LeNet":
-                model = LeNet(num_classes=10).to(device)
+                model = LeNet(num_classes=num_classes).to(device)
             if model_name == "ResNet":
-                model = ResNet18().to(device)
+                model = ResNet18(num_classes=num_classes).to(device)
         elif dataset == "mnist":
             if model_name == "LeNet":
-                model = LeNetMNIST(num_classes=10).to(device)
+                model = LeNetMNIST(num_classes=num_classes).to(device)
             if model_name == "ResNet":
-                model = ResNet18MNIST().to(device)
+                model = ResNet18MNIST(num_classes=num_classes).to(device)
         elif dataset == "xray":
             if model_name == "LeNet":
-                model = LeNetMNIST(num_classes=2).to(device)
+                model = LeNetMNIST(num_classes=num_classes).to(device)
             if model_name == "ResNet":
-                model = ResNet18MNIST().to(device)
+                model = ResNet18MNIST(num_classes=num_classes).to(device)
 
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=0.001)
