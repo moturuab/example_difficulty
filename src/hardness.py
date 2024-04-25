@@ -154,6 +154,7 @@ class AUM_Class(Hardness_Base):
 
         self.aum_calculator = AUMCalculator(save_dir, compressed=True)
         self.aum_scores = None
+        self.save_dir = save_dir
 
     def updates(self, y_pred, y_batch, sample_ids):
         # override method1
@@ -163,19 +164,19 @@ class AUM_Class(Hardness_Base):
 
     def compute_scores(self):
         from os.path import exists
-        os.mkdir(save_dir)
-        if exists(save_dir + "/aum_values.csv"):
+        os.mkdir(self.save_dir)
+        if exists(self.save_dir + "/aum_values.csv"):
             os.remove(save_dir + "/aum_values.csv")
 
         self.aum_calculator.finalize()
-        aum_df = pd.read_csv(save_dir + "/aum_values.csv")
+        aum_df = pd.read_csv(self.save_dir + "/aum_values.csv")
         self.aum_scores = []
         for i in range(aum_df.shape[0]):
             aum_sc = aum_df[aum_df["sample_id"] == i].aum.values[0]
             self.aum_scores.append(aum_sc)
 
-        os.remove(save_dir + "/aum_values.csv")
-        os.rmdir(save_dir)
+        os.remove(self.save_dir + "/aum_values.csv")
+        os.rmdir(self.save_dir)
         self._scores = self.aum_scores
 
     def get_scores(self):
