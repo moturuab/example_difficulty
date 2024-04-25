@@ -30,7 +30,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mail-type=ALL
 
-conda activate py37
+conda activate py38
 
 total_runs=3
 epochs=10
@@ -50,7 +50,7 @@ python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset
 
 # uniform cifar
 hardness="uniform"
-dataset="cifar"
+dataset="cifar10"
 model_name="ResNet"
 fuser -v /dev/nvidia0 -k
 python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.1 --epochs $epochs
