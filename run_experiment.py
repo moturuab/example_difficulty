@@ -12,6 +12,7 @@ import wandb
 import yaml
 from torchvision import datasets
 import torchvision.transforms.v2 as transforms
+from collections import Counter
 
 from src.dataloader import MultiFormatDataLoader
 from src.evaluator import Evaluator
@@ -152,11 +153,13 @@ def main(args):
                 ]
             )
             # Load the Caltech 256 dataset
-            dataset = datasets.Caltech256(
+            d = datasets.Caltech256(
                 root="./data", download=True, transform=transform
             )
-            train_dataset, test_dataset = torch.utils.data.random_split(dataset, 
-                [int(0.8 * len(dataset)), len(dataset)-int(0.8 * len(dataset))])
+            train_dataset, test_dataset = torch.utils.data.random_split(d, 
+                [int(0.8 * len(d)), len(d)-int(0.8 * len(d))])
+            print(Counter(d.targets[train_dataset.indices]))
+            print(Counter(d.targets[test_dataset.indices]))
             num_classes = 256
 
         elif dataset == "cifar100":
@@ -330,8 +333,8 @@ def main(args):
 
         total_samples = len(train_dataset)
         print(total_samples)
-        print(set(train_dataset.targets))
-        print(set(test_dataset.targets))
+        print(Counter(train_dataset.targets))
+        print(Counter(test_dataset.targets))
 
         # Set device to use
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
