@@ -158,8 +158,7 @@ def main(args):
             )
             train_dataset, test_dataset = torch.utils.data.random_split(d, 
                 [int(0.8 * len(d)), len(d)-int(0.8 * len(d))])
-            print(Counter(d.y[train_dataset.indices]))
-            print(Counter(d.y[test_dataset.indices]))
+            print(Counter(d.y))
             num_classes = 256
 
         elif dataset == "cifar100":
