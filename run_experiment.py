@@ -198,11 +198,10 @@ def main(args):
 
         elif dataset == "imagenet":
             # Define transforms for the dataset
-            # 1281167, 50K, 100K, resize to 224x224
+            # 1281167, 50K, 100K, already 256x256
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
-                    transforms.Resize((224, 224)),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
