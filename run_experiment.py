@@ -10,7 +10,7 @@ import torch.nn as nn
 import torch.optim as optim
 import wandb
 import yaml
-from torchvision import datasets
+from torchvision import datasets, models
 import torchvision.transforms.v2 as transforms
 from collections import Counter
 
@@ -391,7 +391,7 @@ def main(args):
             if model_name == "LeNet":
                 model = LeNetImageNet(num_classes=num_classes).to(device)
             if model_name == "ResNet":
-                model = ResNet18(num_classes=num_classes).to(device)
+                model = models.resnet18().to(device)
         elif dataset == "xray":
             if model_name == "LeNet":
                 model = LeNetMNIST(num_classes=num_classes).to(device)
