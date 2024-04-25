@@ -41,6 +41,9 @@ hardness="uniform"
 dataset="mnist"
 model_name="LeNet"
 fuser -v /dev/nvidia0 -k
+
+dataset="mnist"
+python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.1 --epochs $epochs
 dataset="cifar10"
 python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.1 --epochs $epochs
 dataset="caltech256"
