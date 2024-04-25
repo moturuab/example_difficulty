@@ -208,10 +208,10 @@ def main(args):
             )
             # Load the ImageNet dataset
             train_dataset = datasets.ImageNet(
-                root="/scratch/hdd001/datasets/imagenet256", split="train", download=True, transform=transform
+                root="/scratch/ssd004/datasets/imagenet256", split="train", download=True, transform=transform
             )
             test_dataset = datasets.ImageNet(
-                root="/scratch/hdd001/datasets/imagenet256", split="val", download=True, transform=transform
+                root="/scratch/ssd004/datasets/imagenet256", split="val", download=True, transform=transform
             )
             num_classes = 1000
 
