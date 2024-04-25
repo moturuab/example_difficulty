@@ -175,6 +175,7 @@ class AUM_Class(Hardness_Base):
             self.aum_scores.append(aum_sc)
 
         os.remove(save_dir + "/aum_values.csv")
+        os.rmdir(save_dir)
         self._scores = self.aum_scores
 
     def get_scores(self):
