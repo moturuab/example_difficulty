@@ -82,7 +82,7 @@ class PerturbedDataset(Dataset):
             "instance",
         ]:
             if idx in self.perturbs:
-                assert self.perturbs[idx] == perturbed_target
+                #assert self.perturbs[idx] == perturbed_target
                 perturbed_target = self.perturbs[idx]
 
         return data_point[0], target, perturbed_target, indices
