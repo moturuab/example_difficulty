@@ -143,7 +143,7 @@ class PerturbedDataset(Dataset):
             else:
                 # Convert the list of tensors to a flat tensor and create a TensorDataset
                 flat_data = torch.stack(perturbed_data)
-            labels = self.dataset.targets
+            labels = self.dataset.dataset.targets
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
 
