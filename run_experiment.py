@@ -23,6 +23,8 @@ from src.utils import seed_everything
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
+# for i in $(seq 0.1 0.1 0.5); do for j in "${arr[@]}"; do for k in "${arr2[@]}"; do sbatch run_small_"$k"_"$j".sh "$i"; done; done; done
+
 def main(args):
     # Load the WANDB YAML file
     with open("./wandb_config.yaml") as file:
