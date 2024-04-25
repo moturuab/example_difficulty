@@ -202,7 +202,7 @@ def main(args):
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
-                    transforms.Resize((224, 224))
+                    transforms.Resize((224, 224)),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
