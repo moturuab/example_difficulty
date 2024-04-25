@@ -156,7 +156,7 @@ def main(args):
                 root="./data", download=True, transform=transform
             )
             train_dataset, test_dataset = torch.utils.data.random_split(dataset, 
-                [int(0.8 * len(full_dataset)), int(0.2 * len(full_dataset))])
+                [int(0.8 * len(dataset)), int(0.2 * len(dataset))])
             num_classes = 256
 
         elif dataset == "cifar100":
