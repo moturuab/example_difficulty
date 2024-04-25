@@ -330,8 +330,8 @@ def main(args):
 
         total_samples = len(train_dataset)
         print(total_samples)
-        print(train_dataset)
-        print(test_dataset)
+        print(set(train_dataset.targets))
+        print(set(test_dataset.targets))
 
         # Set device to use
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
