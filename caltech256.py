@@ -82,4 +82,5 @@ for idx, item in enumerate(tags):
 # Print the most similar items for each item
 for key, value in most_similar.items():
     print(key)
+    print(value)
     print(f"{key} is most similar to {value[0]} and {value[1]}")
