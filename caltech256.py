@@ -74,7 +74,7 @@ for idx, item in enumerate(tags):
     similarity_scores = list(enumerate(cosine_sim[idx]))
     # Sort the items based on the similarity scores
     similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
-
+    print(similarity_scores)
     n = sum(i > 0.9 for i in similarity_scores)
     
     most_similar[item] = [tags[i[0]] for i in similarity_scores[1:n]]  # Top n similar items
