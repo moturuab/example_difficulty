@@ -64,31 +64,68 @@ def main(args):
         if hardness == "instance":
             if dataset == "mnist":
                 rule_matrix = {
-                    1: [7],  # 1 -> 7
-                    2: [7],  # 2 -> 7
-                    3: [8],  # 3 -> 8
-                    4: [4],  # 4 (unchanged)
-                    5: [6],  # 5 -> 6
-                    6: [5],  # 6 -> 5
+                    1: [7],     # 1 -> 7
+                    2: [7],     # 2 -> 7
+                    3: [8],     # 3 -> 8
+                    4: [4],     # 4 (unchanged)
+                    5: [6],     # 5 -> 6
+                    6: [5],     # 6 -> 5
                     7: [1, 2],  # 7 -> 1 or 2
-                    8: [3],  # 8 -> 3
-                    9: [7],  # 9 -> 7
-                    0: [0],  # 0 (unchanged)
+                    8: [3],     # 8 -> 3
+                    9: [7],     # 9 -> 7
+                    0: [0],     # 0 (unchanged)
                 }
+
             if dataset == "cifar10":
 
                 rule_matrix = {
-                    0: [2],  # airplane -> bird
-                    1: [9],  # automobile -> truck
-                    2: [2],  # bird (unchanged)
-                    3: [5],  # cat -> dog
-                    4: [5, 7],  # deer -> dog or horse
+                    0: [2],        # airplane -> bird
+                    1: [9],        # automobile -> truck
+                    2: [2],        # bird (unchanged)
+                    3: [5],        # cat -> dog
+                    4: [5, 7],     # deer -> dog or horse
                     5: [3, 4, 7],  # dog -> cat or deer or horse
-                    6: [6],  # frog (unchanged)
-                    7: [5],  # horse -> dog
-                    8: [8],  # ship (unchanged)
-                    9: [1],  # truck -> automobile
+                    6: [6],        # frog (unchanged)
+                    7: [5],        # horse -> dog
+                    8: [8],        # ship (unchanged)
+                    9: [1],        # truck -> automobile
                 }
+
+            if dataset == "caltech256":
+
+                rule_matrix = {i: [i] for i in range(1, 257)}
+                # using ChatGPT to figure out similar items the image could be confused for
+
+            if dataset == "cifar100":
+
+                temp_matrix = {
+                    0: [72, 4, 95, 30, 55],    # aquatic mammals
+                    1: [73, 32, 67, 91, 1],    # fish
+                    2: [92, 70, 82, 54, 62],   # flowers
+                    3: [16, 61, 9, 10, 28],    # food containers
+                    4: [51, 0, 53, 57, 83],    # fruit and vegetables
+                    5: [40, 39, 22, 87, 86],   # household electric devices
+                    6: [20, 25, 94, 84, 5],    # household furniture
+                    7: [14, 24, 6, 7, 18],     # insects
+                    8: [43, 97, 42, 3, 88],    # large carnivores
+                    9: [37, 17, 76, 12, 68],   # large man-made outdoor things
+                    10: [49, 33, 71, 23, 60],  # large natural outdoor scenes
+                    11: [15, 21, 19, 31, 38],  # large omnivores and herbivores
+                    12: [75, 63, 66, 64, 34],  # medium-sized mallas
+                    13: [77, 26, 45, 99, 79],  # non-insect vertebrates
+                    14: [11, 2, 35, 46, 98],   # people
+                    15: [29, 93, 27, 78, 44],  # reptiles
+                    16: [65, 50, 74, 36, 80],  # small mammals
+                    17: [56, 52, 47, 59, 96],  # trees
+                    18: [8, 58, 90, 13, 48],   # vehicles 1
+                    19: [81, 69, 41, 89, 85]   # vehicles 2
+                }
+
+                rule_matrix = {}
+                for i in temp_matrix.keys():
+                    for j in range(5):
+                        rule_matrix[j] = temp_matrix[i].copy().remove(j)
+
 
             if dataset == "fashionmnist":
 
@@ -144,11 +181,11 @@ def main(args):
 
         elif dataset == "caltech256":
             # Define transforms for the dataset
-            # 30607, resize to 224x224
+            # 30607, resize to 32x32
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
-                    transforms.Resize((224, 224)),
+                    transforms.Resize((32, 32)),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
@@ -357,7 +394,7 @@ def main(args):
             target_column=None,
             data_type="torch_dataset",
             data_modality="image",
-            batch_size=32,
+            batch_size=64,
             shuffle=True,
             num_workers=0,
             transform=None,
