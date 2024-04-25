@@ -37,6 +37,7 @@ class PerturbedDataset(Dataset):
         p=0.1,
         rule_matrix=None,
         images=True,
+        dataset_name="",
         atypical_marginal=[],
     ):
         """
@@ -62,6 +63,7 @@ class PerturbedDataset(Dataset):
         self.rule_matrix = rule_matrix
         self.images = images
         self.atypical_marginal = atypical_marginal
+        self.dataset_name = dataset_name
 
         if perturbation_method in ["uniform", "asymmetric", "adjacent", "instance"]:
             self.perturbs = self._generate_mislabels()
@@ -157,7 +159,10 @@ class PerturbedDataset(Dataset):
             else:
                 # Convert the list of tensors to a flat tensor and create a TensorDataset
                 flat_data = torch.stack(perturbed_data)
-            labels = self.dataset.targets
+            if self.dataset_name == "caltech256":
+                labels = self.dataset.subset.targets
+            else:
+                labels = self.dataset.targets
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
 
@@ -492,6 +497,7 @@ class MultiFormatDataLoader:
         target_column,
         data_type="torch_dataset",
         data_modality="image",
+        dataset_name="",
         batch_size=32,
         shuffle=True,
         num_workers=0,
@@ -502,7 +508,7 @@ class MultiFormatDataLoader:
         rule_matrix=None,
         atypical_marginal=[],
     ):
-
+        self.dataset_name = dataset_name
         if data_type == "torch_dataset":
             self.dataset = data
         else:
@@ -542,6 +548,7 @@ class MultiFormatDataLoader:
             p=p,
             rule_matrix=self.rule_matrix,
             images=images,
+            dataset_name=dataset_name,
             atypical_marginal=atypical_marginal,
         )
         self.flag_ids = self.perturbed_dataset.get_flag_ids()
