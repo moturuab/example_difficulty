@@ -158,7 +158,6 @@ def main(args):
             )
             train_dataset, test_dataset = torch.utils.data.random_split(d, 
                 [int(0.8 * len(d)), len(d)-int(0.8 * len(d))])
-            print(Counter(d.y))
             num_classes = 256
 
         elif dataset == "cifar100":
@@ -209,10 +208,10 @@ def main(args):
             )
             # Load the ImageNet dataset
             train_dataset = datasets.ImageNet(
-                root="/scratch/hdd001/datasets/imagenet256/train", split="train", download=True, transform=transform
+                root="/scratch/hdd001/datasets/imagenet256", split="train", download=True, transform=transform
             )
             test_dataset = datasets.ImageNet(
-                root="/scratch/hdd001/datasets/imagenet256/val", split="val", download=True, transform=transform
+                root="/scratch/hdd001/datasets/imagenet256", split="val", download=True, transform=transform
             )
             num_classes = 1000
 
@@ -332,8 +331,6 @@ def main(args):
 
         total_samples = len(train_dataset)
         print(total_samples)
-        print(Counter(train_dataset.targets))
-        print(Counter(test_dataset.targets))
 
         # Set device to use
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
