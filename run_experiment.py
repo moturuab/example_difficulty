@@ -223,7 +223,7 @@ def main(args):
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
-                    transforms.Normalize((0.5,), (0.5,)),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
             # Load the FashionMNIST dataset
@@ -416,12 +416,12 @@ def main(args):
         ####################
 
         # Instantiate the neural network
-        if dataset == "cifar10" or dataset == "caltech256" or dataset == "cifar100" or dataset == "fashionmnist":
+        if dataset == "cifar10" or dataset == "caltech256" or dataset == "cifar100":
             if model_name == "LeNet":
                 model = LeNet(num_classes=num_classes).to(device)
             if model_name == "ResNet":
                 model = ResNet18(num_classes=num_classes).to(device)
-        elif dataset == "mnist":
+        elif dataset == "mnist" or dataset == "fashionmnist":
             if model_name == "LeNet":
                 model = LeNetMNIST(num_classes=num_classes).to(device)
             if model_name == "ResNet":

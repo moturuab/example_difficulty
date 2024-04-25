@@ -70,9 +70,9 @@ class Net(nn.Module):
 
 # The LeNet class is a neural network model
 class LeNet(nn.Module):
-    def __init__(self, num_classes=10, kernel_size=5):
+    def __init__(self, num_classes=10, kernel_size=5, channel_size=3):
         super(LeNet, self).__init__()
-        self.conv1 = nn.Conv2d(3, 6, kernel_size=kernel_size)
+        self.conv1 = nn.Conv2d(channel_size, 6, kernel_size=kernel_size)
         self.conv2 = nn.Conv2d(6, 16, kernel_size=kernel_size)
         self.fc1 = nn.Linear(16 * 5 * 5, 120)
         self.fc2 = nn.Linear(120, 84)
