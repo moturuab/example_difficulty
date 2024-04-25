@@ -478,7 +478,7 @@ if __name__ == "__main__":
         "--dataset",
         type=str,
         default="mnist",
-        choices=["mnist", "cifar10"],
+        choices=["mnist", "cifar10", "caltech256", "cifar100", "fashionmnist", "imagenet", "nih", "nihpneumonia", "padchest", "vindrcxr", "objectcxr", "siim"],
         help="Dataset",
     )
     parser.add_argument("--model_name", type=str, default="LeNet", help="Model name")
