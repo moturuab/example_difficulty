@@ -77,7 +77,7 @@ for idx, item in enumerate(tags):
     print(similarity_scores)
     n = sum(i > 0.9 for (a,i) in similarity_scores)
     
-    most_similar[item] = [tags[i[0]] for i in similarity_scores[1:n]]  # Top n similar items
+    most_similar[item] = [tags[i[0]] for i in similarity_scores[0:n]]  # Top n similar items
 
 # Print the most similar items for each item
 for key, value in most_similar.items():
