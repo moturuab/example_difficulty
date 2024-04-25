@@ -357,7 +357,7 @@ def main(args):
             target_column=None,
             data_type="torch_dataset",
             data_modality="image",
-            batch_size=64,
+            batch_size=32,
             shuffle=True,
             num_workers=0,
             transform=None,
