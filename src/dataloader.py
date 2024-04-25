@@ -57,6 +57,8 @@ class PerturbedDataset(Dataset):
         generate the mislabeled data. If `perturbation_method` is set to "rule_based", then `rule
         """
         self.dataset = dataset
+        if self.dataset_name == "caltech256":
+            self.dataset = self.dataset.subset
         self.indices = np.array(range(len(dataset)))
         self.perturbation_method = perturbation_method
         self.p = p
@@ -159,10 +161,7 @@ class PerturbedDataset(Dataset):
             else:
                 # Convert the list of tensors to a flat tensor and create a TensorDataset
                 flat_data = torch.stack(perturbed_data)
-            if self.dataset_name == "caltech256":
-                labels = self.dataset.subset.targets
-            else:
-                labels = self.dataset.targets
+            labels = self.dataset.targets
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
 

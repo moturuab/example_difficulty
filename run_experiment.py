@@ -59,9 +59,10 @@ def main(args):
 
         # new wandb run
         run = wandb.init(
-            project=f"{hardness}_{dataset}_{model_name}",
+            project="example_difficulty",
             entity=wandb_entity,
         )
+        wandb.config({'total_runs': total_runs, 'run': i+1, 'hardness': hardness, 'dataset': dataset, 'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p})
 
         if hardness == "instance":
             if dataset == "mnist":
@@ -381,16 +382,16 @@ def main(args):
         # DATALOADER MODULE
         #
         ####################
-        metadata = {
-            "p": p,
-            "hardness": hardness,
-            "dataset": dataset,
-            "model": model_name,
-            "run": i,
-            "seed": seed,
-        }
+        #metadata = {
+        #    "p": p,
+        #    "hardness": hardness,
+        #    "dataset": dataset,
+        #    "model": model_name,
+        #    "run": i,
+        #    "seed": seed,
+        #}
 
-        wandb.log(metadata)
+        #wandb.log(metadata)
 
         # Allows importing data in multiple formats
         dataloader_class = MultiFormatDataLoader(
