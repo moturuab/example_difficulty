@@ -156,7 +156,7 @@ def main(args):
                 root="./data", download=True, transform=transform
             )
             train_dataset, test_dataset = torch.utils.data.random_split(dataset, 
-                [int(0.8 * len(dataset)), int(0.2 * len(dataset))])
+                [int(0.8 * len(dataset)), len(dataset)-int(0.8 * len(dataset))])
             num_classes = 256
 
         elif dataset == "cifar100":
@@ -207,10 +207,10 @@ def main(args):
             )
             # Load the ImageNet dataset
             train_dataset = datasets.ImageNet(
-                root="/scratch/hdd001/datasets/imagenet/train", split="train", download=True, transform=transform
+                root="/scratch/hdd001/datasets/imagenet256/train", split="train", download=True, transform=transform
             )
             test_dataset = datasets.ImageNet(
-                root="/scratch/hdd001/datasets/imagenet/val", split="val", download=True, transform=transform
+                root="/scratch/hdd001/datasets/imagenet256/val", split="val", download=True, transform=transform
             )
             num_classes = 1000
 
