@@ -20,7 +20,7 @@
 # Set the parameterizable arguments
 
 #SBATCH --ntasks=1
-#SBATCH --mem=16G  
+#SBATCH --mem=64G  
 #SBATCH -c 2
 #SBATCH --time=4:00:00  
 #SBATCH --partition=t4v1,t4v2,rtx6000  
