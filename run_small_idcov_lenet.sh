@@ -19,12 +19,12 @@
 
 # Set the parameterizable arguments
 
-#SBATCH --ntasks=1  
+#SBATCH --ntasks=1
 #SBATCH --mem=4G  
 #SBATCH -c 2
-#SBATCH --time=6:00:00  
+#SBATCH --time=4:00:00  
 #SBATCH --partition=t4v1,t4v2,rtx6000  
-#SBATCH --qos=m2  
+#SBATCH --qos=m3  
 #SBATCH --export=ALL  
 #SBATCH --output=%x.%j.log  
 #SBATCH --gres=gpu:1
