@@ -203,7 +203,7 @@ if __name__ == "__main__":
         "--dataset",
         type=str,
         default="mnist",
-        choices=["mnist", "cifar", "xray"],
+        choices=["mnist", "cifar10", "xray"],
         help="Dataset",
     )
     parser.add_argument("--model_name", type=str, default="LeNet", help="Model name")

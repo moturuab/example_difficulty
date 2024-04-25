@@ -495,3 +495,5 @@ class Conf_Agree_Class(Hardness_Base):
     def compute_scores(self):
         self._scores = self.mean_scores
         return self._scores
+
+

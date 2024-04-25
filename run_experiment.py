@@ -9,14 +9,19 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import wandb
+print(wandb.__path__)
 import yaml
-from torchvision import datasets, transforms
+from torchvision import datasets
+import torchvision.transforms.v2 as transforms
 
 from src.dataloader import MultiFormatDataLoader
 from src.evaluator import Evaluator
 from src.models import *
 from src.trainer import PyTorchTrainer
 from src.utils import seed_everything
+
+import warnings
+warnings.filterwarnings("default", category=UserWarning)
 
 
 def main(args):
@@ -35,7 +40,8 @@ def main(args):
     seed = args.seed
     p = args.prop
 
-    assert dataset in ["cifar", "mnist"], "Invalid dataset!"
+    assert dataset in ["mnist", "cifar10", "caltech256", "cifar100", "fashionmnist", "imagenet", 
+    "nih", "nihpneumonia", "padchest", "vindrcxr", "objectcxr", "siim"], "Invalid dataset!"
 
     for i in range(total_runs):
 
@@ -59,30 +65,30 @@ def main(args):
         if hardness == "instance":
             if dataset == "mnist":
                 rule_matrix = {
-                    1: [7],
-                    2: [7],
-                    3: [8],
-                    4: [4],
-                    5: [6],
-                    6: [5],
-                    7: [1, 2],
-                    8: [3],
-                    9: [7],
-                    0: [0],
+                    1: [7],  # 1 -> 7
+                    2: [7],  # 2 -> 7
+                    3: [8],  # 3 -> 8
+                    4: [4],  # 4 (unchanged)
+                    5: [6],  # 5 -> 6
+                    6: [5],  # 6 -> 5
+                    7: [1, 2],  # 7 -> 1 or 2
+                    8: [3],  # 8 -> 3
+                    9: [7],  # 9 -> 7
+                    0: [0],  # 0 (unchanged)
                 }
-            if dataset == "cifar":
+            if dataset == "cifar10":
 
                 rule_matrix = {
-                    0: [2],  # airplane (unchanged)
+                    0: [2],  # airplane -> bird
                     1: [9],  # automobile -> truck
-                    2: [9],  # bird (unchanged)
-                    3: [5],  # cat -> automobile
-                    4: [5, 7],  # deer (unchanged)
-                    5: [3, 4],  # dog -> cat
+                    2: [2],  # bird (unchanged)
+                    3: [5],  # cat -> dog
+                    4: [5, 7],  # deer -> dog or horse
+                    5: [3, 4, 7],  # dog -> cat or deer or horse
                     6: [6],  # frog (unchanged)
                     7: [5],  # horse -> dog
-                    8: [7],  # ship (unchanged)
-                    9: [9],  # truck -> horse
+                    8: [8],  # ship (unchanged)
+                    9: [1],  # truck -> automobile
                 }
 
         else:
@@ -91,7 +97,8 @@ def main(args):
         if dataset == "mnist":
             # Define transforms for the dataset
             transform = transforms.Compose(
-                [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))]
+                [transforms.ToTensor(), 
+                transforms.Normalize((0.5,), (0.5,))]
             )
             # Load the MNIST dataset
             train_dataset = datasets.MNIST(
@@ -102,7 +109,7 @@ def main(args):
             )
             num_classes = 10
 
-        elif dataset == "cifar":
+        elif dataset == "cifar10":
             # Define transforms for the dataset
             transform = transforms.Compose(
                 [
@@ -118,6 +125,179 @@ def main(args):
                 root="./data", train=False, download=True, transform=transform
             )
             num_classes = 10
+
+        # ["mnist", "cifar10", "caltech256", "cifar100", "fashionmnist", "imagenet", "nih", "nihpneumonia", "padchest", "vindrcxr", "objectcxr", "siim"]
+
+        elif dataset == "caltech256":
+            # Define transforms for the dataset
+            transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                ]
+            )
+            # Load the CIFAR-10 dataset
+            train_dataset = datasets.Caltech256(
+                root="./data", train=True, download=True, transform=transform
+            )
+            test_dataset = datasets.Caltech256(
+                root="./data", train=False, download=True, transform=transform
+            )
+            num_classes = 10
+
+        elif dataset == "cifar100":
+            # Define transforms for the dataset
+            transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                ]
+            )
+            # Load the CIFAR-10 dataset
+            train_dataset = datasets.CIFAR100(
+                root="./data", train=True, download=True, transform=transform
+            )
+            test_dataset = datasets.CIFAR100(
+                root="./data", train=False, download=True, transform=transform
+            )
+            num_classes = 10
+
+        elif dataset == "fashionmnist":
+            # Define transforms for the dataset
+            transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                ]
+            )
+            # Load the CIFAR-10 dataset
+            train_dataset = datasets.FashionMNIST(
+                root="./data", train=True, download=True, transform=transform
+            )
+            test_dataset = datasets.FashionMNIST(
+                root="./data", train=False, download=True, transform=transform
+            )
+            num_classes = 10
+
+        elif dataset == "imagenet":
+            # Define transforms for the dataset
+            transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                ]
+            )
+            # Load the CIFAR-10 dataset
+            train_dataset = datasets.ImageNet(
+                root="./data", train=True, download=True, transform=transform
+            )
+            test_dataset = datasets.ImageNet(
+                root="./data", train=False, download=True, transform=transform
+            )
+            num_classes = 10
+
+        elif dataset == "nih":
+            # Define transforms for the dataset
+            transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                ]
+            )
+            # Load the CIFAR-10 dataset
+            train_dataset = datasets.CIFAR10(
+                root="./data", train=True, download=True, transform=transform
+            )
+            test_dataset = datasets.CIFAR10(
+                root="./data", train=False, download=True, transform=transform
+            )
+            num_classes = 10
+
+        elif dataset == "nihpneumonia":
+            # Define transforms for the dataset
+            transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                ]
+            )
+            # Load the CIFAR-10 dataset
+            train_dataset = datasets.CIFAR10(
+                root="./data", train=True, download=True, transform=transform
+            )
+            test_dataset = datasets.CIFAR10(
+                root="./data", train=False, download=True, transform=transform
+            )
+            num_classes = 10
+
+        elif dataset == "padchest":
+            # Define transforms for the dataset
+            transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                ]
+            )
+            # Load the CIFAR-10 dataset
+            train_dataset = datasets.CIFAR10(
+                root="./data", train=True, download=True, transform=transform
+            )
+            test_dataset = datasets.CIFAR10(
+                root="./data", train=False, download=True, transform=transform
+            )
+            num_classes = 10
+
+        elif dataset == "vindrcxr":
+            # Define transforms for the dataset
+            transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                ]
+            )
+            # Load the CIFAR-10 dataset
+            train_dataset = datasets.CIFAR10(
+                root="./data", train=True, download=True, transform=transform
+            )
+            test_dataset = datasets.CIFAR10(
+                root="./data", train=False, download=True, transform=transform
+            )
+            num_classes = 10
+
+        elif dataset == "objectcxv":
+            # Define transforms for the dataset
+            transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                ]
+            )
+            # Load the CIFAR-10 dataset
+            train_dataset = datasets.CIFAR10(
+                root="./data", train=True, download=True, transform=transform
+            )
+            test_dataset = datasets.CIFAR10(
+                root="./data", train=False, download=True, transform=transform
+            )
+            num_classes = 10
+
+        elif dataset == "siim":
+            # Define transforms for the dataset
+            transform = transforms.Compose(
+                [
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                ]
+            )
+            # Load the CIFAR-10 dataset
+            train_dataset = datasets.CIFAR10(
+                root="./data", train=True, download=True, transform=transform
+            )
+            test_dataset = datasets.CIFAR10(
+                root="./data", train=False, download=True, transform=transform
+            )
+            num_classes = 10
+
 
         else:
             raise ValueError("Invalid dataset!")
@@ -169,7 +349,7 @@ def main(args):
         ####################
 
         # Instantiate the neural network
-        if dataset == "cifar":
+        if dataset == "cifar10":
             if model_name == "LeNet":
                 model = LeNet(num_classes=10).to(device)
             if model_name == "ResNet":
@@ -269,7 +449,7 @@ if __name__ == "__main__":
         "--dataset",
         type=str,
         default="mnist",
-        choices=["mnist", "cifar"],
+        choices=["mnist", "cifar10"],
         help="Dataset",
     )
     parser.add_argument("--model_name", type=str, default="LeNet", help="Model name")

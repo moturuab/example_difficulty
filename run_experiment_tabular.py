@@ -263,7 +263,7 @@ if __name__ == "__main__":
         "--dataset",
         type=str,
         default="mnist",
-        choices=["mnist", "cifar", "diabetes", "cover", "eye", "jannis"],
+        choices=["mnist", "cifar10", "diabetes", "cover", "eye", "jannis"],
         help="Dataset",
     )
     parser.add_argument("--model_name", type=str, default="MLP", help="Model name")
