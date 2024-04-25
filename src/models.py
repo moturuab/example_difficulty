@@ -70,11 +70,40 @@ class Net(nn.Module):
 
 # The LeNet class is a neural network model
 class LeNet(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes=10, kernel_size=5):
         super(LeNet, self).__init__()
-        self.conv1 = nn.Conv2d(3, 6, kernel_size=5)
-        self.conv2 = nn.Conv2d(6, 16, kernel_size=5)
+        self.conv1 = nn.Conv2d(3, 6, kernel_size=kernel_size)
+        self.conv2 = nn.Conv2d(6, 16, kernel_size=kernel_size)
         self.fc1 = nn.Linear(16 * 5 * 5, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, num_classes)
+        self.dropout1 = nn.Dropout(p=0.2)
+        self.dropout2 = nn.Dropout(p=0.2)
+
+    def forward(self, x, embed=False):
+        x = F.relu(self.conv1(x))
+        x = self.dropout1(x)
+        x = F.max_pool2d(x, 2)
+        x = F.relu(self.conv2(x))
+        x = self.dropout2(x)
+        x = F.max_pool2d(x, 2)
+        x = x.view(x.size(0), -1)
+        x = F.relu(self.fc1(x))
+        embedding = F.relu(self.fc2(x))
+        logits = self.fc3(embedding)
+
+        if embed:
+            return embedding
+        else:
+            return logits
+
+# The LeNet class is a neural network model
+class LeNetImageNet(nn.Module):
+    def __init__(self, num_classes=10, kernel_size=5):
+        super(LeNet, self).__init__()
+        self.conv1 = nn.Conv2d(3, 6, kernel_size=kernel_size)
+        self.conv2 = nn.Conv2d(6, 16, kernel_size=kernel_size)
+        self.fc1 = nn.Linear(16 * 53 * 53, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, num_classes)
         self.dropout1 = nn.Dropout(p=0.2)

@@ -377,7 +377,7 @@ def main(args):
         ####################
 
         # Instantiate the neural network
-        if dataset == "cifar10" or dataset == "caltech256" or dataset == "cifar100" or dataset == "fashionmnist" or dataset == "imagenet":
+        if dataset == "cifar10" or dataset == "caltech256" or dataset == "cifar100" or dataset == "fashionmnist":
             if model_name == "LeNet":
                 model = LeNet(num_classes=num_classes).to(device)
             if model_name == "ResNet":
@@ -387,6 +387,11 @@ def main(args):
                 model = LeNetMNIST(num_classes=num_classes).to(device)
             if model_name == "ResNet":
                 model = ResNet18MNIST(num_classes=num_classes).to(device)
+        elif dataset == "imagenet":
+            if model_name == "LeNet":
+                model = LeNetImageNet(num_classes=num_classes).to(device)
+            if model_name == "ResNet":
+                model = ResNet18(num_classes=num_classes).to(device)
         elif dataset == "xray":
             if model_name == "LeNet":
                 model = LeNetMNIST(num_classes=num_classes).to(device)
