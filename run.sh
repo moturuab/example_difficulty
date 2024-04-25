@@ -39,7 +39,7 @@ seed=0
 # uniform mnist 
 hardness="uniform"
 dataset="mnist"
-model_name="LeNet"
+model_name="ResNet"
 fuser -v /dev/nvidia0 -k
 
 # dataset="mnist"
