@@ -21,7 +21,7 @@ from src.trainer import PyTorchTrainer
 from src.utils import seed_everything
 
 import warnings
-warnings.filterwarnings("default", category=UserWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 def main(args):
