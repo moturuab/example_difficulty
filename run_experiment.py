@@ -356,7 +356,7 @@ def main(args):
 
         elif dataset == "objectcxr":
             # Define transforms for the dataset
-            # 10K, 
+            # 10K, resize to 224x224
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
@@ -374,6 +374,7 @@ def main(args):
 
         elif dataset == "siim":
             # Define transforms for the dataset
+            # 3205, resize to 224x224
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
