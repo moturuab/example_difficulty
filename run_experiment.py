@@ -13,6 +13,7 @@ import yaml
 from torchvision import datasets, models
 import torchxrayvision as xrv
 import torchvision.transforms.v2 as transforms
+from sklearn.model_selection import train_test_split
 from collections import Counter
 
 from src.dataloader import MultiFormatDataLoader, SubsetDataset
@@ -25,6 +26,12 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
 # for i in $(seq 0.1 0.1 0.5); do for j in "${arr[@]}"; do for k in "${arr2[@]}"; do sbatch run_small_"$k"_"$j".sh "$i"; done; done; done
+
+def train_test_dataset(dataset, test_split=0.20):
+    train_idx, test_idx = train_test_split(list(range(len(dataset))), test_size=test_split, stratify=dataset.targets)
+    train_dataset = Subset(dataset, train_idx)
+    test_dataset = Subset(dataset, test_idx)
+    return train_dataset, test_dataset, train_idx, test_idx
 
 def main(args):
     # Load the WANDB YAML file
@@ -43,6 +50,9 @@ def main(args):
     p = args.prop
     groupid = args.groupid
     metainfo = f"{hardness}_{dataset}_{model_name}_{p}_{epochs}_{total_runs}_{seed}_{groupid}"
+
+    full_dataset = None
+    train_idx = None
 
     # new wandb run
     config_dict = {'total_runs': total_runs, 'hardness': hardness, 'dataset': dataset,
@@ -133,10 +143,11 @@ def main(args):
                     19: [81, 69, 41, 89, 85]   # vehicles 2
                 }
 
-                rule_matrix = {}
+                rule_matrix = {i:[] for i in range(100)}
                 for i in temp_matrix.keys():
                     for j in range(5):
-                        rule_matrix[j] = temp_matrix[i].copy().remove(j)
+                        rule_matrix[temp_matrix[i][j]] = temp_matrix[i].copy()
+                        rule_matrix[temp_matrix[i][j]].remove(temp_matrix[i][j])
 
 
             if dataset == "fashionmnist":
@@ -205,10 +216,9 @@ def main(args):
             d = datasets.Caltech256(
                 root="./data", download=True, transform=transform
             )
-            train_dataset, test_dataset = torch.utils.data.random_split(d, 
-                [int(0.8 * len(d)), len(d)-int(0.8 * len(d))])
-            train_dataset = SubsetDataset(train_dataset)
-            test_dataset = SubsetDataset(test_dataset)
+            full_dataset = d
+
+            train_dataset, test_dataset, train_idx, test_idx = train_test_dataset(dataset)
             num_classes = 256
 
         elif dataset == "cifar100":
@@ -235,7 +245,7 @@ def main(args):
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
-                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                    transforms.Normalize((0.5,), (0.5,)),
                 ]
             )
             # Load the FashionMNIST dataset
@@ -280,10 +290,10 @@ def main(args):
             )
             # National Institutes of Health ChestX-ray8 dataset. https://arxiv.org/abs/1705.02315
             train_dataset = xrv.datasets.NIH_Dataset(
-                imgpath="/datasets/nih-chest-xrays", csvpath="/datasets/nih-chest-xrays/train_val_list.txt", transform=transform, unique_patients=False
+                imgpath="/datasets/NIH/images-224", transform=transform, unique_patients=False
             )
             test_dataset = xrv.datasets.NIH_Dataset(
-                imgpath="/datasets/nih-chest-xrays", csvpath="/datasets/nih-chest-xrays/test.txt", transform=transform, unique_patients=False
+                imgpath="/datasets/NIH/images-224", transform=transform, unique_patients=False
             )
             num_classes = 14
 
@@ -406,6 +416,8 @@ def main(args):
         # Allows importing data in multiple formats
         dataloader_class = MultiFormatDataLoader(
             data=train_dataset,
+            full_dataset=full_dataset,
+            train_idx=train_idx,
             target_column=None,
             data_type="torch_dataset",
             data_modality="image",

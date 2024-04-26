@@ -33,6 +33,8 @@ class PerturbedDataset(Dataset):
     def __init__(
         self,
         dataset,
+        full_dataset=None,
+        train_idx=None,
         perturbation_method="uniform",
         p=0.1,
         rule_matrix=None,
@@ -58,7 +60,8 @@ class PerturbedDataset(Dataset):
         """
         self.dataset = dataset
         if dataset_name == "caltech256":
-            self.dataset = self.dataset.subset
+            self.full_dataset = full_dataset
+            self.train_idx = train_idx
         self.indices = np.array(range(len(dataset)))
         self.perturbation_method = perturbation_method
         self.p = p
@@ -161,7 +164,11 @@ class PerturbedDataset(Dataset):
             else:
                 # Convert the list of tensors to a flat tensor and create a TensorDataset
                 flat_data = torch.stack(perturbed_data)
-            labels = self.dataset.targets
+            if dataset_name == "caltech256":
+                labels = [self.full_dataset.targets[i] for i in self.train_idx]
+            else:
+                labels = self.dataset.targets
+                
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
 
@@ -275,7 +282,10 @@ class PerturbedDataset(Dataset):
             else:
                 flat_data = torch.stack(perturbed_data)
 
-            labels = self.dataset.targets
+            if dataset_name == "caltech256":
+                labels = [self.full_dataset.targets[i] for i in self.train_idx]
+            else:
+                labels = self.dataset.targets
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
 
@@ -355,7 +365,10 @@ class PerturbedDataset(Dataset):
 
             # Convert the list of tensors to a flat tensor and create a TensorDataset
             flat_data = torch.stack(perturbed_data)
-            labels = self.dataset.targets
+            if dataset_name == "caltech256":
+                labels = [self.full_dataset.targets[i] for i in self.train_idx]
+            else:
+                labels = self.dataset.targets
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
 
@@ -493,6 +506,8 @@ class MultiFormatDataLoader:
     def __init__(
         self,
         data,
+        full_dataset=None,
+        train_idx=None,
         target_column,
         data_type="torch_dataset",
         data_modality="image",
@@ -543,6 +558,8 @@ class MultiFormatDataLoader:
         self.rule_matrix = rule_matrix
         self.perturbed_dataset = PerturbedDataset(
             self.dataset,
+            full_dataset=full_dataset,
+            train_idx=train_idx,
             perturbation_method=perturbation_method,
             p=p,
             rule_matrix=self.rule_matrix,
