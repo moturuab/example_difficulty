@@ -382,26 +382,31 @@ class PerturbedDataset(Dataset):
         """
         mislabels = []
 
+        if dataset_name == "caltech256":
+                labels = [self.full_dataset.targets[i] for i in self.train_idx]
+            else:
+                labels = self.dataset.targets
+
         if self.perturbation_method == "uniform":
             self.flag_ids = np.random.choice(
                 len(self.dataset), int(len(self.dataset) * self.p), replace=False
             )
             new_labels = np.random.randint(
-                0, len(np.unique(self.dataset.targets)), size=self.flag_ids.shape
+                0, len(np.unique(labels)), size=self.flag_ids.shape
             )
             try:
-                self.dataset.targets[self.flag_ids] = new_labels
+                labels[self.flag_ids] = new_labels
             except:
-                corrupt_labels = torch.tensor(self.dataset.targets)
+                corrupt_labels = torch.tensor(labels)
                 corrupt_labels[self.flag_ids] = torch.from_numpy(new_labels).to(
                     torch.long
                 )
-                self.dataset.targets = corrupt_labels.tolist()
+                labels = corrupt_labels.tolist()
 
             return dict(zip(self.flag_ids, new_labels))
 
         elif self.perturbation_method == "asymmetric":
-            labels = np.array(self.dataset.targets)
+            labels = np.array(labels)
             n_classes = len(np.unique(labels))
             self.flag_ids, new_labels = asymmetric_mislabeling(
                 labels, self.p, n_classes
@@ -411,13 +416,13 @@ class PerturbedDataset(Dataset):
                 len(new_labels) / len(self.dataset),
             )
             try:
-                self.dataset.targets[self.flag_ids] = new_labels
+                labels[self.flag_ids] = new_labels
             except:
-                corrupt_labels = torch.tensor(self.dataset.targets)
+                corrupt_labels = torch.tensor(labels)
                 corrupt_labels[self.flag_ids] = torch.from_numpy(new_labels).to(
                     torch.long
                 )
-                self.dataset.targets = corrupt_labels.tolist()
+                labels = corrupt_labels.tolist()
 
             return dict(zip(self.flag_ids, new_labels))
 
@@ -427,25 +432,25 @@ class PerturbedDataset(Dataset):
                 len(self.dataset), int(len(self.dataset) * self.p), replace=False
             )
 
-            y = np.array(self.dataset.targets)
+            y = np.array(labels)
             noisy_y = instance_mislabeling(
                 y=y, flip_ids=self.flag_ids, rule_matrix=self.rule_matrix
             )
             new_labels = noisy_y[self.flag_ids]
 
             try:
-                self.dataset.targets[self.flag_ids] = new_labels
+                labels[self.flag_ids] = new_labels
             except:
-                corrupt_labels = torch.tensor(self.dataset.targets)
+                corrupt_labels = torch.tensor(labels)
                 corrupt_labels[self.flag_ids] = torch.from_numpy(new_labels).to(
                     torch.long
                 )
-                self.dataset.targets = corrupt_labels.tolist()
+                labels = corrupt_labels.tolist()
 
             return dict(zip(self.flag_ids, new_labels))
 
         elif self.perturbation_method == "adjacent":
-            labels = np.array(self.dataset.targets)
+            labels = np.array(labels)
             n_classes = len(np.unique(labels))
             self.flag_ids, new_labels = adjacent_mislabeling(labels, self.p, n_classes)
             print(
@@ -453,13 +458,13 @@ class PerturbedDataset(Dataset):
                 len(new_labels) / len(self.dataset),
             )
             try:
-                self.dataset.targets[self.flag_ids] = new_labels
+                labels[self.flag_ids] = new_labels
             except:
-                corrupt_labels = torch.tensor(self.dataset.targets)
+                corrupt_labels = torch.tensor(labels)
                 corrupt_labels[self.flag_ids] = torch.from_numpy(new_labels).to(
                     torch.long
                 )
-                self.dataset.targets = corrupt_labels.tolist()
+                labels = corrupt_labels.tolist()
 
             return dict(zip(self.flag_ids, new_labels))
 
