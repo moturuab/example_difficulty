@@ -65,6 +65,7 @@ items = {
 sims = {}
 
 for word1 in items.keys():
+    print(word1)
     w1 = word1[:]
     word1 = word1.replace('-101', '')
     word1 = re.sub("[^a-zA-Z]+", " ", word1)
@@ -76,16 +77,13 @@ for word1 in items.keys():
             word2 = re.sub("[^a-zA-Z]+", " ", word2)
             syns2 = wordnet.synsets(word2)
             if syns1 and syns2:
-                print(syns1)
-                print(syns2)
                 s = syns1[0].wup_similarity(syns2[0])
                 if s > 0.9:
-                    print(items[w1])
-                    print(items[w2])
                     if items[w1] in sims:
                         sims[items[w1]] = [items[w2]]
                     else:
                         sims[items[w1]].append(items[w2])
+print(sims)
 
 '''
 for word1, word2 in product(list1, list2):
