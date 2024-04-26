@@ -78,7 +78,7 @@ for word1 in items.keys():
             syns2 = wordnet.synsets(word2)
             if syns1 and syns2:
                 s = syns1[0].path_similarity(syns2[0])
-                if s > 0.1:
+                if s > 0.25:
                     if int(items[w1])-1 not in sims:
                         sims[int(items[w1])-1] = [int(items[w2])-1]
                     else:
