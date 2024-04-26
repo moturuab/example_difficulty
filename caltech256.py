@@ -72,12 +72,12 @@ for word1 in items.keys():
 	    word2.remove('-101')
 	    word2 = re.sub("[^a-zA-Z]+", " ", word2)
 	    syns2 = wordnet.synsets(word2)
-        if syns1 and syns2:
-            print(syns1)
-            print(syns2)
-            s = syns1[0].wup_similarity(syns2[0])
-            if s > 0.9:
-                sims[items[word1]].append(items[word2])
+	    if syns1 and syns2:
+	    	print(syns1)
+	    	print(syns2)
+	    	s = syns1[0].wup_similarity(syns2[0])
+	    	if s > 0.9:
+	    		sims[items[word1]].append(items[word2])
 
 '''
 for word1, word2 in product(list1, list2):
