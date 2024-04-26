@@ -40,12 +40,16 @@ def main(args):
     epochs = args.epochs
     seed = args.seed
     p = args.prop
+    
     # new wandb run
+    config_dict = {'total_runs': total_runs, 'hardness': hardness, 'dataset': dataset,
+    'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p}
+
     run = wandb.init(
         project="example_difficulty",
         entity=wandb_entity,
+        config=config_dict
     )
-    wandb.config({'total_runs': total_runs, 'hardness': hardness, 'dataset': dataset, 'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p})
 
     assert dataset in ["mnist", "cifar10", "caltech256", "cifar100", "fashionmnist", "imagenet", 
     "nih", "nihpneumonia", "padchest", "vindrcxr", "objectcxr", "siim"], "Invalid dataset!"
