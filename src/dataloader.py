@@ -384,8 +384,8 @@ class PerturbedDataset(Dataset):
 
         if dataset_name == "caltech256":
                 labels = [self.full_dataset.targets[i] for i in self.train_idx]
-            else:
-                labels = self.dataset.targets
+        else:
+            labels = self.dataset.targets
 
         if self.perturbation_method == "uniform":
             self.flag_ids = np.random.choice(
