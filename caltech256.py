@@ -77,6 +77,8 @@ for word1 in items.keys():
             print(syns2)
             s = syns1[0].wup_similarity(syns2[0])
             if s > 0.9:
+                print(items[word1])
+                print(items[word2])
                 if items[word1] in sims:
                     sims[items[word1]] = [items[word2]]
                 else:
