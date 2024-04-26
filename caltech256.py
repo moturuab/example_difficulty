@@ -63,7 +63,7 @@ items = {
 }
 
 sims = {}
-
+ws = {}
 for word1 in items.keys():
     w1 = word1[:]
     word1 = word1.replace('-101', '')
@@ -78,12 +78,15 @@ for word1 in items.keys():
             syns2 = wordnet.synsets(word2)
             if syns1 and syns2:
                 s = syns1[0].path_similarity(syns2[0])
-                if s > 0.25:
+                if s > 0.2:
                     if int(items[w1])-1 not in sims:
                         sims[int(items[w1])-1] = [int(items[w2])-1]
+                        ws[w1] = [w2]
                     else:
                         sims[int(items[w1])-1].append(int(items[w2])-1)
+                        ws[w1].append(w2)
 print(sims)
 rule_matrix = {i: [i] for i in range(0, 257)}
 rule_matrix.update(sims)
 print(rule_matrix)
+print(ws)
