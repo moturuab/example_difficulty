@@ -164,7 +164,7 @@ class PerturbedDataset(Dataset):
             else:
                 # Convert the list of tensors to a flat tensor and create a TensorDataset
                 flat_data = torch.stack(perturbed_data)
-            if dataset_name == "caltech256":
+            if self.dataset_name == "caltech256":
                 labels = [self.full_dataset.targets[i] for i in self.train_idx]
             else:
                 labels = self.dataset.targets
@@ -282,7 +282,7 @@ class PerturbedDataset(Dataset):
             else:
                 flat_data = torch.stack(perturbed_data)
 
-            if dataset_name == "caltech256":
+            if self.dataset_name == "caltech256":
                 labels = [self.full_dataset.targets[i] for i in self.train_idx]
             else:
                 labels = self.dataset.targets
@@ -365,7 +365,7 @@ class PerturbedDataset(Dataset):
 
             # Convert the list of tensors to a flat tensor and create a TensorDataset
             flat_data = torch.stack(perturbed_data)
-            if dataset_name == "caltech256":
+            if self.dataset_name == "caltech256":
                 labels = [self.full_dataset.targets[i] for i in self.train_idx]
             else:
                 labels = self.dataset.targets
@@ -382,7 +382,7 @@ class PerturbedDataset(Dataset):
         """
         mislabels = []
 
-        if dataset_name == "caltech256":
+        if self.dataset_name == "caltech256":
                 labels = [self.full_dataset.targets[i] for i in self.train_idx]
         else:
             labels = self.dataset.targets
