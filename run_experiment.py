@@ -11,6 +11,7 @@ import torch.optim as optim
 import wandb
 import yaml
 from torchvision import datasets, models
+import torchxrayvision as xrv
 import torchvision.transforms.v2 as transforms
 from collections import Counter
 
