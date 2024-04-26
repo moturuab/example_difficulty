@@ -504,10 +504,10 @@ def main(args):
         # add sleep in case of machine latency
         time.sleep(30)
 
-        wandb.finish()
-
         if not args.fix_seed:
             seed += 1
+            
+    wandb.finish()
 
 
 def str2bool(v):
