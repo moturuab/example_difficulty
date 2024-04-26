@@ -40,15 +40,19 @@ def main(args):
     epochs = args.epochs
     seed = args.seed
     p = args.prop
+    groupid = args.groupid
+    metainfo = f"{hardness}_{dataset}_{model_name}_{p}_{epochs}_{total_runs}_{seed}_{groupid}"
 
     # new wandb run
     config_dict = {'total_runs': total_runs, 'hardness': hardness, 'dataset': dataset,
-    'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p}
+    'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p, 'groupid': groupid}
 
     run = wandb.init(
         project="example_difficulty",
+        name=metainfo,
         entity=wandb_entity,
-        config=config_dict
+        config=config_dict,
+        group=groupid
     )
 
     assert dataset in ["mnist", "cifar10", "caltech256", "cifar100", "fashionmnist", "imagenet", 
@@ -64,10 +68,10 @@ def main(args):
 
         print(f"Running {i+1}/{total_runs} for {p}")
         seed_everything(seed)
-        print(f"{hardness}_{dataset}_{model_name}_{epochs}")
+        print(metainfo)
         dir_to_delete = None
 
-        wandb.log({'run': i+1})
+        wandb.log({'run': i}, commit=False)
         
         if hardness == "instance":
             if dataset == "mnist":
@@ -488,7 +492,7 @@ def main(args):
         }
         # add sleep in case of machine latency
         time.sleep(30)
-        metainfo = f"{dataset}_{hardness}_{p}_{seed}_{i}"
+
         # log overall_result_dicts to wandb as a pickle
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             pickle.dump(scores_dict, temp_file)
@@ -506,7 +510,7 @@ def main(args):
 
         if not args.fix_seed:
             seed += 1
-            
+
     wandb.finish()
 
 
@@ -527,6 +531,7 @@ if __name__ == "__main__":
     parser.add_argument("--prop", type=float, default=0.1, help="prop")
     parser.add_argument("--epochs", type=int, default=10, help="Epochs")
     parser.add_argument("--hardness", type=str, default="uniform", help="hardness type")
+    parser.add_argument("--groupid", type=str, default="0", help="group id (time)")
     parser.add_argument(
         "--dataset",
         type=str,
