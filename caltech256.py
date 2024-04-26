@@ -68,13 +68,13 @@ for word1 in items.keys():
     print(word1)
     w1 = word1[:]
     word1 = word1.replace('-101', '')
-    word1 = re.sub("[^a-zA-Z]+", " ", word1)
+    word1 = re.sub("[^a-zA-Z0-9]+", " ", word1)
     syns1 = wordnet.synsets(word1)
     for word2 in items.keys():
         if word1 != word2:
             w2 = word2[:]
             word2 = word2.replace('-101', '')
-            word2 = re.sub("[^a-zA-Z]+", " ", word2)
+            word2 = re.sub("[^a-zA-Z0-9]+", " ", word2)
             syns2 = wordnet.synsets(word2)
             if syns1 and syns2:
                 s = syns1[0].wup_similarity(syns2[0])
