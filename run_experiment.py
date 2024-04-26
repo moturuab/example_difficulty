@@ -17,6 +17,7 @@ from sklearn.model_selection import train_test_split
 from collections import Counter
 
 from src.dataloader import MultiFormatDataLoader, SubsetDataset
+import src.dataloader_xray.MultiFormatDataLoader
 from src.evaluator import Evaluator
 from src.models import *
 from src.trainer import PyTorchTrainer
@@ -417,7 +418,24 @@ def main(args):
         #wandb.log(metadata)
 
         # Allows importing data in multiple formats
-        dataloader_class = MultiFormatDataLoader(
+
+        if dataset == "nih":
+            dataloader_class = src.dataloader_xray.MultiFormatDataLoader(
+            data=train_dataset,
+            target_column=None,
+            data_type="torch_dataset",
+            data_modality="image",
+            dataset_name=dataset,
+            batch_size=64,
+            shuffle=True,
+            num_workers=0,
+            transform=None,
+            image_transform=None,
+            perturbation_method=hardness,
+            p=p,
+            rule_matrix=rule_matrix)
+        else:
+            dataloader_class = MultiFormatDataLoader(
             data=train_dataset,
             full_dataset=full_dataset,
             train_idx=train_idx,
@@ -432,8 +450,7 @@ def main(args):
             image_transform=None,
             perturbation_method=hardness,
             p=p,
-            rule_matrix=rule_matrix,
-        )
+            rule_matrix=rule_matrix)
 
         dataloader, dataloader_unshuffled = dataloader_class.get_dataloader()
         flag_ids = dataloader_class.get_flag_ids()
