@@ -71,8 +71,8 @@ for word1 in items.keys():
     print(word1)
     syns1 = wordnet.synsets(word1)
     for word2 in items.keys():
-        if word1 != word2:
-            w2 = word2[:]
+        w2 = word2[:]
+        if w1 != w2:
             word2 = word2.replace('-101', '')
             word2 = re.sub("[^a-zA-Z0-9]+", " ", word2)
             syns2 = wordnet.synsets(word2)
