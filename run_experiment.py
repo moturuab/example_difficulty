@@ -51,8 +51,7 @@ def main(args):
         project="example_difficulty",
         name=metainfo,
         entity=wandb_entity,
-        config=config_dict,
-        group=groupid
+        config=config_dict
     )
 
     assert dataset in ["mnist", "cifar10", "caltech256", "cifar100", "fashionmnist", "imagenet", 
