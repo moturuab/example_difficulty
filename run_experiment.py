@@ -29,8 +29,8 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 def train_test_dataset(dataset, test_split=0.20):
     train_idx, test_idx = train_test_split(list(range(len(dataset))), test_size=test_split)
-    train_dataset = Subset(dataset, train_idx)
-    test_dataset = Subset(dataset, test_idx)
+    train_dataset = torch.utils.data.Subset(dataset, train_idx)
+    test_dataset = torch.utils.data.Subset(dataset, test_idx)
     return train_dataset, test_dataset, train_idx, test_idx
 
 def main(args):
