@@ -444,6 +444,7 @@ def main(args):
         ####################
 
         # Instantiate the neural network
+        print(dataset)
         if dataset == "cifar10" or dataset == "caltech256" or dataset == "cifar100":
             if model_name == "LeNet":
                 model = LeNet(num_classes=num_classes).to(device)
