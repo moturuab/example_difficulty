@@ -78,46 +78,12 @@ for word1 in items.keys():
             syns2 = wordnet.synsets(word2)
             if syns1 and syns2:
                 s = syns1[0].wup_similarity(syns2[0])
-                if s > 0.85:
-                    if int(items[w1]) not in sims:
-                        sims[int(items[w1])] = [int(items[w2])]
+                if s > 0.8:
+                    if int(items[w1])-1 not in sims:
+                        sims[int(items[w1])-1] = [int(items[w2])-1]
                     else:
-                        sims[int(items[w1])].append(int(items[w2]))
+                        sims[int(items[w1])-1].append(int(items[w2])-1)
 print(sims)
-rule_matrix = {i: [i] for i in range(1, 257)}
+rule_matrix = {i: [i] for i in range(0, 257)}
 rule_matrix.update(sims)
 print(rule_matrix)
-'''
-for word1, word2 in product(list1, list2):
-    syns1 = wordnet.synsets(word1)
-    syns2 = wordnet.synsets(word2)
-    for sense1, sense2 in product(syns1, syns2):
-        d = wordnet.wup_similarity(sense1, sense2)
-        sims.append((d, syns1, syns2))
-
-# Strip numbers and extract only the keys from items dictionary
-tags = [key for key in items.keys()]
-
-# Initialize a TF-IDF Vectorizer
-vectorizer = TfidfVectorizer()
-tfidf_matrix = vectorizer.fit_transform(tags)
-
-# Compute cosine similarity matrix
-cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
-
-# Find the most similar items for each item
-most_similar = {}
-for idx, item in enumerate(tags):
-    # Get the similarity scores for the current item with all others, paired with their indexes
-    similarity_scores = list(enumerate(cosine_sim[idx]))
-    # Sort the items based on the similarity scores
-    similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
-    #print(similarity_scores)
-    n = sum(i > 0.9 for (a,i) in similarity_scores)
-    
-    most_similar[item] = [tags[i[0]] for i in similarity_scores[0:n]]  # Top n similar items
-
-# Print the most similar items for each item
-for key, value in most_similar.items():
-    print(f"{key} is most similar to {value}")
-'''
