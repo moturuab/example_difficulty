@@ -12,6 +12,7 @@ from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets, transforms
 from torchvision.transforms.functional import to_pil_image, to_tensor
+from collections import Counter
 
 
 def zoom_in(image, zoom_factor):
@@ -167,7 +168,7 @@ def instance_mislabeling(y, flip_ids, rule_matrix):
     """
     flipped_indices = flip_ids
     flipped_y = np.copy(y)
-    print(y)
+    print(Counter(y))
 
     for idx in flipped_indices:
         label = y[idx]
