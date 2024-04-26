@@ -28,7 +28,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 # for i in $(seq 0.1 0.1 0.5); do for j in "${arr[@]}"; do for k in "${arr2[@]}"; do sbatch run_small_"$k"_"$j".sh "$i"; done; done; done
 
 def train_test_dataset(dataset, test_split=0.20):
-    train_idx, test_idx = train_test_split(list(range(len(dataset))), test_size=test_split, stratify=dataset.targets)
+    train_idx, test_idx = train_test_split(list(range(len(dataset))), test_size=test_split)
     train_dataset = Subset(dataset, train_idx)
     test_dataset = Subset(dataset, test_idx)
     return train_dataset, test_dataset, train_idx, test_idx
