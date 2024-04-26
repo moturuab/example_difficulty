@@ -1,5 +1,8 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import re
+from nltk.corpus import wordnet
+from itertools import product
 
 # Example list of items
 items = {
@@ -57,6 +60,29 @@ items = {
     "toad": "256"
 }
 
+sims = {}
+
+for word1 in items.keys():
+	word1 = re.sub("[^a-zA-Z]+", "", word1)
+	syns1 = wordnet.synsets(word1)
+	for word2 in items.keys():
+		word2 = re.sub("[^a-zA-Z]+", "", word2)
+		syns2 = wordnet.synsets(word2)
+		if syns1 and syns2:
+			print(syns1)
+			print(syns2)
+            s = syns1[0].wup_similarity(syns2[0])
+            if s > 0.9:
+            	sims[items[word1]].append(items[word2])
+
+'''
+for word1, word2 in product(list1, list2):
+    syns1 = wordnet.synsets(word1)
+    syns2 = wordnet.synsets(word2)
+    for sense1, sense2 in product(syns1, syns2):
+        d = wordnet.wup_similarity(sense1, sense2)
+        sims.append((d, syns1, syns2))
+
 # Strip numbers and extract only the keys from items dictionary
 tags = [key for key in items.keys()]
 
@@ -82,3 +108,4 @@ for idx, item in enumerate(tags):
 # Print the most similar items for each item
 for key, value in most_similar.items():
     print(f"{key} is most similar to {value}")
+'''
