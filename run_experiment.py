@@ -498,8 +498,8 @@ def main(args):
             temp_file_path = temp_file.name
 
         # Log the pickle as a wandb artifact
-        artifact = wandb.Artifact(f"scores_dict_{metainfo}", type="pickle")
-        artifact.add_file(temp_file_path, name=f"scores_dict_{metainfo}.pkl")
+        artifact = wandb.Artifact(f"scores_dict_{metainfo.replace(':', '').replace('.', '')}", type="pickle")
+        artifact.add_file(temp_file_path, name=f"scores_dict_{metainfo.replace('.', '').replace(':', '')}.pkl")
         wandb.run.log_artifact(artifact)
         # Clean up the temporary file
         os.remove(temp_file_path)
