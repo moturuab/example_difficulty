@@ -86,7 +86,7 @@ for word1 in items.keys():
 print(sims)
 print()
 rule_matrix = {i: [i] for i in range(1, 257)}
-updates = 
+updates = 1
 rule_matrix.update(updates)
 print(rule_matrix)
 '''
