@@ -218,7 +218,7 @@ def main(args):
             )
             full_dataset = d
 
-            train_dataset, test_dataset, train_idx, test_idx = train_test_dataset(dataset)
+            train_dataset, test_dataset, train_idx, test_idx = train_test_dataset(d)
             num_classes = 256
 
         elif dataset == "cifar100":
