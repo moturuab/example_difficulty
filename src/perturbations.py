@@ -168,7 +168,6 @@ def instance_mislabeling(y, flip_ids, rule_matrix):
     """
     flipped_indices = flip_ids
     flipped_y = np.copy(y)
-    print(Counter(y))
 
     for idx in flipped_indices:
         label = y[idx]

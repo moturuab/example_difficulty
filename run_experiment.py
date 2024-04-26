@@ -25,6 +25,8 @@ from src.utils import seed_everything
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
+# declare -a arr=("lenet" "resnet")
+# declare -a arr2=("adjacent" "asymmetric" "crop" "idcov" "instance" "oodcov" "uniform" "zoom")
 # for i in $(seq 0.1 0.1 0.5); do for j in "${arr[@]}"; do for k in "${arr2[@]}"; do sbatch run_small_"$k"_"$j".sh "$i"; done; done; done
 
 def train_test_dataset(dataset, test_split=0.20):
