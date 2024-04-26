@@ -57,7 +57,7 @@ class PerturbedDataset(Dataset):
         generate the mislabeled data. If `perturbation_method` is set to "rule_based", then `rule
         """
         self.dataset = dataset
-        if self.dataset_name == "caltech256":
+        if dataset_name == "caltech256":
             self.dataset = self.dataset.subset
         self.indices = np.array(range(len(dataset)))
         self.perturbation_method = perturbation_method
