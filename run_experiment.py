@@ -40,7 +40,7 @@ def main(args):
     epochs = args.epochs
     seed = args.seed
     p = args.prop
-    
+
     # new wandb run
     config_dict = {'total_runs': total_runs, 'hardness': hardness, 'dataset': dataset,
     'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p}
@@ -387,14 +387,15 @@ def main(args):
         # DATALOADER MODULE
         #
         ####################
-        #metadata = {
-        #    "p": p,
-        #    "hardness": hardness,
-        #    "dataset": dataset,
-        #    "model": model_name,
-        #    "run": i,
-        #    "seed": seed,
-        #}
+        
+        metadata = {
+            "p": p,
+            "hardness": hardness,
+            "dataset": dataset,
+            "model": model_name,
+            "run": i,
+            "seed": seed,
+        }
 
         #wandb.log(metadata)
 
