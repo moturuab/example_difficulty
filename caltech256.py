@@ -1,6 +1,8 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import re
+import nltk
+nltk.download('wordnet')
 from nltk.corpus import wordnet
 from itertools import product
 
