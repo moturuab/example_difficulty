@@ -65,10 +65,10 @@ items = {
 sims = {}
 
 for word1 in items.keys():
-    print(word1)
     w1 = word1[:]
     word1 = word1.replace('-101', '')
     word1 = re.sub("[^a-zA-Z0-9]+", " ", word1)
+    print(word1)
     syns1 = wordnet.synsets(word1)
     for word2 in items.keys():
         if word1 != word2:
