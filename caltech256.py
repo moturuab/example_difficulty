@@ -77,7 +77,10 @@ for word1 in items.keys():
 	    	print(syns2)
 	    	s = syns1[0].wup_similarity(syns2[0])
 	    	if s > 0.9:
-	    		sims[items[word1]].append(items[word2])
+                if items[word1] in sims:
+                    sims[items[word1]] = [items[word2]]
+	    		else:
+                    sims[items[word1]].append(items[word2])
 
 '''
 for word1, word2 in product(list1, list2):
