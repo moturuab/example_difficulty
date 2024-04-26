@@ -65,10 +65,12 @@ items = {
 sims = {}
 
 for word1 in items.keys():
-    word1 = re.sub("[^a-zA-Z]+", "", word1)
+    word1.remove('-101')
+    word1 = re.sub("[^a-zA-Z]+", " ", word1)
     syns1 = wordnet.synsets(word1)
     for word2 in items.keys():
-        word2 = re.sub("[^a-zA-Z]+", "", word2)
+	    word2.remove('-101')
+        word2 = re.sub("[^a-zA-Z]+", " ", word2)
         syns2 = wordnet.synsets(word2)
         if syns1 and syns2:
             print(syns1)
