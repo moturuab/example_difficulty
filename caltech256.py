@@ -79,7 +79,7 @@ for word1 in items.keys():
             if syns1 and syns2:
                 s = syns1[0].wup_similarity(syns2[0])
                 if s > 0.9:
-                    if items[w1] in sims:
+                    if items[w1] not in sims:
                         sims[items[w1]] = [items[w2]]
                     else:
                         sims[items[w1]].append(items[w2])
