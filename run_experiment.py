@@ -286,9 +286,9 @@ def main(args):
             # 112120, resize to 224x224
             transform = transforms.Compose(
                 [
-                    xrv.datasets.XRayResizer(224),
-                    transforms.ToTensor(),
-                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                    xrv.datasets.XRayResizer(224) #,
+                    #transforms.ToTensor(),
+                    #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
             # National Institutes of Health ChestX-ray8 dataset. https://arxiv.org/abs/1705.02315
