@@ -78,6 +78,7 @@ for word1 in items.keys():
             syns2 = wordnet.synsets(word2)
             if syns1 and syns2:
                 s = syns1[0].wup_similarity(syns2[0])
+                print(s)
                 if s > 0.9:
                     if items[w1] not in sims:
                         sims[items[w1]] = [items[w2]]
