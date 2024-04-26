@@ -170,6 +170,7 @@ def instance_mislabeling(y, flip_ids, rule_matrix):
 
     for idx in flipped_indices:
         label = y[idx]
+        print(label)
         flipped_label = rule_matrix[label]
 
         flipped_y[idx] = np.random.choice(flipped_label)
