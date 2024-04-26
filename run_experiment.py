@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 from collections import Counter
 
 from src.dataloader import MultiFormatDataLoader, SubsetDataset
-import src.dataloader_xray.MultiFormatDataLoader
+from src.dataloader_xray import MultiFormatDataLoader as loader
 from src.evaluator import Evaluator
 from src.models import *
 from src.trainer import PyTorchTrainer
@@ -420,7 +420,7 @@ def main(args):
         # Allows importing data in multiple formats
 
         if dataset == "nih":
-            dataloader_class = src.dataloader_xray.MultiFormatDataLoader(
+            dataloader_class = loader(
             data=train_dataset,
             target_column=None,
             data_type="torch_dataset",
