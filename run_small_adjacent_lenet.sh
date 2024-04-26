@@ -37,7 +37,7 @@ epochs=10
 seed=0
 
 # uniform 
-hardness="adjacent"
+hardness="instance"
 model_name="LeNet"
 fuser -v /dev/nvidia0 -k
 groupid=$(date +%F_%T)
