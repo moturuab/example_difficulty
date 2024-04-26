@@ -37,18 +37,18 @@ epochs=10
 seed=0
 
 # uniform 
-hardness="instance"
+hardness="adjacent"
 model_name="LeNet"
 fuser -v /dev/nvidia0 -k
 groupid=$(date +%F_%T)
 
-#dataset="mnist"
-#python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid
-#dataset="cifar10"
-#python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid
+dataset="mnist"
+python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid
+dataset="cifar10"
+python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid
 dataset="caltech256"
 python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid
-#dataset="cifar100"
-#python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid
+dataset="cifar100"
+python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid
 dataset="fashionmnist"
 python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid
