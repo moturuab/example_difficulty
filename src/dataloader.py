@@ -506,9 +506,9 @@ class MultiFormatDataLoader:
     def __init__(
         self,
         data,
+        target_column,
         full_dataset=None,
         train_idx=None,
-        target_column,
         data_type="torch_dataset",
         data_modality="image",
         dataset_name="",
