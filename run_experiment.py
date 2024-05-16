@@ -53,7 +53,7 @@ def main(args):
     p = args.prop
     reweight = args.reweight
     groupid = args.groupid
-    metainfo = f"{hardness}_{dataset}_{model_name}_{p}_{epochs}_{total_runs}_{seed}_{groupid}"
+    metainfo = f"{hardness}_{dataset}_{model_name}_{p}_{epochs}_{total_runs}_{seed}_{reweight}_{groupid}"
 
     full_dataset = None
     train_idx = None
