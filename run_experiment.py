@@ -59,7 +59,7 @@ def main(args):
     train_idx = None
 
     # new wandb run
-    config_dict = {'total_runs': total_runs, 'hardness': hardness, 'dataset': dataset,
+    config_dict = {'total_runs': total_runs, 'hardness': hardness, 'dataset': dataset, 'reweight': reweight,
     'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p, 'groupid': groupid}
 
     run = wandb.init(
@@ -582,6 +582,5 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    print(args.reweight)
 
     main(args)
