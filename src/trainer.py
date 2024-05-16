@@ -182,7 +182,7 @@ class PyTorchTrainer:
                 loss.mean().backward()
                 self.optimizer.step()
 
-                running_loss += loss.item()
+                running_loss += loss.mean().item()
 
             epoch_loss = running_loss / len(dataloader)
             print(f"Epoch {epoch+1}/{self.epochs}: Loss={epoch_loss:.4f}")
