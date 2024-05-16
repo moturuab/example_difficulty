@@ -175,7 +175,7 @@ class PyTorchTrainer:
                 observed_label = observed_label.long()  # Ensure the labels are long
                 loss = self.criterion(outputs, observed_label)
                 if epoch > 0:
-                    sample_weight = self.aum.scores
+                    sample_weight = torch.tensor(self.aum.scores)
                     sample_weight = (sample_weight-torch.min(sample_weight))/(torch.max(sample_weight)-torch.min(sample_weight))
                     print(len(sample_weight))
                     print(max(sample_weight))
@@ -220,9 +220,9 @@ class PyTorchTrainer:
                 print("vog")
                 self.vog.updates(net=self.model, device=self.device)
 
-            #if self.loss is not None:
-            #    print("loss")
-            #    self.loss.updates(logits=logits, targets=targets)
+            if self.loss is not None:
+                print("loss")
+                self.loss.updates(logits=logits, targets=targets)
 
         # These HCMs are applied after training
         if self.prototypicality is not None:
