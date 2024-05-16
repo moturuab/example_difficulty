@@ -174,6 +174,12 @@ class PyTorchTrainer:
                 outputs = outputs.float()  # Ensure the outputs are float
                 observed_label = observed_label.long()  # Ensure the labels are long
                 loss = self.criterion(outputs, observed_label)
+                if epoch > 0:
+                    sample_weight = self.aum.scores
+                    print(len(sample_weight))
+                    print(max(sample_weight))
+                    print(min(sample_weight))
+                    loss =(loss * sample_weight / sample_weight.sum()).sum()
 
                 loss.backward()
                 self.optimizer.step()

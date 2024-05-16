@@ -286,7 +286,7 @@ def main(args):
             # 112120, resize to 224x224
             transform = transforms.Compose(
                 [
-                    xrv.datasets.XRayResizer(224) #,
+                    xrv.datasets.XRayResizer(224),
                     #transforms.ToTensor(),
                     #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
