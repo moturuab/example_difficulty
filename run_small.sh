@@ -28,7 +28,7 @@
 #SBATCH --export=ALL  
 #SBATCH --output=%x.%j.log  
 #SBATCH --gres=gpu:1
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=FAIL
 
 conda activate py38
 

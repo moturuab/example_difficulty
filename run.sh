@@ -28,34 +28,17 @@
 #SBATCH --export=ALL  
 #SBATCH --output=%x.%j.log  
 #SBATCH --gres=gpu:1
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=FAIL
 
 conda activate py38
 
-total_runs=3
+total_runs=1
 epochs=10
 seed=0
-
-# uniform mnist 
-hardness="uniform"
-dataset="mnist"
-model_name="LeNet"
-fuser -v /dev/nvidia0 -k
-python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.1 --epochs $epochs
-python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.2 --epochs $epochs
-python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.3 --epochs $epochs
-python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.4 --epochs $epochs
-python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.5 --epochs $epochs
-
 
 # uniform cifar
 hardness="uniform"
 dataset="cifar10"
 model_name="ResNet"
 fuser -v /dev/nvidia0 -k
-python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.1 --epochs $epochs
 python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.2 --epochs $epochs
-python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.3 --epochs $epochs
-python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.4 --epochs $epochs
-python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop 0.5 --epochs $epochs
-
