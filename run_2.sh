@@ -37,8 +37,8 @@ epochs=10
 seed=0
 
 hardness="uniform"
-dataset="cifar10"
-model_name="ResNet"
+dataset="mnist"
+model_name="LeNet"
 groupid=$(date +%F_%T)
 
 fuser -v /dev/nvidia0 -k

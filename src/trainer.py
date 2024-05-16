@@ -20,6 +20,7 @@ class PyTorchTrainer:
         epochs: int = 10,
         total_samples: int = 10000,
         num_classes: int = 10,
+        reweight: bool = True,
         characterization_methods: list = [
             "aum",
             "data_uncert",
@@ -68,6 +69,7 @@ class PyTorchTrainer:
         self.epochs = epochs
         self.total_samples = total_samples
         self.num_classes = num_classes
+        self.reweight = reweight
         self.characterization_methods = characterization_methods
 
     def fit(self, dataloader, dataloader_unshuffled, wandb_num=0):
@@ -174,7 +176,7 @@ class PyTorchTrainer:
                 outputs = outputs.float()  # Ensure the outputs are float
                 observed_label = observed_label.long()  # Ensure the labels are long
                 loss = self.criterion(outputs, observed_label)
-                if epoch > 0:
+                if epoch > 0 and self.reweight:
                     sample_weight = torch.tensor(self.aum.scores).to(self.device)
                     sample_weight = (sample_weight-torch.min(sample_weight))/(torch.max(sample_weight)-torch.min(sample_weight))
                     loss = torch.mul(loss, sample_weight)

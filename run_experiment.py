@@ -494,6 +494,7 @@ def main(args):
             epochs=epochs,
             total_samples=total_samples,
             num_classes=num_classes,
+            reweight=True,
             device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
         )
 
@@ -560,6 +561,7 @@ if __name__ == "__main__":
     parser.add_argument("--total_runs", type=int, default=3, help="Total runs")
     parser.add_argument("--seed", type=int, default=0, help="seed")
     parser.add_argument("--prop", type=float, default=0.1, help="prop")
+    parser.add_argument('--reweight', type=bool, action='store_true')
     parser.add_argument("--epochs", type=int, default=10, help="Epochs")
     parser.add_argument("--hardness", type=str, default="uniform", help="hardness type")
     parser.add_argument("--groupid", type=str, default="0", help="group id (time)")

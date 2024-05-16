@@ -36,7 +36,7 @@ total_runs=1
 epochs=10
 seed=0
 
-hardness="uniform"
+hardness="instance"
 dataset="cifar10"
 model_name="ResNet"
 groupid=$(date +%F_%T)
