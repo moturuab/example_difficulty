@@ -51,6 +51,7 @@ def main(args):
     epochs = args.epochs
     seed = args.seed
     p = args.prop
+    reweight = args.reweight
     groupid = args.groupid
     metainfo = f"{hardness}_{dataset}_{model_name}_{p}_{epochs}_{total_runs}_{seed}_{groupid}"
 
@@ -494,7 +495,7 @@ def main(args):
             epochs=epochs,
             total_samples=total_samples,
             num_classes=num_classes,
-            reweight=True,
+            reweight=reweight,
             device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
         )
 
@@ -581,5 +582,6 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    print(args.reweight)
 
     main(args)
