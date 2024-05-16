@@ -175,11 +175,8 @@ class PyTorchTrainer:
                 observed_label = observed_label.long()  # Ensure the labels are long
                 loss = self.criterion(outputs, observed_label)
                 if epoch > 0:
-                    sample_weight = torch.tensor(self.aum.scores)
+                    sample_weight = torch.tensor(self.aum.scores).to(self.device)
                     sample_weight = (sample_weight-torch.min(sample_weight))/(torch.max(sample_weight)-torch.min(sample_weight))
-                    print(len(sample_weight))
-                    print(max(sample_weight))
-                    print(min(sample_weight))
                     loss = torch.mul(loss, sample_weight)
 
                 loss.backward()
