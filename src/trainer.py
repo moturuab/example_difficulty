@@ -179,7 +179,7 @@ class PyTorchTrainer:
                     sample_weight = (sample_weight-torch.min(sample_weight))/(torch.max(sample_weight)-torch.min(sample_weight))
                     loss = torch.mul(loss, sample_weight)
 
-                loss.backward()
+                loss.mean().backward()
                 self.optimizer.step()
 
                 running_loss += loss.item()
