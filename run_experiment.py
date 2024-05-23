@@ -57,6 +57,7 @@ def main(args):
 
     full_dataset = None
     train_idx = None
+    test_idx = None
 
     # new wandb run
     config_dict = {'total_runs': total_runs, 'hardness': hardness, 'dataset': dataset, 'reweight': reweight,
@@ -452,8 +453,28 @@ def main(args):
             p=p,
             rule_matrix=rule_matrix)
 
+            test_dataloader_class = MultiFormatDataLoader(
+            data=test_dataset,
+            full_dataset=full_dataset,
+            train_idx=test_idx,
+            target_column=None,
+            data_type="torch_dataset",
+            data_modality="image",
+            dataset_name=dataset,
+            batch_size=64,
+            shuffle=False,
+            num_workers=0,
+            transform=None,
+            image_transform=None,
+            perturbation_method=hardness,
+            p=p,
+            rule_matrix=rule_matrix)
+
         dataloader, dataloader_unshuffled = dataloader_class.get_dataloader()
         flag_ids = dataloader_class.get_flag_ids()
+
+        test_dataloader, test_dataloader_unshuffled = test_dataloader_class.get_dataloader()
+        test_flag_ids = test_dataloader_class.get_flag_ids()
 
         ####################
         #
@@ -500,7 +521,7 @@ def main(args):
         )
 
         # Train the model
-        trainer.fit(dataloader, dataloader_unshuffled, wandb_num=wandb.run.id)
+        trainer.fit(dataloader, dataloader_unshuffled, test_dataloader, test_dataloader_unshuffled, wandb_num=wandb.run.id)
 
         hardness_dict = trainer.get_hardness_methods()
 

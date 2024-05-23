@@ -72,7 +72,7 @@ class PyTorchTrainer:
         self.reweight = reweight
         self.characterization_methods = characterization_methods
 
-    def fit(self, dataloader, dataloader_unshuffled, wandb_num=0):
+    def fit(self, dataloader, dataloader_unshuffled, test_dataloader, test_dataloader_unshuffled, wandb_num=0):
         """
         This function trains a model and updates various HCMs
         Args:
@@ -157,6 +157,7 @@ class PyTorchTrainer:
         for epoch in range(self.epochs):
             self.model.train()
             running_loss = 0.0
+            test_running_loss = 0.0
             for i, data in enumerate(dataloader):
                 inputs, true_label, observed_label, indices = data
 
@@ -187,8 +188,26 @@ class PyTorchTrainer:
 
                 running_loss += loss.mean().item()
 
+            self.model.eval()
+            for i, data in enumerate(test_dataloader):
+                inputs, true_label, observed_label, indices = data
+
+                inputs = inputs.to(self.device)
+                true_label = true_label.to(self.device)
+                observed_label = observed_label.to(self.device)
+                outputs = self.model(inputs)
+
+                outputs = outputs.float()  # Ensure the outputs are float
+                observed_label = observed_label.long()  # Ensure the labels are long
+                loss = self.criterion(outputs, observed_label)
+                test_running_loss += loss.mean().item()
+
+            self.model.train()
             epoch_loss = running_loss / len(dataloader)
-            print(f"Epoch {epoch+1}/{self.epochs}: Loss={epoch_loss:.4f}")
+            test_epoch_loss = test_running_loss / len(test_dataloader)
+            wandb.log({"train_loss": epoch_loss, "epoch": epoch})
+            wandb.log({"test_loss": test_epoch_loss, "epoch": epoch})
+            print(f"Epoch {epoch+1}/{self.epochs}: Train Loss={epoch_loss:.4f} | Test Loss={test_epoch_loss:.4f}")
 
             # streamline repeated computation across methods
             if any(
@@ -198,6 +217,7 @@ class PyTorchTrainer:
                 logits, targets, probs, indices = self.get_intermediate_outputs(
                     net=self.model, device=self.device, dataloader=dataloader_unshuffled
                 )
+
             if self.data_uncert is not None:
                 print("data_uncert compute")
                 self.data_uncert.updates(net=self.model, device=self.device)
