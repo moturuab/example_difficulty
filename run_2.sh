@@ -42,5 +42,5 @@ model_name="LeNet"
 groupid=$(date +%F_%T)
 
 fuser -v /dev/nvidia0 -k
-python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid
+# python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid
 python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid --reweight
