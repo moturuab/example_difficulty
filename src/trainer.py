@@ -179,7 +179,7 @@ class PyTorchTrainer:
                 loss = self.criterion(outputs, observed_label)
                 if epoch > 0 and self.reweight:
                     sample_weight = torch.tensor(self.aum.scores).to(self.device)
-                    sample_weight = torch.sigmoid(sample_weight) #(sample_weight-torch.min(sample_weight))/(torch.max(sample_weight)-torch.min(sample_weight))
+                    sample_weight = torch.exp(-sample_weight**2) #(sample_weight-torch.min(sample_weight))/(torch.max(sample_weight)-torch.min(sample_weight))
                     #sample_weight = torch.mul(sample_weight, sample_weight) 
                     loss = torch.mul(loss, sample_weight)
 
