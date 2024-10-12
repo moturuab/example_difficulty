@@ -14,6 +14,7 @@ from torchvision.transforms.functional import to_pil_image, to_tensor
 
 from .perturbations import *
 
+'''
 class SubsetDataset(Dataset):
     def __init__(self, subset, transform=None):
         self.subset = subset
@@ -27,6 +28,27 @@ class SubsetDataset(Dataset):
         
     def __len__(self):
         return len(self.subset)
+'''
+
+class SubsetDataset(Dataset):
+    r"""
+    Subset of a dataset at specified indices.
+
+    Arguments:
+        dataset (Dataset): The whole Dataset
+        indices (sequence): Indices in the whole set selected for subset
+        labels(sequence) : targets as required for the indices. will be the same length as indices
+    """
+    def __init__(self, dataset, indices):
+        self.dataset = dataset
+        self.indices = indices
+
+    def __getitem__(self, idx):
+        data = self.dataset[self.indices[idx]]
+        return data
+
+    def __len__(self):
+        return len(self.indices)
 
 
 class PerturbedDataset(Dataset):
@@ -543,8 +565,9 @@ class MultiFormatDataLoader:
             train_indices = indices[:int(0.85*n)]
             val_indices = indices[int(0.85*n):]
 
-            self.train_dataset = torch.utils.data.Subset(data, train_indices)
-            self.val_dataset = torch.utils.data.Subset(data, val_indices)
+            self.train_dataset = SubsetDataset(data, train_indices)
+            self.val_dataset = SubsetDataset(data, val_indices)
+            
         else:
             self.data = self._read_data(data, data_type)
             self.target_column = target_column
