@@ -185,7 +185,7 @@ class PyTorchTrainer:
 
                 train_loss.mean().backward()
                 self.optimizer.step()
-                self.optimizer.zero_()
+                self.train_loss.zero_()
                 self.alpha.grad.zero_()
 
                 if torch.isnan(self.alpha) or torch.isnan(self.alpha.grad):
