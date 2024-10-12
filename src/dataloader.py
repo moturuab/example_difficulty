@@ -644,16 +644,16 @@ class MultiFormatDataLoader:
           The method `get_dataloader` is returning a tuple containing two objects: `self.dataloader` and
         `self.dataloader_unshuffled`.
         """
-        return self.train_dataloader, self.val_dataloader, self.train_dataloader_unshuffled, self.val_dataloader_unshuffled
+        return self.dataloader, self.dataloader_unshuffled
 
     # get custom dataset
     def get_dataset(self):
-        return self.train_dataset, self.val_dataset
+        return self.dataset
 
     # get perturbed dataset
     def get_perturbed_dataset(self):
-        return self.train_perturbed_dataset, self.val_perturbed_dataset
-
+        return self.perturbed_dataset
+        
     def get_flag_ids(self):
         """
         This function returns an array of zeros and ones indicating whether each index in a dataset is a
