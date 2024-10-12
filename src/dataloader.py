@@ -70,7 +70,7 @@ class PerturbedDataset(Dataset):
         if dataset_name == "caltech256":
             self.full_dataset = full_dataset
             self.idx = idx
-        self.indices = np.array(range(len(dataset)))
+        self.indices = torch.from_numpy(np.array(range(len(dataset))))
         self.perturbation_method = perturbation_method
         self.p = p
         self.rule_matrix = rule_matrix
