@@ -461,7 +461,7 @@ def main(args):
             rule_matrix=rule_matrix)
         else:
             dataloader_class = MultiFormatDataLoader(
-            data=temp_train_dataset,
+            data=next(iter(temp_train_dataset)),
             full_dataset=full_dataset,
             idx=temp_train_idx,
             target_column=temp_train_targets,
@@ -496,7 +496,7 @@ def main(args):
                 rule_matrix=rule_matrix)
             else:
                 val_dataloader_class = MultiFormatDataLoader(
-                data=temp_val_dataset,
+                data=next(iter(temp_val_dataset)),
                 full_dataset=full_dataset,
                 idx=temp_val_idx,
                 target_column=None,
