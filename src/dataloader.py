@@ -30,27 +30,6 @@ class SubsetDataset(Dataset):
         return len(self.subset)
 '''
 
-class SubsetDataset(Dataset):
-    r"""
-    Subset of a dataset at specified indices.
-
-    Arguments:
-        dataset (Dataset): The whole Dataset
-        indices (sequence): Indices in the whole set selected for subset
-        labels(sequence) : targets as required for the indices. will be the same length as indices
-    """
-    def __init__(self, dataset, indices):
-        super().__init__()
-        self.dataset = dataset
-        self.indices = indices
-
-    def __getitem__(self, idx):
-        data = self.dataset[self.indices[idx]]
-        return data
-
-    def __len__(self):
-        return len(self.indices)
-
 
 class PerturbedDataset(Dataset):
     def __init__(
@@ -563,16 +542,7 @@ class MultiFormatDataLoader:
     ):
         self.dataset_name = dataset_name
         if data_type == "torch_dataset":
-            n = len(data)
-            indices = np.random.permutation(np.arange(n))
-            train_indices = indices[:int(0.85*n)]
-            val_indices = indices[int(0.85*n):]
-
-            self.train_dataset = SubsetDataset(data, train_indices)
-            self.train_dataset = self.train_dataset.dataset
-            self.val_dataset = SubsetDataset(data, val_indices)
-            self.val_dataset = self.val_dataset.dataset
-
+            self.dataset = data
         else:
             self.data = self._read_data(data, data_type)
             self.target_column = target_column
@@ -604,8 +574,8 @@ class MultiFormatDataLoader:
             images = False
 
         self.rule_matrix = rule_matrix
-        self.train_perturbed_dataset = PerturbedDataset(
-            self.train_dataset,
+        self.perturbed_dataset = PerturbedDataset(
+            self.dataset,
             full_dataset=full_dataset,
             idx=idx,
             perturbation_method=perturbation_method,
@@ -615,40 +585,16 @@ class MultiFormatDataLoader:
             dataset_name=dataset_name,
             atypical_marginal=atypical_marginal,
         )
-        self.train_flag_ids = self.train_perturbed_dataset.get_flag_ids()
-        self.val_perturbed_dataset = PerturbedDataset(
-            self.val_dataset,
-            full_dataset=full_dataset,
-            idx=idx,
-            perturbation_method=perturbation_method,
-            p=p,
-            rule_matrix=self.rule_matrix,
-            images=images,
-            dataset_name=dataset_name,
-            atypical_marginal=atypical_marginal,
-        )
-        self.val_flag_ids = self.val_perturbed_dataset.get_flag_ids()
+        self.flag_ids = self.perturbed_dataset.get_flag_ids()
 
-        self.train_dataloader = DataLoader(
-            self.train_perturbed_dataset,
+        self.dataloader = DataLoader(
+            self.perturbed_dataset,
             batch_size=batch_size,
             shuffle=True,
             num_workers=num_workers,
         )
-        self.train_dataloader_unshuffled = DataLoader(
-            self.train_perturbed_dataset,
-            batch_size=batch_size,
-            shuffle=False,
-            num_workers=num_workers,
-        )
-        self.val_dataloader = DataLoader(
-            self.val_perturbed_dataset,
-            batch_size=batch_size,
-            shuffle=True,
-            num_workers=num_workers,
-        )
-        self.val_dataloader_unshuffled = DataLoader(
-            self.val_perturbed_dataset,
+        self.dataloader_unshuffled = DataLoader(
+            self.perturbed_dataset,
             batch_size=batch_size,
             shuffle=False,
             num_workers=num_workers,
