@@ -22,6 +22,7 @@ from src.evaluator import Evaluator
 from src.models import *
 from src.trainer import PyTorchTrainer
 from src.utils import seed_everything
+from src.losses import WeightedCrossEntropyLoss
 
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -30,11 +31,16 @@ warnings.filterwarnings("ignore", category=UserWarning)
 # declare -a arr2=("adjacent" "asymmetric" "crop" "idcov" "instance" "oodcov" "uniform" "zoom")
 # for i in $(seq 0.1 0.1 0.5); do for j in "${arr[@]}"; do for k in "${arr2[@]}"; do sbatch run_small_"$k"_"$j".sh "$i"; done; done; done
 
-def train_test_dataset(dataset, test_split=0.20):
+def train_test_dataset(dataset, val_split=0.15, test_split=0.20):
     train_idx, test_idx = train_test_split(list(range(len(dataset))), test_size=test_split)
     train_dataset = torch.utils.data.Subset(dataset, train_idx)
+    train_idx, val_idx = train_test_split(list(range(len(train_dataset))), test_size=val_split)
+
+    train_dataset = torch.utils.data.Subset(train_dataset, train_idx)
+    val_dataset = torch.utils.data.Subset(train_dataset, val_idx)
     test_dataset = torch.utils.data.Subset(dataset, test_idx)
-    return train_dataset, test_dataset, train_idx, test_idx
+
+    return train_dataset, val_dataset, test_dataset, train_idx, val_idx, test_idx
 
 def main(args):
     # Load the WANDB YAML file
@@ -51,17 +57,20 @@ def main(args):
     epochs = args.epochs
     seed = args.seed
     p = args.prop
+    init_alpha = args.init_alpha
     reweight = args.reweight
+    clean_val = args.clean_val
     groupid = args.groupid
-    metainfo = f"{hardness}_{dataset}_{model_name}_{p}_{epochs}_{total_runs}_{seed}_{reweight}_{groupid}"
+    metainfo = f"{hardness}_{dataset}_{model_name}_{p}_{init_alpha}_{epochs}_{total_runs}_{seed}_{reweight}_{groupid}"
 
     full_dataset = None
     train_idx = None
+    val_idx = None
     test_idx = None
 
     # new wandb run
-    config_dict = {'total_runs': total_runs, 'hardness': hardness, 'dataset': dataset, 'reweight': reweight,
-    'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p, 'groupid': groupid}
+    config_dict = {'total_runs': total_runs, 'hardness': hardness, 'dataset': dataset, 'reweight': reweight, 'init_alpha': init_alpha,
+    'clean_val': clean_val, 'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p, 'groupid': groupid}
 
     run = wandb.init(
         project="example_difficulty",
@@ -223,7 +232,7 @@ def main(args):
             )
             full_dataset = d
 
-            train_dataset, test_dataset, train_idx, test_idx = train_test_dataset(d)
+            train_dataset, val_dataset, test_dataset, train_idx, val_idx, test_idx = train_test_dataset(d)
             num_classes = 257
 
         elif dataset == "cifar100":
@@ -319,7 +328,7 @@ def main(args):
             test_dataset = xrv.datasets.RSNA_Pneumonia_Dataset(
                 imgpath="./data/pneumonia/stage_2_test_images_jpg", transform=transform
             )
-            num_classes = 10
+            num_classes = 2
 
         elif dataset == "padchest":
             # Define transforms for the dataset
@@ -341,7 +350,7 @@ def main(args):
 
         elif dataset == "vindrcxr":
             # Define transforms for the dataset
-            # 160K, already 224x224
+            # 15K, 3K, already 224x224
             transform = transforms.Compose(
                 [
                     transforms.ToTensor(),
@@ -355,7 +364,7 @@ def main(args):
             test_dataset = xrv.datasets.VinBrain_Dataset(
                 imgpath=".data/vindrcxr/test", csvpath=".data/vindrcxr/sample_submission.csv", transform=transform
             )
-            num_classes = 10
+            num_classes = 28
 
         elif dataset == "objectcxr":
             # Define transforms for the dataset
@@ -373,7 +382,7 @@ def main(args):
             test_dataset = xrv.datasets.ObjectCXR_Dataset(
                 imgzippath="./data/objectcxr/dev.zip", csvpath="./data/objectcxr/dev.csv", transform=transform
             )
-            num_classes = 10
+            num_classes = 2
 
         elif dataset == "siim":
             # Define transforms for the dataset
@@ -391,7 +400,7 @@ def main(args):
             test_dataset = xrv.datasets.SIIM_Pneumothorax_Dataset(
                 imgpath="./data/siim/stage_2_images", csvpath="./data/siim/stage_2_sample_submission.csv", transform=transform
             )
-            num_classes = 10
+            num_classes = 2
 
         else:
             raise ValueError("Invalid dataset!")
@@ -470,8 +479,8 @@ def main(args):
             p=p,
             rule_matrix=rule_matrix)
 
-        dataloader, dataloader_unshuffled = dataloader_class.get_dataloader()
-        flag_ids = dataloader_class.get_flag_ids()
+        dataloader, val_dataloader, dataloader_unshuffled, val_dataloader_unshuffled = dataloader_class.get_dataloader()
+        train_flag_ids, val_flag_ids = dataloader_class.get_flag_ids()
 
         test_dataloader, test_dataloader_unshuffled = test_dataloader_class.get_dataloader()
         test_flag_ids = test_dataloader_class.get_flag_ids()
@@ -504,12 +513,22 @@ def main(args):
             if model_name == "ResNet":
                 model = ResNet18MNIST(num_classes=num_classes).to(device)
 
-        criterion = nn.CrossEntropyLoss()
+        alpha_criterion = None
+        if loss == 'CE':
+            criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=init_alpha, num_classes=num_classes)
+            alpha_criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=init_alpha, num_classes=num_classes)
+        elif loss == 'FL':
+            criterion = WeightedFocalLoss(reweight=reweight, alpha=init_alpha, gamma=1.0, num_classes=num_classes)
+            alpha_criterion = WeightedFocalLoss(reweight=reweight, alpha=init_alpha, gamma=1.0, num_classes=num_classes)
+
         optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+        alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True)
 
         # Instantiate the PyTorchTrainer class
         trainer = PyTorchTrainer(
             model=model,
+            alpha=alpha,
             criterion=criterion,
             optimizer=optimizer,
             lr=0.001,
@@ -521,7 +540,7 @@ def main(args):
         )
 
         # Train the model
-        trainer.fit(dataloader, dataloader_unshuffled, test_dataloader, test_dataloader_unshuffled, wandb_num=wandb.run.id)
+        trainer.fit(dataloader, dataloader_unshuffled, val_dataloader, val_dataloader_unshuffled, test_dataloader, test_dataloader_unshuffled, wandb_num=[wandb.run.id,i])
 
         hardness_dict = trainer.get_hardness_methods()
 
@@ -583,7 +602,9 @@ if __name__ == "__main__":
     parser.add_argument("--total_runs", type=int, default=3, help="Total runs")
     parser.add_argument("--seed", type=int, default=0, help="seed")
     parser.add_argument("--prop", type=float, default=0.1, help="prop")
-    parser.add_argument('--reweight', action='store_true')
+    parser.add_argument("--reweight", action='store_true', help="reweight")
+    parser.add_argument("--clean_val", action='store_true', help="optimize on clean validation set")
+    parser.add_argument("--init_alpha", type=float, default=2, help="initialize alpha")
     parser.add_argument("--epochs", type=int, default=10, help="Epochs")
     parser.add_argument("--hardness", type=str, default="uniform", help="hardness type")
     parser.add_argument("--groupid", type=str, default="0", help="group id (time)")

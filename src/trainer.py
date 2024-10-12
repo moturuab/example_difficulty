@@ -13,6 +13,7 @@ class PyTorchTrainer:
     def __init__(
         self,
         model: nn.Module,
+        alpha: nn.Module,
         criterion: nn.Module,
         optimizer: optim.Optimizer,
         device: torch.device = None,
@@ -62,6 +63,7 @@ class PyTorchTrainer:
             characterization_methods.remove("prototypicality")
 
         self.model = model
+        self.alpha = alpha
         self.criterion = criterion
         self.optimizer = optimizer
         self.device = device
@@ -72,7 +74,7 @@ class PyTorchTrainer:
         self.reweight = reweight
         self.characterization_methods = characterization_methods
 
-    def fit(self, dataloader, dataloader_unshuffled, test_dataloader, test_dataloader_unshuffled, wandb_num=0):
+    def fit(self, dataloader, dataloader_unshuffled, val_dataloader, val_dataloader_unshuffled, test_dataloader, test_dataloader_unshuffled, wandb_num=[0,0]):
         """
         This function trains a model and updates various HCMs
         Args:
@@ -81,7 +83,7 @@ class PyTorchTrainer:
         certain metrics during training and/or after training.
         """
 
-        self.aum = AUM_Class(save_dir=str(wandb_num)) if "aum" in self.characterization_methods else None
+        self.aum = AUM_Class(save_dir=str(wandb_num[0]) + '-' + str(wandb_num[1])) if "aum" in self.characterization_methods else None
         self.data_uncert = (
             DataIQ_Maps_Class(dataloader=dataloader_unshuffled)
             if "data_uncert" in self.characterization_methods
@@ -151,12 +153,14 @@ class PyTorchTrainer:
 
         # Move model to device
         self.model.to(self.device)
+        self.alpha.to(self.device)
 
         # Set model to training mode
         self.optimizer.lr = self.lr
         for epoch in range(self.epochs):
             self.model.train()
             running_loss = 0.0
+            val_running_loss = 0.0
             test_running_loss = 0.0
             for i, data in enumerate(dataloader):
                 inputs, true_label, observed_label, indices = data
@@ -169,45 +173,72 @@ class PyTorchTrainer:
 
                 outputs = self.model(inputs)
 
-                if self.aum is not None:
-                    self.aum.updates(
-                        y_pred=outputs, y_batch=observed_label, sample_ids=indices
-                    )
+                #if self.aum is not None:
+                #    self.aum.updates(
+                #        y_pred=outputs, y_batch=observed_label, sample_ids=indices
+                #    )
 
                 outputs = outputs.float()  # Ensure the outputs are float
                 observed_label = observed_label.long()  # Ensure the labels are long
-                loss = self.criterion(outputs, observed_label)
-                if epoch > 0 and self.reweight:
-                    sample_weight = torch.tensor(self.aum.scores).to(self.device)
-                    sample_weight = torch.exp(-sample_weight**2) #(sample_weight-torch.min(sample_weight))/(torch.max(sample_weight)-torch.min(sample_weight))
-                    #sample_weight = torch.mul(sample_weight, sample_weight) 
-                    loss = torch.mul(loss, sample_weight)
+                train_loss = self.criterion(outputs, observed_label)
 
-                loss.mean().backward()
+                print(alpha.grad)
+                train_loss.mean().backward()
+                print(alpha.grad)
                 self.optimizer.step()
+                print(alpha.grad)
 
-                running_loss += loss.mean().item()
+                for j, val_data in enumerate(val_dataloader):
+                    val_inputs, val_true_label, val_observed_label, val_indices = val_data
+
+                    val_inputs = val_inputs.to(self.device)
+                    val_true_label = val_true_label.to(self.device)
+                    val_observed_label = val_observed_label.to(self.device)
+
+                    val_outputs = self.model(val_inputs)
+
+                    val_outputs = val_outputs.float()
+                    val_observed_label = val_observed_label.long()
+                    val_loss = self.criterion(val_outputs, val_observed_label)
+                    val_loss.mean().backward()
+                    print(alpha.grad)
+                    print(self.alpha)
+
+                    if self.reweight:
+                        with torch.no_grad():
+                            self.alpha -= alpha.grad
+                            val_loss.grad.zero_()
+
+                    print(self.alpha)
+
+                    val_running_loss += val_loss.mean().item()
+
+                    break
+
+                running_loss += train_loss.mean().item()
 
             self.model.eval()
-            for i, data in enumerate(test_dataloader):
-                inputs, true_label, observed_label, indices = data
+            for k, test_data in enumerate(test_dataloader):
+                test_inputs, test_true_label, test_observed_label, test_indices = test_data
 
-                inputs = inputs.to(self.device)
-                true_label = true_label.to(self.device)
-                observed_label = observed_label.to(self.device)
-                outputs = self.model(inputs)
+                test_inputs = test_inputs.to(self.device)
+                test_true_label = test_true_label.to(self.device)
+                test_observed_label = test_observed_label.to(self.device)
+                test_outputs = self.model(test_inputs)
 
-                outputs = outputs.float()  # Ensure the outputs are float
-                observed_label = observed_label.long()  # Ensure the labels are long
-                loss = self.criterion(outputs, observed_label)
-                test_running_loss += loss.mean().item()
+                test_outputs = test_outputs.float()  # Ensure the outputs are float
+                test_observed_label = test_observed_label.long()  # Ensure the labels are long
+                test_loss = self.criterion(test_outputs, test_true_label)
+                test_running_loss += test_loss.mean().item()
 
             self.model.train()
             epoch_loss = running_loss / len(dataloader)
+            val_epoch_loss = val_running_loss / len(val_dataloader)
             test_epoch_loss = test_running_loss / len(test_dataloader)
             wandb.log({"train_loss": epoch_loss, "epoch": epoch})
+            wandb.log({"val_loss": val_epoch_loss, "epoch": epoch})
             wandb.log({"test_loss": test_epoch_loss, "epoch": epoch})
-            print(f"Epoch {epoch+1}/{self.epochs}: Train Loss={epoch_loss:.4f} | Test Loss={test_epoch_loss:.4f}")
+            print(f"Epoch {epoch+1}/{self.epochs}: Train Loss={epoch_loss:.4f} | Val Loss={val_epoch_loss:.4f} | Test Loss={test_epoch_loss:.4f}")
 
             # streamline repeated computation across methods
             if any(

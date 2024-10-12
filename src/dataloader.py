@@ -34,7 +34,7 @@ class PerturbedDataset(Dataset):
         self,
         dataset,
         full_dataset=None,
-        train_idx=None,
+        idx=None,
         perturbation_method="uniform",
         p=0.1,
         rule_matrix=None,
@@ -61,7 +61,7 @@ class PerturbedDataset(Dataset):
         self.dataset = dataset
         if dataset_name == "caltech256":
             self.full_dataset = full_dataset
-            self.train_idx = train_idx
+            self.idx = idx
         self.indices = np.array(range(len(dataset)))
         self.perturbation_method = perturbation_method
         self.p = p
@@ -521,7 +521,7 @@ class MultiFormatDataLoader:
         data,
         target_column,
         full_dataset=None,
-        train_idx=None,
+        idx=None,
         data_type="torch_dataset",
         data_modality="image",
         dataset_name="",
@@ -530,6 +530,7 @@ class MultiFormatDataLoader:
         num_workers=0,
         transform=None,
         image_transform=None,
+        train_or_val='train',
         perturbation_method="uniform",
         p=0.1,
         rule_matrix=None,
@@ -537,7 +538,13 @@ class MultiFormatDataLoader:
     ):
         self.dataset_name = dataset_name
         if data_type == "torch_dataset":
-            self.dataset = data
+            n = len(data)
+            indices = np.random.permutation(np.arange(n))
+            train_indices = indices[:int(0.85*n)]
+            val_indices = indices[int(0.85*n):]
+
+            self.train_dataset = Subset(data, train_indices)
+            self.val_dataset = Subset(data, val_indices)
         else:
             self.data = self._read_data(data, data_type)
             self.target_column = target_column
@@ -569,10 +576,10 @@ class MultiFormatDataLoader:
             images = False
 
         self.rule_matrix = rule_matrix
-        self.perturbed_dataset = PerturbedDataset(
-            self.dataset,
+        self.train_perturbed_dataset = PerturbedDataset(
+            self.train_dataset,
             full_dataset=full_dataset,
-            train_idx=train_idx,
+            idx=idx,
             perturbation_method=perturbation_method,
             p=p,
             rule_matrix=self.rule_matrix,
@@ -580,16 +587,40 @@ class MultiFormatDataLoader:
             dataset_name=dataset_name,
             atypical_marginal=atypical_marginal,
         )
-        self.flag_ids = self.perturbed_dataset.get_flag_ids()
-        self.dataloader = DataLoader(
-            self.perturbed_dataset,
+        self.train_flag_ids = self.train_perturbed_dataset.get_flag_ids()
+        self.val_perturbed_dataset = PerturbedDataset(
+            self.val_dataset,
+            full_dataset=full_dataset,
+            idx=idx,
+            perturbation_method=perturbation_method,
+            p=p,
+            rule_matrix=self.rule_matrix,
+            images=images,
+            dataset_name=dataset_name,
+            atypical_marginal=atypical_marginal,
+        )
+        self.val_flag_ids = self.val_perturbed_dataset.get_flag_ids()
+
+        self.train_dataloader = DataLoader(
+            self.train_perturbed_dataset,
             batch_size=batch_size,
             shuffle=True,
             num_workers=num_workers,
         )
-
-        self.dataloader_unshuffled = DataLoader(
-            self.perturbed_dataset,
+        self.train_dataloader_unshuffled = DataLoader(
+            self.train_perturbed_dataset,
+            batch_size=batch_size,
+            shuffle=False,
+            num_workers=num_workers,
+        )
+        self.val_dataloader = DataLoader(
+            self.val_perturbed_dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            num_workers=num_workers,
+        )
+        self.val_dataloader_unshuffled = DataLoader(
+            self.val_perturbed_dataset,
             batch_size=batch_size,
             shuffle=False,
             num_workers=num_workers,
@@ -635,15 +666,15 @@ class MultiFormatDataLoader:
           The method `get_dataloader` is returning a tuple containing two objects: `self.dataloader` and
         `self.dataloader_unshuffled`.
         """
-        return self.dataloader, self.dataloader_unshuffled
+        return self.train_dataloader, self.val_dataloader, self.train_dataloader_unshuffled, self.val_dataloader_unshuffled
 
     # get custom dataset
     def get_dataset(self):
-        return self.dataset
+        return self.train_dataset, self.val_dataset
 
     # get perturbed dataset
     def get_perturbed_dataset(self):
-        return self.perturbed_dataset
+        return self.train_perturbed_dataset, self.val_perturbed_dataset
 
     def get_flag_ids(self):
         """
@@ -656,10 +687,16 @@ class MultiFormatDataLoader:
         of the object. Finally, the function returns the updated flag array.
         """
 
-        flag_array = np.zeros(len(self.perturbed_dataset))
+        train_flag_array = np.zeros(len(self.train_dataset))
 
-        for i in range(len(flag_array)):
-            if i in self.flag_ids:
-                flag_array[i] = 1
+        for i in range(len(train_flag_array)):
+            if i in self.train_flag_ids:
+                train_flag_array[i] = 1
 
-        return flag_array
+        val_flag_array = np.zeros(len(self.val_dataset))
+
+        for i in range(len(val_flag_array)):
+            if i in self.val_flag_ids:
+                val_flag_array[i] = 1
+
+        return train_flag_array, val_flag_array
