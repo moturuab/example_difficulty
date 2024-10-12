@@ -112,16 +112,7 @@ class PerturbedDataset(Dataset):
         ]:
             if idx in self.perturbs:
                 #assert self.perturbs[idx] == perturbed_target
-                perturbed_target = self.perturbs[idx]
-
-        print(1)
-        print(type(data_point[0]))
-        print(2)
-        print(type(target))
-        print(3)
-        print(type(perturbed_target))
-        print(4)
-        print(type(indices))
+                perturbed_target = torch.from_numpy(self.perturbs[idx])
 
         return data_point[0], target, perturbed_target, indices
 
