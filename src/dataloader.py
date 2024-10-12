@@ -569,7 +569,9 @@ class MultiFormatDataLoader:
             val_indices = indices[int(0.85*n):]
 
             self.train_dataset = SubsetDataset(data, train_indices)
+            self.train_dataset = self.train_dataset.dataset
             self.val_dataset = SubsetDataset(data, val_indices)
+            self.val_dataset = self.val_dataset.dataset
 
         else:
             self.data = self._read_data(data, data_type)
