@@ -17,7 +17,6 @@ from .perturbations import *
 class SubsetDataset(Dataset):
     def __init__(self, subset, transform=None):
         self.subset = subset
-        self.targets = self.subset.targets
         self.transform = transform
         
     def __getitem__(self, index):

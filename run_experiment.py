@@ -430,16 +430,22 @@ def main(args):
 
         #wandb.log(metadata)
 
-        # Allows importing data in multiple formats
+        l = np.random.shuffle(np.array(range(len(n))))
+        train_idx = l[:int(0.85*n)]
+        val_idx = l[int(0.85*n):]
 
-        temp_train_subset, temp_val_subset = torch.utils.data.random_split(train_dataset, [int(0.85*n), n-int(0.85*n)])
+        temp_train_subset = torch.utils.data.Subset(train_dataset, train_idx)
+        temp_val_subset = torch.utils.data.Subset(train_dataset, val_idx)
         temp_train_dataset = SubsetDataset(temp_train_subset)
         temp_val_dataset = SubsetDataset(temp_val_subset)
+
+        temp_train_targets = train_dataset.targets[int(0.85*n)]
+        temp_val_targets = train_dataset.targets[n-int(0.85*n)]
 
         if dataset == "nih":
             dataloader_class = loader(
             data=train_dataset,
-            target_column=None,
+            target_column=temp_train_targets,
             data_type="torch_dataset",
             data_modality="image",
             batch_size=64,
@@ -455,7 +461,7 @@ def main(args):
             data=temp_train_dataset,
             full_dataset=full_dataset,
             idx=train_idx,
-            target_column=None,
+            target_column=temp_train_targets,
             data_type="torch_dataset",
             data_modality="image",
             dataset_name=dataset,
@@ -473,7 +479,7 @@ def main(args):
                 data=val_dataset,
                 full_dataset=full_dataset,
                 idx=val_idx,
-                target_column=None,
+                target_column=val_targets,
                 data_type="torch_dataset",
                 data_modality="image",
                 dataset_name=dataset,
@@ -489,7 +495,7 @@ def main(args):
                 val_dataloader_class = MultiFormatDataLoader(
                 data=temp_val_dataset,
                 full_dataset=full_dataset,
-                idx=train_idx,
+                idx=val_idx,
                 target_column=None,
                 data_type="torch_dataset",
                 data_modality="image",
