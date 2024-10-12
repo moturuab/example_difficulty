@@ -193,13 +193,12 @@ class PyTorchTrainer:
                 self.optimizer.step()
                 print(3)
                 print(self.alpha.grad)
-                if torch.isnan(self.alpha.grad):
-                    break
                 self.alpha.grad.zero_()
                 print(3.5)
                 print(self.alpha.grad)
 
-                
+                if torch.isnan(self.alpha) or torch.isnan(self.alpha.grad):
+                    break
 
                 for j, val_data in enumerate(val_dataloader):
                     val_inputs, val_true_label, val_observed_label, val_indices = val_data
@@ -222,7 +221,7 @@ class PyTorchTrainer:
 
                     if self.reweight:
                         with torch.no_grad():
-                            #self.alpha -= self.alpha.grad
+                            self.alpha -= self.alpha.grad
                             self.alpha.grad.zero_()
 
                     print(5)
