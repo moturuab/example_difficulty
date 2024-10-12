@@ -25,7 +25,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         #print(b)
         #print(a-b)
         sig = nn.Sigmoid()
-        weights = sig(softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1) - softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)/torch.exp(self.alpha))
+        weights = 2*sig(softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1) - softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)/torch.exp(self.alpha))
         #print(weights)
         return weights
 
