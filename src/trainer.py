@@ -182,11 +182,11 @@ class PyTorchTrainer:
                 observed_label = observed_label.long()  # Ensure the labels are long
                 train_loss = self.criterion(outputs, observed_label)
 
-                print(alpha.grad)
+                print(self.alpha.grad)
                 train_loss.mean().backward()
-                print(alpha.grad)
+                print(self.alpha.grad)
                 self.optimizer.step()
-                print(alpha.grad)
+                print(self.alpha.grad)
 
                 for j, val_data in enumerate(val_dataloader):
                     val_inputs, val_true_label, val_observed_label, val_indices = val_data
@@ -201,12 +201,12 @@ class PyTorchTrainer:
                     val_observed_label = val_observed_label.long()
                     val_loss = self.criterion(val_outputs, val_observed_label)
                     val_loss.mean().backward()
-                    print(alpha.grad)
+                    print(self.alpha.grad)
                     print(self.alpha)
 
                     if self.reweight:
                         with torch.no_grad():
-                            self.alpha -= alpha.grad
+                            self.alpha -= self.alpha.grad
                             val_loss.grad.zero_()
 
                     print(self.alpha)
