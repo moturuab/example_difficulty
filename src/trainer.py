@@ -221,7 +221,7 @@ class PyTorchTrainer:
 
                     if self.reweight:
                         with torch.no_grad():
-                            self.alpha -= self.alpha.grad
+                            #self.alpha -= self.alpha.grad
                             self.alpha.grad.zero_()
 
                     print(5)
