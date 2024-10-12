@@ -193,6 +193,8 @@ class PyTorchTrainer:
                 print(3)
                 print(self.alpha.grad)
                 self.alpha.grad.zero_()
+                print(3.5)
+                print(self.alpha.grad)
 
                 for j, val_data in enumerate(val_dataloader):
                     val_inputs, val_true_label, val_observed_label, val_indices = val_data
