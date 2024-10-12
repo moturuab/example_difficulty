@@ -196,7 +196,7 @@ class PyTorchTrainer:
                 
                 print('TRAIN')
                 print(train_loss)
-                print(cross_entropy(outputs, observed_label, num_classes))
+                print(cross_entropy(outputs, observed_label, self.num_classes))
 
                 train_loss.mean().backward()
                 self.optimizer.step()
@@ -221,7 +221,7 @@ class PyTorchTrainer:
                     val_loss = self.criterion(val_outputs, val_observed_label)
                     print('VAL')
                     print(val_loss)
-                    print(cross_entropy(val_outputs, val_observed_label, num_classes))
+                    print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
                     val_loss.mean().backward()
 
                     if self.reweight:
