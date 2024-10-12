@@ -407,6 +407,7 @@ def main(args):
             raise ValueError("Invalid dataset!")
 
         total_samples = len(train_dataset)
+        n = total_samples
         print(total_samples)
 
         # Set device to use
@@ -431,7 +432,7 @@ def main(args):
 
         # Allows importing data in multiple formats
 
-        temp_train_dataset, temp_val_dataset = torch.utils.data.random_split(train_dataset, [int(0.85*n), total_samples-int(0.85*n)])
+        temp_train_dataset, temp_val_dataset = torch.utils.data.random_split(train_dataset, [int(0.85*n), n-int(0.85*n)])
 
         if dataset == "nih":
             dataloader_class = loader(
