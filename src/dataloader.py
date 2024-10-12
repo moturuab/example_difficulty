@@ -41,13 +41,14 @@ class SubsetDataset(Dataset):
     """
     def __init__(self, dataset, indices, labels):
         self.dataset = torch.utils.data.Subset(dataset, indices)
+        print(labels)
         self.targets = labels
 
     def __getitem__(self, idx):
         image = self.dataset[idx][0]
         target = self.targets[idx]
         return image, target
-        
+
     def __len__(self):
         return len(self.targets)
 
