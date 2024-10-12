@@ -169,8 +169,6 @@ class PyTorchTrainer:
                 true_label = true_label.to(self.device)
                 observed_label = observed_label.to(self.device)
 
-                print(0)
-                print(self.alpha.grad)
                 self.optimizer.zero_grad()
 
                 outputs = self.model(inputs)
@@ -185,17 +183,10 @@ class PyTorchTrainer:
                 train_loss = self.criterion(outputs, observed_label)
                 print(train_loss)
 
-                print(1)
-                print(self.alpha.grad)
                 train_loss.mean().backward()
-                print(2)
-                print(self.alpha.grad)
                 self.optimizer.step()
-                print(3)
-                print(self.alpha.grad)
+                self.optimizer.zero_()
                 self.alpha.grad.zero_()
-                print(3.5)
-                print(self.alpha.grad)
 
                 if torch.isnan(self.alpha) or torch.isnan(self.alpha.grad):
                     break
