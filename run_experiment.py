@@ -448,7 +448,7 @@ def main(args):
             dataloader_class = MultiFormatDataLoader(
             data=train_dataset,
             full_dataset=full_dataset,
-            train_idx=train_idx,
+            idx=train_idx,
             target_column=None,
             data_type="torch_dataset",
             data_modality="image",
@@ -462,10 +462,28 @@ def main(args):
             p=p,
             rule_matrix=rule_matrix)
 
+            if val_idx is not None:
+                dataloader_class = MultiFormatDataLoader(
+                data=val_dataset,
+                full_dataset=full_dataset,
+                idx=val_idx,
+                target_column=None,
+                data_type="torch_dataset",
+                data_modality="image",
+                dataset_name=dataset,
+                batch_size=64,
+                shuffle=True,
+                num_workers=0,
+                transform=None,
+                image_transform=None,
+                perturbation_method=hardness,
+                p=p,
+                rule_matrix=rule_matrix)
+
             test_dataloader_class = MultiFormatDataLoader(
             data=test_dataset,
             full_dataset=full_dataset,
-            train_idx=test_idx,
+            idx=test_idx,
             target_column=None,
             data_type="torch_dataset",
             data_modality="image",
@@ -479,8 +497,14 @@ def main(args):
             p=p,
             rule_matrix=rule_matrix)
 
-        dataloader, val_dataloader, dataloader_unshuffled, val_dataloader_unshuffled = dataloader_class.get_dataloader()
-        train_flag_ids, val_flag_ids = dataloader_class.get_flag_ids()
+        if val_idx is not None:
+            dataloader, dataloader_unshuffled = dataloader_class.get_dataloader()
+            train_flag_ids = train_dataloader_class.get_flag_ids()
+            val_dataloader, val_dataloader_unshuffled = val_dataloader_class.get_dataloader()
+            val_flag_ids = val_dataloader_class.get_flag_ids()
+        else:
+            dataloader, val_dataloader, dataloader_unshuffled, val_dataloader_unshuffled = dataloader_class.get_dataloader()
+            train_flag_ids, val_flag_ids = dataloader_class.get_flag_ids()
 
         test_dataloader, test_dataloader_unshuffled = test_dataloader_class.get_dataloader()
         test_flag_ids = test_dataloader_class.get_flag_ids()
