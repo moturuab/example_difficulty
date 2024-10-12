@@ -459,10 +459,10 @@ def main(args):
             rule_matrix=rule_matrix)
         else:
             dataloader_class = MultiFormatDataLoader(
-            data=next(iter(temp_train_dataset)),
+            data=train_dataset,
             full_dataset=full_dataset,
-            idx=temp_train_idx,
-            target_column=temp_train_targets,
+            idx=l,
+            target_column=None,
             data_type="torch_dataset",
             data_modality="image",
             dataset_name=dataset,
