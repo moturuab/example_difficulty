@@ -17,7 +17,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         encoded_targets.scatter_(1, targets.view(-1, 1).long(), 1).float()
         return encoded_targets
 
-    def weights(self, outputs, targets):
+    def weights(self, outputs, encoded_targets):
         softmax_outputs = self.softmax(outputs)
         weights = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1) - softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)/np.exp(self.alpha)
         return weights
@@ -41,7 +41,7 @@ class WeightedFocalLoss(nn.CrossEntropyLoss):
         self.num_classes = num_classes
         self.device = device
 
-    def weights(self, outputs, targets):
+    def weights(self, outputs, encoded_targets):
         softmax_outputs = self.softmax(outputs)
         weights = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1) - softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)/np.exp(self.alpha)
         return weights
