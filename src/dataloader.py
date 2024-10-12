@@ -39,6 +39,7 @@ class PerturbedDataset(Dataset):
         p=0.1,
         rule_matrix=None,
         images=True,
+        targets=None,
         dataset_name="",
         atypical_marginal=[],
     ):
@@ -67,6 +68,7 @@ class PerturbedDataset(Dataset):
         self.p = p
         self.rule_matrix = rule_matrix
         self.images = images
+        self.targets = targets
         self.atypical_marginal = atypical_marginal
         self.dataset_name = dataset_name
 
@@ -169,7 +171,7 @@ class PerturbedDataset(Dataset):
             elif self.dataset_name == "nih":
                 labels = self.dataset.labels
             else:
-                labels = self.dataset.targets
+                labels = self.targets
                 
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
@@ -289,7 +291,7 @@ class PerturbedDataset(Dataset):
             elif self.dataset_name == "nih":
                 labels = self.dataset.labels
             else:
-                labels = self.dataset.targets
+                labels = self.targets
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
 
@@ -374,7 +376,7 @@ class PerturbedDataset(Dataset):
             elif self.dataset_name == "nih":
                 labels = self.dataset.labels
             else:
-                labels = self.dataset.targets
+                labels = self.targets
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
 
@@ -393,7 +395,7 @@ class PerturbedDataset(Dataset):
         elif self.dataset_name == "nih":
             labels = self.dataset.labels
         else:
-            labels = self.dataset.targets
+            labels = self.targets
 
         if self.perturbation_method == "uniform":
             self.flag_ids = np.random.choice(
@@ -578,6 +580,7 @@ class MultiFormatDataLoader:
             p=p,
             rule_matrix=self.rule_matrix,
             images=images,
+            targets=target_column,
             dataset_name=dataset_name,
             atypical_marginal=atypical_marginal,
         )
