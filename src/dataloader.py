@@ -15,8 +15,9 @@ from torchvision.transforms.functional import to_pil_image, to_tensor
 from .perturbations import *
 
 class SubsetDataset(Dataset):
-    def __init__(self, subset, transform=None):
+    def __init__(self, subset, targets, transform=None):
         self.subset = subset
+        self.targets = subset[:][1]
         self.transform = transform
         
     def __getitem__(self, index):
@@ -389,8 +390,6 @@ class PerturbedDataset(Dataset):
         is being returned.
         """
         mislabels = []
-
-        print(self.dataset)
 
         if self.dataset_name == "caltech256":
             labels = [self.full_dataset[i][1] for i in self.train_idx]
