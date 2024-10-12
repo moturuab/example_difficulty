@@ -219,7 +219,7 @@ class PyTorchTrainer:
 
                     if self.reweight:
                         with torch.no_grad():
-                            self.alpha -= (torch.exp(self.alpha.grad)-1)/(torch.exp(self.alpha.grad)+1)
+                            self.alpha -= 0.01 * (torch.exp(self.alpha.grad)-1)/(torch.exp(self.alpha.grad)+1)
                             self.alpha.grad.zero_()
 
                     print(5)
