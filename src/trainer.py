@@ -181,14 +181,16 @@ class PyTorchTrainer:
                 outputs = outputs.float()  # Ensure the outputs are float
                 observed_label = observed_label.long()  # Ensure the labels are long
                 train_loss = self.criterion(outputs, observed_label)
+                print('TRAIN')
                 print(train_loss)
 
                 train_loss.mean().backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad()
-                self.alpha.grad.zero_()
+                if self.reweight:
+                    self.alpha.grad.zero_()
 
-                if torch.isnan(self.alpha) or torch.isnan(self.alpha.grad):
+                if self.reweight and (torch.isnan(self.alpha) or torch.isnan(self.alpha.grad)):
                     break
 
                 for j, val_data in enumerate(val_dataloader):
@@ -203,6 +205,7 @@ class PyTorchTrainer:
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
                     val_loss = self.criterion(val_outputs, val_observed_label)
+                    print('VAL')
                     print(val_loss)
                     val_loss.mean().backward()
 
