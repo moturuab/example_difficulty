@@ -60,7 +60,7 @@ def main(args):
     loss = args.loss
     p = args.prop
     init_alpha = args.init_alpha
-    reweight = True #args.reweight
+    reweight = False #args.reweight
     clean_val = args.clean_val
     groupid = args.groupid
     metainfo = f"{hardness}_{dataset}_{model_name}_{p}_{init_alpha}_{epochs}_{total_runs}_{seed}_{reweight}_{groupid}"
@@ -655,7 +655,7 @@ if __name__ == "__main__":
         help="type of loss function to use",
     )
     parser.add_argument("--clean_val", action='store_true', help="optimize on clean validation set")
-    parser.add_argument("--init_alpha", type=float, default=5.0, help="initialize alpha")
+    parser.add_argument("--init_alpha", type=float, default=2.0, help="initialize alpha")
     parser.add_argument("--epochs", type=int, default=10, help="Epochs")
     parser.add_argument("--hardness", type=str, default="uniform", help="hardness type")
     parser.add_argument("--groupid", type=str, default="0", help="group id (time)")
