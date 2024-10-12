@@ -432,7 +432,9 @@ def main(args):
 
         # Allows importing data in multiple formats
 
-        temp_train_dataset, temp_val_dataset = torch.utils.data.random_split(train_dataset, [int(0.85*n), n-int(0.85*n)])
+        temp_train_subset, temp_val_subset = torch.utils.data.random_split(train_dataset, [int(0.85*n), n-int(0.85*n)])
+        temp_train_dataset = SubsetDataset(temp_train_subset)
+        temp_val_dataset = SubsetDataset(temp_val_subset)
 
         if dataset == "nih":
             dataloader_class = loader(
