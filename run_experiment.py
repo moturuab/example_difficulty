@@ -523,7 +523,7 @@ def main(args):
             rule_matrix=rule_matrix)
 
         dataloader, dataloader_unshuffled = dataloader_class.get_dataloader()
-        train_flag_ids = train_dataloader_class.get_flag_ids()
+        train_flag_ids = dataloader_class.get_flag_ids()
         val_dataloader, val_dataloader_unshuffled = val_dataloader_class.get_dataloader()
         val_flag_ids = val_dataloader_class.get_flag_ids()
         test_dataloader, test_dataloader_unshuffled = test_dataloader_class.get_dataloader()
