@@ -40,6 +40,7 @@ class SubsetDataset(Dataset):
         labels(sequence) : targets as required for the indices. will be the same length as indices
     """
     def __init__(self, dataset, indices):
+        super().__init__()
         self.dataset = dataset
         self.indices = indices
 
@@ -567,7 +568,7 @@ class MultiFormatDataLoader:
 
             self.train_dataset = SubsetDataset(data, train_indices)
             self.val_dataset = SubsetDataset(data, val_indices)
-            
+
         else:
             self.data = self._read_data(data, data_type)
             self.target_column = target_column
