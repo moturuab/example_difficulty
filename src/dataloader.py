@@ -14,7 +14,6 @@ from torchvision.transforms.functional import to_pil_image, to_tensor
 
 from .perturbations import *
 
-'''
 class SubsetDataset(Dataset):
     def __init__(self, subset, transform=None):
         self.subset = subset
@@ -28,7 +27,6 @@ class SubsetDataset(Dataset):
         
     def __len__(self):
         return len(self.subset)
-'''
 
 
 class PerturbedDataset(Dataset):
