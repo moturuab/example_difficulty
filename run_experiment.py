@@ -430,7 +430,7 @@ def main(args):
 
         #wandb.log(metadata)
 
-        l = np.random.shuffle(np.array(range(len(n))))
+        l = np.random.shuffle(np.array(range(n)))
         train_idx = l[:int(0.85*n)]
         val_idx = l[int(0.85*n):]
 
