@@ -169,6 +169,8 @@ class PyTorchTrainer:
                 true_label = true_label.to(self.device)
                 observed_label = observed_label.to(self.device)
 
+                print(0)
+                print(self.alpha.grad)
                 self.optimizer.zero_grad()
 
                 outputs = self.model(inputs)
@@ -182,10 +184,13 @@ class PyTorchTrainer:
                 observed_label = observed_label.long()  # Ensure the labels are long
                 train_loss = self.criterion(outputs, observed_label)
 
+                print(1)
                 print(self.alpha.grad)
                 train_loss.mean().backward()
+                print(2)
                 print(self.alpha.grad)
                 self.optimizer.step()
+                print(3)
                 print(self.alpha.grad)
 
                 for j, val_data in enumerate(val_dataloader):
@@ -201,6 +206,8 @@ class PyTorchTrainer:
                     val_observed_label = val_observed_label.long()
                     val_loss = self.criterion(val_outputs, val_observed_label)
                     val_loss.mean().backward()
+
+                    print(4)
                     print(self.alpha.grad)
                     print(self.alpha)
 
@@ -209,6 +216,8 @@ class PyTorchTrainer:
                             self.alpha -= self.alpha.grad
                             val_loss.grad.zero_()
 
+                    print(5)
+                    print(self.alpha.grad)
                     print(self.alpha)
 
                     val_running_loss += val_loss.mean().item()
