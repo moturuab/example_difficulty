@@ -10,7 +10,7 @@ def softmax(outputs):
     return (torch.exp(outputs.t()) / torch.sum(torch.exp(outputs), dim=1)).t()
 
 def encode(targets, num_classes):
-    encoded_targets = torch.zeros(targets.size(0), num_classes)
+    encoded_targets = torch.zeros(targets.size(0), num_classes).to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
     encoded_targets.scatter_(1, targets.view(-1, 1).long(), 1).float()
     return encoded_targets
 
