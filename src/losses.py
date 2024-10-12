@@ -1,9 +1,9 @@
 import torch.nn as nn
 import torch
 
-class WeightedCrossEntropyLoss(nn.Module):
+class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
     def __init__(self, reweight=True, alpha=None, num_classes=2):
-        super(nn.Module, self).__init__()
+        super(nn.CrossEntropyLoss, self).__init__()
         self.reweight = reweight
         self.alpha = alpha
         self.num_classes = num_classes
@@ -35,9 +35,9 @@ class WeightedCrossEntropyLoss(nn.Module):
         else:
             return loss.mean()
 
-class WeightedFocalLoss(nn.Module):
+class WeightedFocalLoss(nn.CrossEntropyLoss):
     def __init__(self, reweight=True, alpha=None, gamma=None, num_classes=2):
-        super(nn.Module, self).__init__()
+        super(nn.CrossEntropyLoss, self).__init__()
         self.reweight = reweight
         self.alpha = alpha
         self.gamma = gamma
