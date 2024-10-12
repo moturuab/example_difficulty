@@ -17,7 +17,6 @@ from .perturbations import *
 class SubsetDataset(Dataset):
     def __init__(self, subset, transform=None):
         self.subset = subset
-        self.targets = subset[:][1]
         self.transform = transform
         
     def __getitem__(self, index):
@@ -60,8 +59,6 @@ class PerturbedDataset(Dataset):
         generate the mislabeled data. If `perturbation_method` is set to "rule_based", then `rule
         """
         self.dataset = dataset
-        print(dataset)
-        print(len(dataset))
         if dataset_name == "caltech256":
             self.full_dataset = full_dataset
             self.idx = idx
