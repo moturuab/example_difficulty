@@ -437,8 +437,10 @@ def main(args):
 
         temp_train_subset = torch.utils.data.Subset(train_dataset, train_idx)
         temp_val_subset = torch.utils.data.Subset(train_dataset, val_idx)
-        temp_train_dataset = SubsetDataset(temp_train_subset, len=int(0.85*n))
-        temp_val_dataset = SubsetDataset(temp_val_subset, len=n-int(0.85*n))
+        temp_train_dataset = SubsetDataset(temp_train_subset)
+        temp_val_dataset = SubsetDataset(temp_val_subset)
+        temp_train_dataset = torch.utils.data.DataLoader(temp_train_dataset, batch_size=int(0.85*n), shuffle=False)
+        temp_val_dataset = torch.utils.data.DataLoader(temp_val_dataset, batch_size=n-int(0.85*n), shuffle=False)
 
         temp_train_targets = train_dataset.targets[:int(0.85*n)]
         temp_val_targets = train_dataset.targets[int(0.85*n):]

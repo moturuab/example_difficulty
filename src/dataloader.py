@@ -15,9 +15,8 @@ from torchvision.transforms.functional import to_pil_image, to_tensor
 from .perturbations import *
 
 class SubsetDataset(Dataset):
-    def __init__(self, subset, len, transform=None):
+    def __init__(self, subset, transform=None):
         self.subset = subset
-        self.len = len
         self.transform = transform
         
     def __getitem__(self, index):
@@ -27,8 +26,7 @@ class SubsetDataset(Dataset):
         return x, y
         
     def __len__(self):
-        print(self.subset[0])
-        return self.len
+        return len(self.subset)
 
 
 class PerturbedDataset(Dataset):
@@ -41,7 +39,6 @@ class PerturbedDataset(Dataset):
         p=0.1,
         rule_matrix=None,
         images=True,
-        targets=None,
         dataset_name="",
         atypical_marginal=[],
     ):
@@ -70,7 +67,6 @@ class PerturbedDataset(Dataset):
         self.p = p
         self.rule_matrix = rule_matrix
         self.images = images
-        self.targets = targets
         self.atypical_marginal = atypical_marginal
         self.dataset_name = dataset_name
 
@@ -173,7 +169,7 @@ class PerturbedDataset(Dataset):
             elif self.dataset_name == "nih":
                 labels = self.dataset.labels
             else:
-                labels = self.targets
+                labels = self.dataset.targets
                 
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
@@ -293,7 +289,7 @@ class PerturbedDataset(Dataset):
             elif self.dataset_name == "nih":
                 labels = self.dataset.labels
             else:
-                labels = self.targets
+                labels = self.dataset.targets
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
 
@@ -378,7 +374,7 @@ class PerturbedDataset(Dataset):
             elif self.dataset_name == "nih":
                 labels = self.dataset.labels
             else:
-                labels = self.targets
+                labels = self.dataset.targets
             labels = torch.tensor(labels)
             self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
 
@@ -397,7 +393,7 @@ class PerturbedDataset(Dataset):
         elif self.dataset_name == "nih":
             labels = self.dataset.labels
         else:
-            labels = self.targets
+            labels = self.dataset.targets
 
         if self.perturbation_method == "uniform":
             self.flag_ids = np.random.choice(
@@ -582,7 +578,6 @@ class MultiFormatDataLoader:
             p=p,
             rule_matrix=self.rule_matrix,
             images=images,
-            targets=target_column,
             dataset_name=dataset_name,
             atypical_marginal=atypical_marginal,
         )
