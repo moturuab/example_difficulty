@@ -196,7 +196,7 @@ class PyTorchTrainer:
                 print(3.5)
                 print(self.alpha.grad)
 
-                if self.alpha is nan:
+                if torch.isnan(self.alpha):
                     break
 
                 for j, val_data in enumerate(val_dataloader):
