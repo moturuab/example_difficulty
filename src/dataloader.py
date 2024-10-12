@@ -411,6 +411,8 @@ class PerturbedDataset(Dataset):
         """
         mislabels = []
 
+        print(self.dataset)
+
         if self.dataset_name == "caltech256":
             labels = [self.full_dataset[i][1] for i in self.train_idx]
         elif self.dataset_name == "nih":
