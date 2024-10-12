@@ -560,11 +560,11 @@ def main(args):
 
         alpha_criterion = None
         if loss == 'CE':
-            criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=init_alpha, num_classes=num_classes)
-            alpha_criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=init_alpha, num_classes=num_classes)
+            criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=init_alpha, num_classes=num_classes, device=device)
+            alpha_criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=init_alpha, num_classes=num_classes, device=device)
         elif loss == 'FL':
-            criterion = WeightedFocalLoss(reweight=reweight, alpha=init_alpha, gamma=1.0, num_classes=num_classes)
-            alpha_criterion = WeightedFocalLoss(reweight=reweight, alpha=init_alpha, gamma=1.0, num_classes=num_classes)
+            criterion = WeightedFocalLoss(reweight=reweight, alpha=init_alpha, gamma=1.0, num_classes=num_classes, device=device)
+            alpha_criterion = WeightedFocalLoss(reweight=reweight, alpha=init_alpha, gamma=1.0, num_classes=num_classes, device=device)
 
         optimizer = optim.Adam(model.parameters(), lr=0.001)
 
@@ -581,7 +581,7 @@ def main(args):
             total_samples=total_samples,
             num_classes=num_classes,
             reweight=reweight,
-            device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+            device=device,
         )
 
         # Train the model

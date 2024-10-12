@@ -178,8 +178,8 @@ class PyTorchTrainer:
                 #        y_pred=outputs, y_batch=observed_label, sample_ids=indices
                 #    )
 
-                outputs = outputs.float().to(self.device)  # Ensure the outputs are float
-                observed_label = observed_label.long().to(self.device)  # Ensure the labels are long
+                outputs = outputs.float()  # Ensure the outputs are float
+                observed_label = observed_label.long()  # Ensure the labels are long
                 train_loss = self.criterion(outputs, observed_label)
 
                 print(alpha.grad)
@@ -197,8 +197,8 @@ class PyTorchTrainer:
 
                     val_outputs = self.model(val_inputs)
 
-                    val_outputs = val_outputs.float().to(self.device)
-                    val_observed_label = val_observed_label.long().to(self.device)
+                    val_outputs = val_outputs.float()
+                    val_observed_label = val_observed_label.long()
                     val_loss = self.criterion(val_outputs, val_observed_label)
                     val_loss.mean().backward()
                     print(alpha.grad)
