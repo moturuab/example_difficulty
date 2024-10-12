@@ -543,8 +543,8 @@ class MultiFormatDataLoader:
             train_indices = indices[:int(0.85*n)]
             val_indices = indices[int(0.85*n):]
 
-            self.train_dataset = Subset(data, train_indices)
-            self.val_dataset = Subset(data, val_indices)
+            self.train_dataset = torch.utils.data.Subset(data, train_indices)
+            self.val_dataset = torch.utils.data.Subset(data, val_indices)
         else:
             self.data = self._read_data(data, data_type)
             self.target_column = target_column
