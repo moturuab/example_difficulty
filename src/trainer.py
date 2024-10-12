@@ -183,6 +183,7 @@ class PyTorchTrainer:
                 outputs = outputs.float()  # Ensure the outputs are float
                 observed_label = observed_label.long()  # Ensure the labels are long
                 train_loss = self.criterion(outputs, observed_label)
+                print(train_loss)
 
                 print(1)
                 print(self.alpha.grad)
@@ -211,6 +212,7 @@ class PyTorchTrainer:
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
                     val_loss = self.criterion(val_outputs, val_observed_label)
+                    print(val_loss)
                     val_loss.mean().backward()
 
                     print(4)
@@ -219,7 +221,7 @@ class PyTorchTrainer:
 
                     if self.reweight:
                         with torch.no_grad():
-                            self.alpha -= 0.01 * (torch.exp(self.alpha.grad)-1)/(torch.exp(self.alpha.grad)+1)
+                            self.alpha -= self.alpha.grad
                             self.alpha.grad.zero_()
 
                     print(5)
