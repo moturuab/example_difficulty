@@ -432,8 +432,8 @@ def main(args):
 
         l = np.array(range(n))
         np.random.shuffle(l)
-        train_idx = l[:int(0.85*n)]
-        val_idx = l[int(0.85*n):]
+        temp_train_idx = l[:int(0.85*n)]
+        temp_val_idx = l[int(0.85*n):]
 
         temp_train_subset = torch.utils.data.Subset(train_dataset, train_idx)
         temp_val_subset = torch.utils.data.Subset(train_dataset, val_idx)
@@ -461,7 +461,7 @@ def main(args):
             dataloader_class = MultiFormatDataLoader(
             data=temp_train_dataset,
             full_dataset=full_dataset,
-            idx=train_idx,
+            idx=temp_train_idx,
             target_column=temp_train_targets,
             data_type="torch_dataset",
             data_modality="image",
@@ -496,7 +496,7 @@ def main(args):
                 val_dataloader_class = MultiFormatDataLoader(
                 data=temp_val_dataset,
                 full_dataset=full_dataset,
-                idx=val_idx,
+                idx=temp_val_idx,
                 target_column=None,
                 data_type="torch_dataset",
                 data_modality="image",
