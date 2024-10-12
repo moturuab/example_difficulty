@@ -6,6 +6,8 @@ from torch.utils.data import DataLoader, TensorDataset
 
 from .hardness import *
 
+def cross_entropy(input, target):
+    return torch.mean(-torch.sum(target * torch.log(input), 1))
 
 # The PyTorchTrainer class is a helper class for training PyTorch models with various characterization
 # methods.
@@ -181,8 +183,10 @@ class PyTorchTrainer:
                 outputs = outputs.float()  # Ensure the outputs are float
                 observed_label = observed_label.long()  # Ensure the labels are long
                 train_loss = self.criterion(outputs, observed_label)
+                
                 print('TRAIN')
                 print(train_loss)
+                print(cross_entropy(outputs, observed_label))
 
                 train_loss.mean().backward()
                 self.optimizer.step()
@@ -207,6 +211,7 @@ class PyTorchTrainer:
                     val_loss = self.criterion(val_outputs, val_observed_label)
                     print('VAL')
                     print(val_loss)
+                    print(cross_entropy(val_outputs, val_observed_label))
                     val_loss.mean().backward()
 
                     if self.reweight:
