@@ -232,7 +232,7 @@ class PyTorchTrainer:
 
                     val_running_loss += val_loss.mean().item()
 
-                    break
+                    #break
 
                 running_loss += train_loss.mean().item()
 
