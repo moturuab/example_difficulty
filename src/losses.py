@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 
 class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
     def __init__(self, reweight=True, alpha=None, num_classes=2):
