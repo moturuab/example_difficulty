@@ -435,6 +435,7 @@ def main(args):
         indices = np.random.permutation(np.arange(n))
         train_indices = indices[:int(0.85*n)]
         val_indices = indices[int(0.85*n):]
+        print(train_dataset)
 
         if dataset == "nih":
             dataloader_class = loader(
