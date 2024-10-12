@@ -431,9 +431,7 @@ def main(args):
         #wandb.log(metadata)
 
         l = np.array(range(n))
-        print(l)
         np.random.shuffle(l)
-        print(l)
         train_idx = l[:int(0.85*n)]
         val_idx = l[int(0.85*n):]
 
@@ -442,8 +440,8 @@ def main(args):
         temp_train_dataset = SubsetDataset(temp_train_subset)
         temp_val_dataset = SubsetDataset(temp_val_subset)
 
-        temp_train_targets = train_dataset.targets[int(0.85*n)]
-        temp_val_targets = train_dataset.targets[n-int(0.85*n)]
+        temp_train_targets = train_dataset.targets[:int(0.85*n)]
+        temp_val_targets = train_dataset.targets[int(0.85*n):]
 
         if dataset == "nih":
             dataloader_class = loader(
