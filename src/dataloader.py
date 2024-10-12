@@ -114,6 +114,11 @@ class PerturbedDataset(Dataset):
                 #assert self.perturbs[idx] == perturbed_target
                 perturbed_target = self.perturbs[idx]
 
+        print(type(data_point[0]))
+        print(type(target))
+        print(type(perturbed_target))
+        print(type(indices))
+
         return data_point[0], target, perturbed_target, indices
 
     def _generate_shifts(self):
