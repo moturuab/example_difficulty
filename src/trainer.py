@@ -6,8 +6,18 @@ from torch.utils.data import DataLoader, TensorDataset
 
 from .hardness import *
 
-def cross_entropy(input, target):
-    return torch.mean(-torch.sum(target * torch.log(input), 1))
+def softmax(outputs):
+    return (torch.exp(outputs.t()) / torch.sum(torch.exp(outputs), dim=1)).t()
+
+def encode(targets):
+    encoded_targets = torch.zeros(targets.size(0), self.num_classes).to(self.device)
+    encoded_targets.scatter_(1, targets.view(-1, 1).long(), 1).float()
+    return encoded_targets
+
+def cross_entropy(inp, target):
+    inp = softmax(inp)
+    target = encode(target)
+    return torch.mean(-torch.sum(target * torch.log(inp), 1))
 
 # The PyTorchTrainer class is a helper class for training PyTorch models with various characterization
 # methods.
