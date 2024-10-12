@@ -240,6 +240,7 @@ class PyTorchTrainer:
             print(running_loss)
             print('VAL FULL')
             print(val_loss)
+            break
             self.model.eval()
             for k, test_data in enumerate(test_dataloader):
                 test_inputs, test_true_label, test_observed_label, test_indices = test_data
