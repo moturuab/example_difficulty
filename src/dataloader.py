@@ -653,7 +653,7 @@ class MultiFormatDataLoader:
     # get perturbed dataset
     def get_perturbed_dataset(self):
         return self.perturbed_dataset
-        
+
     def get_flag_ids(self):
         """
         This function returns an array of zeros and ones indicating whether each index in a dataset is a
@@ -665,16 +665,10 @@ class MultiFormatDataLoader:
         of the object. Finally, the function returns the updated flag array.
         """
 
-        train_flag_array = np.zeros(len(self.train_dataset))
+        flag_array = np.zeros(len(self.dataset))
 
-        for i in range(len(train_flag_array)):
-            if i in self.train_flag_ids:
-                train_flag_array[i] = 1
+        for i in range(len(flag_array)):
+            if i in self.flag_ids:
+                flag_array[i] = 1
 
-        val_flag_array = np.zeros(len(self.val_dataset))
-
-        for i in range(len(val_flag_array)):
-            if i in self.val_flag_ids:
-                val_flag_array[i] = 1
-
-        return train_flag_array, val_flag_array
+        return flag_array
