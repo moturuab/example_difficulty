@@ -112,7 +112,7 @@ class PerturbedDataset(Dataset):
         ]:
             if idx in self.perturbs:
                 #assert self.perturbs[idx] == perturbed_target
-                perturbed_target = torch.from_numpy(self.perturbs[idx]).type(torch.Tensor)
+                perturbed_target = torch.tensor(self.perturbs[idx])
 
         return data_point[0], target, perturbed_target, indices
 
