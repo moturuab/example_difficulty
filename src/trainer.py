@@ -186,7 +186,7 @@ class PyTorchTrainer:
                 train_loss.mean().backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad()
-                self.alpha.grad.zero_()
+                #self.alpha.grad.zero_()
 
                 if torch.isnan(self.alpha) or torch.isnan(self.alpha.grad):
                     break
@@ -206,18 +206,11 @@ class PyTorchTrainer:
                     print(val_loss)
                     val_loss.mean().backward()
 
-                    print(4)
-                    print(self.alpha.grad)
-                    print(self.alpha)
-
                     if self.reweight:
                         with torch.no_grad():
-                            self.alpha -= self.alpha.grad
-                            self.alpha.grad.zero_()
-
-                    print(5)
-                    print(self.alpha.grad)
-                    print(self.alpha)
+                            #self.alpha -= self.alpha.grad
+                            #self.alpha.grad.zero_()
+                            u = 1
 
                     val_running_loss += val_loss.mean().item()
 

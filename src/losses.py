@@ -32,7 +32,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         weights = self.weights(outputs, encoded_targets) ** 2
         #weights[weights < 0] = 0
         if self.reweight:
-            weighted_loss = weights * loss
+            weighted_loss = loss #weights * loss
             return weighted_loss.mean()
         else:
             return loss.mean()
