@@ -435,6 +435,9 @@ def main(args):
         temp_train_subset, temp_val_subset = torch.utils.data.random_split(train_dataset, [int(0.85*n), n-int(0.85*n)])
         temp_train_dataset = SubsetDataset(temp_train_subset)
         temp_val_dataset = SubsetDataset(temp_val_subset)
+        print(train_dataset)
+        print(temp_train_dataset)
+        print(temp_val_dataset)
 
         if dataset == "nih":
             dataloader_class = loader(
