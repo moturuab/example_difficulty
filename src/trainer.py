@@ -186,10 +186,10 @@ class PyTorchTrainer:
                 train_loss.mean().backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad()
-                #self.alpha.grad.zero_()
+                self.alpha.grad.zero_()
 
-                #if torch.isnan(self.alpha) or torch.isnan(self.alpha.grad):
-                #    break
+                if torch.isnan(self.alpha) or torch.isnan(self.alpha.grad):
+                    break
 
                 for j, val_data in enumerate(val_dataloader):
                     val_inputs, val_true_label, val_observed_label, val_indices = val_data
@@ -208,8 +208,8 @@ class PyTorchTrainer:
 
                     if self.reweight:
                         with torch.no_grad():
-                            #self.alpha -= self.alpha.grad
-                            #self.alpha.grad.zero_()
+                            self.alpha -= self.alpha.grad
+                            self.alpha.grad.zero_()
                             u = 1
 
                     val_running_loss += val_loss.mean().item()
