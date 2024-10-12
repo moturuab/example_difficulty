@@ -57,6 +57,7 @@ def main(args):
     model_name = args.model_name
     epochs = args.epochs
     seed = args.seed
+    loss = args.loss
     p = args.prop
     init_alpha = args.init_alpha
     reweight = args.reweight
@@ -647,6 +648,13 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=0, help="seed")
     parser.add_argument("--prop", type=float, default=0.1, help="prop")
     parser.add_argument("--reweight", action='store_true', help="reweight")
+    parser.add_argument(
+        "--loss",
+        type=str,
+        default="CE",
+        choices=["CE", "FL"],
+        help="type of loss function to use",
+    )
     parser.add_argument("--clean_val", action='store_true', help="optimize on clean validation set")
     parser.add_argument("--init_alpha", type=float, default=2, help="initialize alpha")
     parser.add_argument("--epochs", type=int, default=10, help="Epochs")
