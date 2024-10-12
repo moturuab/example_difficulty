@@ -431,11 +431,7 @@ def main(args):
 
         # Allows importing data in multiple formats
 
-        n = total_samples
-        indices = np.random.permutation(np.arange(n))
-        train_indices = indices[:int(0.85*n)]
-        val_indices = indices[int(0.85*n):]
-        print(train_dataset)
+        temp_train_dataset, temp_val_dataset = torch.utils.data.random_split(train_dataset, [int(0.85*n), total_samples-int(0.85*n)])
 
         if dataset == "nih":
             dataloader_class = loader(
@@ -452,7 +448,6 @@ def main(args):
             p=p,
             rule_matrix=rule_matrix)
         else:
-            temp_train_dataset = torch.utils.data.Subset(train_dataset, train_idx)
             dataloader_class = MultiFormatDataLoader(
             data=temp_train_dataset,
             full_dataset=full_dataset,
@@ -488,7 +483,6 @@ def main(args):
                 p=p,
                 rule_matrix=rule_matrix)
             else:
-                temp_val_dataset = torch.utils.data.Subset(train_dataset, val_idx)
                 val_dataloader_class = MultiFormatDataLoader(
                 data=temp_val_dataset,
                 full_dataset=full_dataset,
