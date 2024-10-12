@@ -435,18 +435,12 @@ def main(args):
         temp_train_idx = l[:int(0.85*n)]
         temp_val_idx = l[int(0.85*n):]
 
-        temp_train_subset = torch.utils.data.Subset(train_dataset, train_idx)
-        temp_val_subset = torch.utils.data.Subset(train_dataset, val_idx)
-        temp_train_dataset = torch.utils.data.DataLoader(temp_train_subset, batch_size=int(0.85*n), shuffle=False)
-        temp_val_dataset = torch.utils.data.DataLoader(temp_val_subset, batch_size=n-int(0.85*n), shuffle=False)
-
-        temp_train_targets = train_dataset.targets[:int(0.85*n)]
-        temp_val_targets = train_dataset.targets[int(0.85*n):]
+        temp_train_dataset, temp_val_dataset = torch.utils.data.random_split(train_dataset, [int(0.85*n), n-int(0.85*n)], generator=torch.Generator().manual_seed(42))
 
         if dataset == "nih":
             dataloader_class = loader(
             data=train_dataset,
-            target_column=temp_train_targets,
+            target_column=None,
             data_type="torch_dataset",
             data_modality="image",
             batch_size=64,
@@ -459,7 +453,7 @@ def main(args):
             rule_matrix=rule_matrix)
         else:
             dataloader_class = MultiFormatDataLoader(
-            data=train_dataset,
+            data=temp_train_dataset,
             full_dataset=full_dataset,
             idx=l,
             target_column=None,
@@ -480,7 +474,7 @@ def main(args):
                 data=val_dataset,
                 full_dataset=full_dataset,
                 idx=val_idx,
-                target_column=val_targets,
+                target_column=None,
                 data_type="torch_dataset",
                 data_modality="image",
                 dataset_name=dataset,
