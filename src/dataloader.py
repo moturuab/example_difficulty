@@ -27,7 +27,7 @@ class SubsetDataset(Dataset):
         return x, y
         
     def __len__(self):
-        print(self.subset[index])
+        print(self.subset[0])
         return self.len
 
 
