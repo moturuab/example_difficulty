@@ -567,7 +567,7 @@ def main(args):
             criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, gamma=1.0, num_classes=num_classes, device=device)
             alpha_criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, gamma=1.0, num_classes=num_classes, device=device)
 
-        optimizer = optim.Adam(list(model.parameters()) + list(alpha.parameters(), lr=0.001)
+        optimizer = optim.Adam(list(model.parameters()) + list(alpha.parameters()), lr=0.001)
 
         # Instantiate the PyTorchTrainer class
         trainer = PyTorchTrainer(
