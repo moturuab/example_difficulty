@@ -60,7 +60,7 @@ def main(args):
     loss = args.loss
     p = args.prop
     init_alpha = args.init_alpha
-    reweight = True #args.reweight
+    reweight = False #args.reweight
     clean_val = args.clean_val
     groupid = args.groupid
     metainfo = f"{hardness}_{dataset}_{model_name}_{p}_{init_alpha}_{epochs}_{total_runs}_{seed}_{reweight}_{groupid}"
@@ -567,7 +567,7 @@ def main(args):
             criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, gamma=1.0, num_classes=num_classes, device=device)
             alpha_criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, gamma=1.0, num_classes=num_classes, device=device)
 
-        optimizer = optim.Adam(model.parameters(), lr=0.001)
+        optimizer = optim.Adam(list(model.parameters()) + list(alpha.parameters(), lr=0.001)
 
         # Instantiate the PyTorchTrainer class
         trainer = PyTorchTrainer(
