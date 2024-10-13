@@ -201,8 +201,8 @@ class PyTorchTrainer:
                 train_loss.mean().backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad()
-                if self.reweight:
-                    self.alpha.grad.zero_()
+                #if self.reweight:
+                    #self.alpha.grad.zero_()
 
                 if self.reweight and (torch.isnan(self.alpha) or torch.isnan(self.alpha.grad)):
                     break
