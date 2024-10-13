@@ -227,8 +227,8 @@ class PyTorchTrainer:
                     if self.reweight:
                         with torch.no_grad():
                             self.alpha -= self.alpha.grad
-                            self.alpha.grad.zero_()
                             u = 1
+
 
                     val_running_loss += val_loss.mean().item()
 
