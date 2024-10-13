@@ -37,7 +37,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
                 print(torch.min(weights[weights<0]))
                 print(torch.mean(weights[weights<0]))
                 print(torch.max(weights[weights<0]))
-                weights[weights<0] = 0.5 * (weights[weights<0] + 1)
+                weights[weights<0] = 0.5 * (weights[weights<0] + 1) + 0.25
             weighted_loss = weights * loss
             return weighted_loss.mean()
         else:
