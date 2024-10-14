@@ -60,6 +60,7 @@ def main(args):
     loss = args.loss
     p = args.prop
     init_alpha = args.init_alpha
+    init_beta = args.init_beta
     reweight = True #args.reweight
     clean_val = args.clean_val
     groupid = args.groupid
