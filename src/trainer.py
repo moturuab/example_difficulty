@@ -232,7 +232,6 @@ class PyTorchTrainer:
                     print(val_loss)
                     print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
                     val_loss.mean().backward()
-                    self.val_optimizer.zero_grad()
 
                     if self.reweight:
                         with torch.no_grad():
