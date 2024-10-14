@@ -4,6 +4,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 
+from temperature_scaling import ModelWithTemperature
+
 from .hardness import *
 
 def softmax(outputs):
@@ -219,6 +221,9 @@ class PyTorchTrainer:
                 #if self.reweight and (torch.isnan(self.alpha) or torch.isnan(self.alpha.grad)):
                 #    break
 
+                scaled_model = ModelWithTemperature(self.model)
+                scaled_model.set_temperature(val_dataloader)
+
                 for j, val_data in enumerate(val_dataloader):
                     val_inputs, val_true_label, val_observed_label, val_indices = val_data
 
@@ -226,7 +231,7 @@ class PyTorchTrainer:
                     val_true_label = val_true_label.to(self.device)
                     val_observed_label = val_observed_label.to(self.device)
 
-                    val_outputs = self.model(val_inputs)
+                    val_outputs = scaled_model.model(val_inputs)
 
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
