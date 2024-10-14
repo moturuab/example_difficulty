@@ -224,6 +224,7 @@ class PyTorchTrainer:
                     val_loss = self.criterion(val_outputs, val_observed_label)
                     print('VAL')
                     print(val_loss)
+                    print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
                     print(cross_entropy(val_outputs, val_true_label, self.num_classes))
                     val_loss.mean().backward()
 
@@ -249,7 +250,13 @@ class PyTorchTrainer:
 
                 test_outputs = test_outputs.float()  # Ensure the outputs are float
                 test_observed_label = test_observed_label.long()  # Ensure the labels are long
+                test_true_label = test_true_label.long()  # Ensure the labels are long
                 test_loss = self.criterion(test_outputs, test_true_label)
+
+                print('TEST')
+                print(test_loss)
+                print(cross_entropy(test_outputs, test_observed_label, self.num_classes))
+                print(cross_entropy(test_outputs, test_true_label, self.num_classes))
                 test_running_loss += test_loss.mean().item()
 
             self.model.train()
