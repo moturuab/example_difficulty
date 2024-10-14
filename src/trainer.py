@@ -182,6 +182,7 @@ class PyTorchTrainer:
             running_ce = 0.0
             val_running_ce = 0.0
             test_running_ce = 0.0
+            scaled_model = ModelWithTemperature(self.model)
             for i, data in enumerate(dataloader):
                 inputs, true_label, observed_label, indices = data
                 m = 1 if i % 2 == 0 else -1
@@ -220,9 +221,6 @@ class PyTorchTrainer:
 
                 #if self.reweight and (torch.isnan(self.alpha) or torch.isnan(self.alpha.grad)):
                 #    break
-
-                scaled_model = ModelWithTemperature(self.model)
-                scaled_model.set_temperature(val_dataloader)
 
                 for j, val_data in enumerate(val_dataloader):
                     val_inputs, val_true_label, val_observed_label, val_indices = val_data
@@ -264,6 +262,8 @@ class PyTorchTrainer:
                     break
 
                 running_loss += train_loss.mean().item()
+
+            scaled_model.set_temperature(val_dataloader)
 
             self.model.eval()
             for k, test_data in enumerate(test_dataloader):
