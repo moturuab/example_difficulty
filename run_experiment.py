@@ -439,7 +439,8 @@ def main(args):
         temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, train_dataset.targets[temp_train_idx])
         temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, train_dataset.targets[temp_val_idx])
 
-        test_idx = torch.from_numpy(np.array(range(len(test_dataset))))
+
+        temp_test_dataset = SubsetDataset(test_dataset, np.array(range(len(test_dataset))), test_dataset.targets[np.array(range(len(test_dataset)))])
 
         if dataset == "nih":
             dataloader_class = loader(
@@ -509,7 +510,7 @@ def main(args):
                 rule_matrix=rule_matrix)
 
             test_dataloader_class = MultiFormatDataLoader(
-            data=test_dataset,
+            data=temp_test_dataset,
             full_dataset=full_dataset,
             idx=test_idx,
             target_column=None,
