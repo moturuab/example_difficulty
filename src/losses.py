@@ -19,15 +19,15 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
 
     def weights(self, outputs, encoded_targets):
         softmax_outputs = self.softmax(outputs)
-        a = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
-        b = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
+        correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
+        max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
         print(a)
         print(b)
         print(b-a)
         print(b/torch.exp(self.alpha)-a)
         print(a-b)
         print(a-b/torch.exp(self.alpha))
-        weights = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)/torch.exp(self.alpha) - softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
+        weights = correct_outputs - max_outputs/torch.exp(self.alpha)
         return weights
 
     def forward(self, outputs, targets):
