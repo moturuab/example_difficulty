@@ -34,7 +34,8 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         loss = - torch.sum(torch.log(softmax_outputs) * (encoded_targets), dim=1)
         if self.reweight:
             weights = self.weights(outputs, encoded_targets)
-            weights[weights<0] = weights[weights<0] + torch.abs(torch.min(weights[weights<0]))
+            if len(weights[weights<0]) > 0:
+                weights[weights<0] = weights[weights<0] + torch.abs(torch.min(weights[weights<0]))
             weighted_loss = weights * loss
             return weighted_loss.mean()
         else:
