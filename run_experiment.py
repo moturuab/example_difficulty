@@ -661,6 +661,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--clean_val", action='store_true', help="optimize on clean validation set")
     parser.add_argument("--init_alpha", type=float, default=2.0, help="initialize alpha")
+    parser.add_argument("--init_beta", type=float, default=2.0, help="initialize beta")
     parser.add_argument("--epochs", type=int, default=10, help="Epochs")
     parser.add_argument("--hardness", type=str, default="uniform", help="hardness type")
     parser.add_argument("--groupid", type=str, default="0", help="group id (time)")
