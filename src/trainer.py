@@ -241,14 +241,18 @@ class PyTorchTrainer:
 
                     if self.reweight:
                         with torch.no_grad():
-                            self.alpha -= 0.01 * self.alpha.grad
-                            self.beta -= 0.01 * self.beta.grad
+                            if m == 1:
+                                self.alpha -= 0.01 * self.alpha.grad
+                            else:
+                                self.beta -= 0.01 * self.beta.grad
                             wandb.log({"alpha": self.alpha.detach().item(), "st": c})
                             wandb.log({"beta": self.beta.detach().item(), "st": c})
                             c += 1
                             print('GRAD')
-                            print(0.01 * self.alpha.grad)
-                            print(0.01 * self.beta.grad)
+                            if m == 1:
+                                print(0.01 * self.alpha.grad)
+                            else:
+                                print(0.01 * self.beta.grad)
 
                     val_running_loss += val_loss.mean().item()
 
