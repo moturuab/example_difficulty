@@ -38,12 +38,15 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
             weights = self.weights(outputs, encoded_targets)
             if len(weights[weights<0]) > 0:
                 print('hi')
+                print(len(weights[weights<0])/len(weights))
                 print(self.alpha)
                 print(torch.min(weights[weights<0]))
                 print(torch.mean(weights[weights<0]))
                 print(torch.max(weights[weights<0]))
                 weights[weights<0] = 0.1 #torch.min(weights[weights>0])
             weighted_loss = weights * loss
+            print(weights)
+            print(loss)
             print(weighted_loss)
             return weighted_loss.mean()
         else:
