@@ -241,8 +241,6 @@ class PyTorchTrainer:
 
             self.model.eval()
             for k, test_data in enumerate(test_dataloader):
-                print(k)
-                print(test_data)
                 test_inputs, test_true_label, test_observed_label, test_indices = test_data
 
                 test_inputs = test_inputs.to(self.device)
