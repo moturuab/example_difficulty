@@ -60,7 +60,7 @@ def main(args):
     loss = args.loss
     p = args.prop
     init_alpha = args.init_alpha
-    reweight = False #args.reweight
+    reweight = True #args.reweight
     clean_val = args.clean_val
     groupid = args.groupid
     metainfo = f"{hardness}_{dataset}_{model_name}_{p}_{init_alpha}_{epochs}_{total_runs}_{seed}_{reweight}_{groupid}"
