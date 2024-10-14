@@ -174,6 +174,9 @@ class PyTorchTrainer:
             running_loss = 0.0
             val_running_loss = 0.0
             test_running_loss = 0.0
+            running_ce = 0.0
+            val_running_ce = 0.0
+            test_running_ce = 0.0
             for i, data in enumerate(dataloader):
                 inputs, true_label, observed_label, indices = data
 
@@ -197,6 +200,8 @@ class PyTorchTrainer:
                 print('TRAIN')
                 print(train_loss)
                 print(cross_entropy(outputs, observed_label, self.num_classes))
+                train_ce = cross_entropy(outputs, observed_label, self.num_classes)
+                running_ce += train_ce.mean().item()
 
                 if torch.isnan(train_loss):
                     break
@@ -226,11 +231,15 @@ class PyTorchTrainer:
                     print(val_loss)
                     print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
                     print(cross_entropy(val_outputs, val_true_label, self.num_classes))
+                    val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
+                    val_running_ce += val_ce.mean().item()
                     val_loss.mean().backward()
 
                     if self.reweight:
                         with torch.no_grad():
                             self.alpha -= 0.01 * self.alpha.grad
+                            print('GRAD')
+                            print(0.01 * self.alpha.grad)
                             u = 1
 
                     val_running_loss += val_loss.mean().item()
@@ -257,15 +266,23 @@ class PyTorchTrainer:
                 print(test_loss)
                 print(cross_entropy(test_outputs, test_observed_label, self.num_classes))
                 print(cross_entropy(test_outputs, test_true_label, self.num_classes))
+                test_ce = cross_entropy(test_outputs, test_true_label, self.num_classes)
+                test_running_ce += test_ce.mean().item()
                 test_running_loss += test_loss.mean().item()
 
             self.model.train()
             epoch_loss = running_loss / len(dataloader)
             val_epoch_loss = val_running_loss / len(val_dataloader)
             test_epoch_loss = test_running_loss / len(test_dataloader)
+            epoch_ce = running_ce / len(dataloader)
+            val_epoch_ce = val_running_ce / len(val_dataloader)
+            test_epoch_ce = test_running_ce / len(test_dataloader)
             wandb.log({"train_loss": epoch_loss, "epoch": epoch})
             wandb.log({"val_loss": val_epoch_loss, "epoch": epoch})
             wandb.log({"test_loss": test_epoch_loss, "epoch": epoch})
+            wandb.log({"train_ce": epoch_ce, "epoch": epoch})
+            wandb.log({"val_ce": val_epoch_ce, "epoch": epoch})
+            wandb.log({"test_ce": test_epoch_ce, "epoch": epoch})
             print(f"Epoch {epoch+1}/{self.epochs}: Train Loss={epoch_loss:.4f} | Val Loss={val_epoch_loss:.4f} | Test Loss={test_epoch_loss:.4f}")
 
             if epoch == 0:
