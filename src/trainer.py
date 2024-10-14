@@ -221,13 +221,11 @@ class PyTorchTrainer:
                     val_true_label = val_true_label.to(self.device)
                     val_observed_label = val_observed_label.to(self.device)
 
-                    self.val_optimizer.zero_grad()
-
                     val_outputs = self.model(val_inputs)
 
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
-                    val_loss = self.val_criterion(val_outputs, val_observed_label)
+                    val_loss = self.criterion(val_outputs, val_observed_label)
                     print('VAL')
                     print(val_loss)
                     print(cross_entropy(val_outputs, val_observed_label, self.num_classes))

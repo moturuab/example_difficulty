@@ -561,10 +561,10 @@ def main(args):
         val_criterion = None
         alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True)
         if loss == 'CE':
-            criterion = WeightedCrossEntropyLoss(reweight=False, alpha=alpha, num_classes=num_classes, device=device)
+            criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=alpha, num_classes=num_classes, device=device)
             val_criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=alpha, num_classes=num_classes, device=device)
         elif loss == 'FL':
-            criterion = WeightedFocalLoss(reweight=False, alpha=alpha, gamma=1.0, num_classes=num_classes, device=device)
+            criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, gamma=1.0, num_classes=num_classes, device=device)
             val_criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, gamma=1.0, num_classes=num_classes, device=device)
 
         if reweight:
