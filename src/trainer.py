@@ -198,6 +198,9 @@ class PyTorchTrainer:
                 print(train_loss)
                 print(cross_entropy(outputs, observed_label, self.num_classes))
 
+                if torch.isnan(train_loss):
+                    break
+
                 train_loss.mean().backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad()
@@ -229,7 +232,6 @@ class PyTorchTrainer:
                             self.alpha -= self.alpha.grad
                             u = 1
 
-
                     val_running_loss += val_loss.mean().item()
 
                     break
@@ -239,7 +241,7 @@ class PyTorchTrainer:
             print('TRAIN FULL')
             print(running_loss)
             print('VAL FULL')
-            print(val_loss)
+            print(val_running_loss)
             break
             self.model.eval()
             for k, test_data in enumerate(test_dataloader):
