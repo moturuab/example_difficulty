@@ -28,8 +28,6 @@ class PyTorchTrainer:
         alpha: nn.Module,
         criterion: nn.Module,
         optimizer: optim.Optimizer,
-        val_criterion: nn.Module,
-        val_optimizer: optim.Optimizer,
         device: torch.device = None,
         lr: float = 0.001,
         epochs: int = 10,
@@ -80,8 +78,6 @@ class PyTorchTrainer:
         self.alpha = alpha
         self.criterion = criterion
         self.optimizer = optimizer
-        self.val_criterion = val_criterion
-        self.val_optimizer = val_optimizer
         self.device = device
         self.lr = lr
         self.epochs = epochs

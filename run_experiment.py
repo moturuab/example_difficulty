@@ -558,18 +558,14 @@ def main(args):
             if model_name == "ResNet":
                 model = ResNet18MNIST(num_classes=num_classes).to(device)
 
-        val_criterion = None
         alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True)
         if loss == 'CE':
             criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=alpha, num_classes=num_classes, device=device)
-            val_criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=alpha, num_classes=num_classes, device=device)
         elif loss == 'FL':
             criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, gamma=1.0, num_classes=num_classes, device=device)
-            val_criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, gamma=1.0, num_classes=num_classes, device=device)
 
         if reweight:
             optimizer = optim.Adam(list(model.parameters()) + list([alpha]), lr=0.001)
-            val_optimizer = optim.Adam(list(model.parameters()) + list([alpha]), lr=0.001)
         else:
             optimizer = optim.Adam(model.parameters(), lr=0.001)
 
@@ -579,8 +575,6 @@ def main(args):
             alpha=alpha,
             criterion=criterion,
             optimizer=optimizer,
-            val_criterion=val_criterion,
-            val_optimizer=val_optimizer,
             lr=0.001,
             epochs=epochs,
             total_samples=total_samples,
