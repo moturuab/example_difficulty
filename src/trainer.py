@@ -226,7 +226,7 @@ class PyTorchTrainer:
 
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
-                    val_loss = self.criterion(val_outputs, val_observed_label)
+                    val_loss = self.criterion(val_outputs, val_true_label)
                     print('VAL')
                     print(val_loss)
                     print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
