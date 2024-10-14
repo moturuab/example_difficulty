@@ -439,6 +439,8 @@ def main(args):
         temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, train_dataset.targets[temp_train_idx])
         temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, train_dataset.targets[temp_val_idx])
 
+        test_idx = torch.from_numpy(np.array(range(len(test_dataset))))
+
         if dataset == "nih":
             dataloader_class = loader(
             data=train_dataset,
