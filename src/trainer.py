@@ -224,7 +224,7 @@ class PyTorchTrainer:
                     val_loss = self.criterion(val_outputs, val_observed_label)
                     print('VAL')
                     print(val_loss)
-                    print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
+                    print(cross_entropy(val_outputs, val_true_label, self.num_classes))
                     val_loss.mean().backward()
 
                     if self.reweight:
