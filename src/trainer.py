@@ -169,6 +169,7 @@ class PyTorchTrainer:
 
         # Set model to training mode
         self.optimizer.lr = self.lr
+        c = 0
         for epoch in range(self.epochs):
             self.model.train()
             running_loss = 0.0
@@ -238,6 +239,8 @@ class PyTorchTrainer:
                     if self.reweight:
                         with torch.no_grad():
                             self.alpha -= 0.01 * self.alpha.grad
+                            wandb.log({"alpha": self.alpha, "st": c})
+                            c += 1
                             print('GRAD')
                             print(0.01 * self.alpha.grad)
                             u = 1
