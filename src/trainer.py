@@ -180,6 +180,7 @@ class PyTorchTrainer:
             test_running_ce = 0.0
             for i, data in enumerate(dataloader):
                 inputs, true_label, observed_label, indices = data
+                m = 1 if i % 0 else -1
 
                 inputs = inputs.to(self.device)
                 true_label = true_label.to(self.device)
@@ -227,7 +228,7 @@ class PyTorchTrainer:
 
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
-                    val_loss = self.criterion(val_outputs, val_observed_label)
+                    val_loss = self.criterion(val_outputs, val_observed_label, m=m)
                     print('VAL')
                     print(val_loss)
                     print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
