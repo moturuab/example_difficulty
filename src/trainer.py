@@ -239,7 +239,7 @@ class PyTorchTrainer:
                     if self.reweight:
                         with torch.no_grad():
                             self.alpha -= 0.01 * self.alpha.grad
-                            wandb.log({"alpha": self.alpha, "st": c})
+                            wandb.log({"alpha": self.alpha.detach().item(), "st": c})
                             c += 1
                             print('GRAD')
                             print(0.01 * self.alpha.grad)
