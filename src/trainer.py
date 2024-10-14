@@ -238,12 +238,6 @@ class PyTorchTrainer:
 
                 running_loss += train_loss.mean().item()
 
-            print('TRAIN FULL')
-            print(running_loss)
-            print('VAL FULL')
-            print(val_running_loss)
-
-            print(error)
             self.model.eval()
             for k, test_data in enumerate(test_dataloader):
                 test_inputs, test_true_label, test_observed_label, test_indices = test_data
@@ -266,6 +260,8 @@ class PyTorchTrainer:
             wandb.log({"val_loss": val_epoch_loss, "epoch": epoch})
             wandb.log({"test_loss": test_epoch_loss, "epoch": epoch})
             print(f"Epoch {epoch+1}/{self.epochs}: Train Loss={epoch_loss:.4f} | Val Loss={val_epoch_loss:.4f} | Test Loss={test_epoch_loss:.4f}")
+
+            print(error)
 
             # streamline repeated computation across methods
             if any(
