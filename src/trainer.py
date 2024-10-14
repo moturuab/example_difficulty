@@ -180,7 +180,7 @@ class PyTorchTrainer:
             test_running_ce = 0.0
             for i, data in enumerate(dataloader):
                 inputs, true_label, observed_label, indices = data
-                m = 1 if i % 0 else -1
+                m = 1 if i % 2 else -1
 
                 inputs = inputs.to(self.device)
                 true_label = true_label.to(self.device)
