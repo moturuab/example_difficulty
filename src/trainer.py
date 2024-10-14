@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 
-from temperature_scaling import ModelWithTemperature
+from .temperature_scaling import ModelWithTemperature
 
 from .hardness import *
 
