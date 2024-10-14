@@ -227,7 +227,7 @@ class PyTorchTrainer:
 
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
-                    val_loss = self.criterion(val_outputs, val_true_label)
+                    val_loss = self.criterion(val_outputs, val_observed_label)
                     print('VAL')
                     print(val_loss)
                     print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
@@ -238,11 +238,11 @@ class PyTorchTrainer:
 
                     if self.reweight:
                         with torch.no_grad():
-                            self.alpha -= 0.1 * self.alpha.grad
+                            self.alpha -= 0.01 * self.alpha.grad
                             wandb.log({"alpha": self.alpha.detach().item(), "st": c})
                             c += 1
                             print('GRAD')
-                            print(0.1 * self.alpha.grad)
+                            print(0.01 * self.alpha.grad)
 
                     val_running_loss += val_loss.mean().item()
 
