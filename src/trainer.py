@@ -28,6 +28,8 @@ class PyTorchTrainer:
         alpha: nn.Module,
         criterion: nn.Module,
         optimizer: optim.Optimizer,
+        val_criterion: nn.Module,
+        val_optimizer: optim.Optimizer,
         device: torch.device = None,
         lr: float = 0.001,
         epochs: int = 10,
@@ -78,6 +80,8 @@ class PyTorchTrainer:
         self.alpha = alpha
         self.criterion = criterion
         self.optimizer = optimizer
+        self.val_criterion = val_criterion
+        self.val_optimizer = val_optimizer
         self.device = device
         self.lr = lr
         self.epochs = epochs
@@ -217,15 +221,18 @@ class PyTorchTrainer:
                     val_true_label = val_true_label.to(self.device)
                     val_observed_label = val_observed_label.to(self.device)
 
+                    self.val_optimizer.zero_grad()
+
                     val_outputs = self.model(val_inputs)
 
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
-                    val_loss = self.criterion(val_outputs, val_observed_label)
+                    val_loss = self.val_criterion(val_outputs, val_observed_label)
                     print('VAL')
                     print(val_loss)
                     print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
                     val_loss.mean().backward()
+                    self.val_optimizer.zero_grad()
 
                     if self.reweight:
                         with torch.no_grad():
