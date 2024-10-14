@@ -42,10 +42,10 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
                 print(torch.min(weights[weights<0]))
                 print(torch.mean(weights[weights<0]))
                 print(torch.max(weights[weights<0]))
-                print(torch.min(weights[weights>0]))
-                print(torch.mean(weights[weights>0]))
-                print(torch.max(weights[weights>0]))
                 if len(weights[weights>0]) > 0:
+                    print(torch.min(weights[weights>0]))
+                    print(torch.mean(weights[weights>0]))
+                    print(torch.max(weights[weights>0]))
                     weights[weights<0] = torch.min(weights[weights>0]) + torch.mean(weights[weights>0])*(weights[weights<0] - torch.min(weights[weights<0]))/(torch.max(weights[weights<0]) - torch.min(weights[weights<0]))
                 else:
                     weights[weights<0] = -torch.min(weights[weights<0]) - torch.mean(weights[weights<0])*(weights[weights<0] - torch.min(weights[weights<0]))/(torch.max(weights[weights<0]) - torch.min(weights[weights<0]))
