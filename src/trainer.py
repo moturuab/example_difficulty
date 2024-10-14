@@ -26,6 +26,7 @@ class PyTorchTrainer:
         self,
         model: nn.Module,
         alpha: nn.Module,
+        beta: nn.Module,
         criterion: nn.Module,
         optimizer: optim.Optimizer,
         device: torch.device = None,
@@ -76,6 +77,7 @@ class PyTorchTrainer:
 
         self.model = model
         self.alpha = alpha
+        self.beta = beta
         self.criterion = criterion
         self.optimizer = optimizer
         self.device = device
@@ -240,10 +242,13 @@ class PyTorchTrainer:
                     if self.reweight:
                         with torch.no_grad():
                             self.alpha -= 0.01 * self.alpha.grad
+                            self.beta -= 0.01 * self.beta.grad
                             wandb.log({"alpha": self.alpha.detach().item(), "st": c})
+                            wandb.log({"beta": self.beta.detach().item(), "st": c})
                             c += 1
                             print('GRAD')
                             print(0.01 * self.alpha.grad)
+                            print(0.01 * self.beta.grad)
 
                     val_running_loss += val_loss.mean().item()
 

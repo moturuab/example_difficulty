@@ -2,10 +2,11 @@ import torch.nn as nn
 import torch
 
 class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
-    def __init__(self, reweight=True, alpha=None, num_classes=2, device=None):
+    def __init__(self, reweight=True, alpha=None, beta=None, num_classes=2, device=None):
         super(nn.CrossEntropyLoss, self).__init__()
         self.reweight = reweight
         self.alpha = alpha
+        self.beta=beta
         self.num_classes = num_classes
         self.device = device
 
@@ -24,7 +25,10 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         print(torch.min(self.alpha*correct_outputs - max_outputs))
         print(torch.mean(self.alpha*correct_outputs - max_outputs))
         print(torch.max(self.alpha*correct_outputs - max_outputs))
-        weights = 1/(1+(torch.exp(-(self.alpha*correct_outputs - max_outputs)))) + 1/(1+(torch.exp((self.alpha*correct_outputs - max_outputs))))
+        print(torch.min(self.beta*correct_outputs - max_outputs))
+        print(torch.mean(self.beta*correct_outputs - max_outputs))
+        print(torch.max(self.beta*correct_outputs - max_outputs))
+        weights = 1/(1+(torch.exp(-(self.alpha*correct_outputs - max_outputs)))) + 1/(1+(torch.exp((self.beta*correct_outputs - max_outputs))))
         #weights = self.alpha*correct_outputs - max_outputs
         return weights
 
@@ -40,10 +44,11 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
             return loss.mean()
 
 class WeightedFocalLoss(nn.CrossEntropyLoss):
-    def __init__(self, reweight=True, alpha=None, gamma=None, num_classes=2, device=None):
+    def __init__(self, reweight=True, alpha=None, beta=None, gamma=None, num_classes=2, device=None):
         super(nn.CrossEntropyLoss, self).__init__()
         self.reweight = reweight
         self.alpha = alpha
+        self.beta = beta
         self.gamma = gamma
         self.num_classes = num_classes
         self.device = device
