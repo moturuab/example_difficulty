@@ -570,7 +570,7 @@ def main(args):
         if reweight:
             optimizer = optim.Adam(list(model.parameters()) + list([alpha]), lr=0.001)
         else:
-            optimizer = optim.Adam(model.parameter(), lr=0.001)
+            optimizer = optim.Adam(model.parameters(), lr=0.001)
 
         # Instantiate the PyTorchTrainer class
         trainer = PyTorchTrainer(
