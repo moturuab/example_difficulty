@@ -268,7 +268,7 @@ class PyTorchTrainer:
             wandb.log({"test_loss": test_epoch_loss, "epoch": epoch})
             print(f"Epoch {epoch+1}/{self.epochs}: Train Loss={epoch_loss:.4f} | Val Loss={val_epoch_loss:.4f} | Test Loss={test_epoch_loss:.4f}")
 
-            if i == 0:
+            if epoch == 0:
                 continue
             else:
                 print(error)
