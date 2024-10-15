@@ -441,13 +441,11 @@ def main(args):
         np.random.shuffle(l)
         temp_train_idx = np.array(l[:int(0.85*n)])
         temp_val_idx = np.array(l[int(0.85*n):])
-        print(type(train_dataset.targets))
-        print(np.array(train_dataset.targets)[np.array(range(10))])
 
-        temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, train_dataset.targets[temp_train_idx])
-        temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, train_dataset.targets[temp_val_idx])
+        temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, np.array(train_dataset.targets)[temp_train_idx])
+        temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, np.array(train_dataset.targets)[temp_val_idx])
 
-        temp_test_dataset = SubsetDataset(test_dataset, np.array(range(len(test_dataset))), test_dataset.targets[np.array(range(len(test_dataset)))])
+        temp_test_dataset = SubsetDataset(test_dataset, np.array(range(len(test_dataset))), np.array(test_dataset.targets)[np.array(range(len(test_dataset)))])
 
         if dataset == "nih":
             dataloader_class = loader(
