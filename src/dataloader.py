@@ -113,12 +113,8 @@ class PerturbedDataset(Dataset):
             if idx in self.perturbs:
                 #assert self.perturbs[idx] == perturbed_target
                 perturbed_target = torch.tensor(self.perturbs[idx])
+                print('HIIIIIIIIIII')
 
-        print(idx)
-        print(data_point[0])
-        print(target)
-        print(perturbed_data)
-        print(indices)
         return data_point[0], target, perturbed_target, indices
 
     def _generate_shifts(self):
