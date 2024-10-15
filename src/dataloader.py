@@ -100,7 +100,7 @@ class PerturbedDataset(Dataset):
     def __getitem__(self, idx):
         data_point = self.dataset[idx]
         indices = self.indices[idx]
-        target = data_point[1]
+        target = torch.tensor(data_point[1])
         perturbed_target = target
 
         # not sure if needed since anyway we've updated the perturbed target
