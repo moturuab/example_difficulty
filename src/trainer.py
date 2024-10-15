@@ -183,7 +183,7 @@ class PyTorchTrainer:
         # Set model to training mode
         self.optimizer.lr = self.lr
         c = 0
-        #scaled_model = ModelWithTemperature(self.model)
+        scaled_model = ModelWithTemperature(self.model)
         for epoch in range(self.epochs):
             self.model.train()
             running_loss = 0.0
@@ -235,10 +235,10 @@ class PyTorchTrainer:
                     val_true_label = val_true_label.to(self.device)
                     val_observed_label = val_observed_label.to(self.device)
 
-                    #if self.calibrate:
-                    #    val_outputs = scaled_model.model(val_inputs)
-                    #else:
-                    val_outputs = self.model(val_inputs)
+                    if self.calibrate:
+                        val_outputs = scaled_model.model(val_inputs)
+                    else:
+                        val_outputs = self.model(val_inputs)
 
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
@@ -275,7 +275,7 @@ class PyTorchTrainer:
 
                 running_loss += train_loss.mean().item()
 
-            #scaled_model.set_temperature(val_dataloader)
+            scaled_model.set_temperature(val_dataloader)
 
             self.model.eval()
             for k, test_data in enumerate(test_dataloader):
@@ -284,7 +284,10 @@ class PyTorchTrainer:
                 test_inputs = test_inputs.to(self.device)
                 test_true_label = test_true_label.to(self.device)
                 test_observed_label = test_observed_label.to(self.device)
-                test_outputs = self.model(test_inputs)
+                if self.calibrate:
+                    test_outputs = scaled_model.model(test_inputs)
+                else:
+                    test_outputs = self.model(test_inputs)
 
                 test_outputs = test_outputs.float()  # Ensure the outputs are float
                 test_observed_label = test_observed_label.long()  # Ensure the labels are long
