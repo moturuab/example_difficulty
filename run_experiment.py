@@ -465,7 +465,7 @@ def main(args):
             dataloader_class = MultiFormatDataLoader(
             data=temp_train_dataset,
             full_dataset=full_dataset,
-            idx=l,
+            idx=temp_train_idx,
             target_column=None,
             data_type="torch_dataset",
             data_modality="image",
