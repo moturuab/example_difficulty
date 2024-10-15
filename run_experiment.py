@@ -444,8 +444,8 @@ def main(args):
         print(temp_train_idx)
         print(temp_val_idx)
 
-        temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, train_dataset.targets[temp_train_idx])
-        temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, train_dataset.targets[temp_val_idx])
+        temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, train_dataset.targets[temp_train_idx.astype(int)])
+        temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, train_dataset.targets[temp_val_idx.astype(int)])
 
         temp_test_dataset = SubsetDataset(test_dataset, np.array(range(len(test_dataset))), test_dataset.targets[np.array(range(len(test_dataset)))])
 
