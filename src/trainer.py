@@ -273,7 +273,7 @@ class PyTorchTrainer:
                 test_inputs = test_inputs.to(self.device)
                 test_true_label = test_true_label.to(self.device)
                 test_observed_label = test_observed_label.to(self.device)
-                test_outputs = self.model(test_inputs)
+                test_outputs = scaled_model.model(test_inputs)
 
                 test_outputs = test_outputs.float()  # Ensure the outputs are float
                 test_observed_label = test_observed_label.long()  # Ensure the labels are long
