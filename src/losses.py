@@ -16,8 +16,8 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
 
     def encode(self, targets):
         encoded_targets = torch.ones(targets.size(0), self.num_classes).to(self.device)
-        encoded_targets = encoded_targets*0.1/self.num_classes
-        encoded_targets.scatter_(1, targets.view(-1, 1).long(), 1-0.1).float()
+        encoded_targets = encoded_targets*0.05/self.num_classes
+        encoded_targets.scatter_(1, targets.view(-1, 1).long(), 1-0.05).float()
         return encoded_targets
 
     def weights(self, outputs, encoded_targets, m=0):
