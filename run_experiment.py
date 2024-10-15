@@ -25,6 +25,8 @@ from src.trainer import PyTorchTrainer
 from src.utils import seed_everything
 from src.losses import WeightedCrossEntropyLoss
 
+from temperature_scaling import ModelWithTemperature
+
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -61,6 +63,7 @@ def main(args):
     p = args.prop
     init_alpha = args.init_alpha
     init_beta = args.init_beta
+    focal_gamma = args.focal_gamma
     reweight = True #args.reweight
     clean_val = args.clean_val
     groupid = args.groupid
@@ -567,7 +570,7 @@ def main(args):
         if loss == 'CE':
             criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=alpha, beta=beta, num_classes=num_classes, device=device)
         elif loss == 'FL':
-            criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, beta=beta, gamma=1.0, num_classes=num_classes, device=device)
+            criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, beta=beta, gamma=focal_gamma, num_classes=num_classes, device=device)
 
         if reweight:
             optimizer = optim.Adam(list(model.parameters()) + list([alpha, beta]), lr=0.001)
@@ -663,6 +666,7 @@ if __name__ == "__main__":
     parser.add_argument("--clean_val", action='store_true', help="optimize on clean validation set")
     parser.add_argument("--init_alpha", type=float, default=2.0, help="initialize alpha")
     parser.add_argument("--init_beta", type=float, default=2.0, help="initialize beta")
+    parser.add_argument("--focal_gamma", type=float, default=2.0, help="gamma for focal loss")
     parser.add_argument("--epochs", type=int, default=10, help="Epochs")
     parser.add_argument("--hardness", type=str, default="uniform", help="hardness type")
     parser.add_argument("--groupid", type=str, default="0", help="group id (time)")

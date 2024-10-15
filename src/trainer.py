@@ -170,6 +170,7 @@ class PyTorchTrainer:
         # Move model to device
         self.model.to(self.device)
         self.alpha.to(self.device)
+        self.beta.to(self.device)
 
         # Set model to training mode
         self.optimizer.lr = self.lr
@@ -185,7 +186,7 @@ class PyTorchTrainer:
             scaled_model = ModelWithTemperature(self.model)
             for i, data in enumerate(dataloader):
                 inputs, true_label, observed_label, indices = data
-                m = 1 if i % 2 == 0 else -1
+                m = i % 2
 
                 inputs = inputs.to(self.device)
                 true_label = true_label.to(self.device)
@@ -193,7 +194,7 @@ class PyTorchTrainer:
 
                 self.optimizer.zero_grad()
 
-                outputs = self.model(inputs)
+                outputs = scaled_model.model(inputs)
 
                 #if self.aum is not None:
                 #    self.aum.updates(
@@ -244,7 +245,7 @@ class PyTorchTrainer:
 
                     if self.reweight:
                         with torch.no_grad():
-                            if m == 1:
+                            if not m:
                                 self.alpha -= 0.01 * self.alpha.grad
                             else:
                                 self.beta -= 0.01 * self.beta.grad
@@ -252,7 +253,7 @@ class PyTorchTrainer:
                             wandb.log({"beta": self.beta.detach().item(), "st": c})
                             c += 1
                             print('GRAD')
-                            if m == 1:
+                            if not m:
                                 print(0.01 * self.alpha.grad)
                             else:
                                 print(0.01 * self.beta.grad)
