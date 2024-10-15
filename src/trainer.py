@@ -202,10 +202,7 @@ class PyTorchTrainer:
 
                 self.optimizer.zero_grad()
 
-                if self.calibrate:
-                    outputs = scaled_model.model(inputs)
-                else:
-                    outputs = self.model(inputs)
+                outputs = self.model(inputs)
 
                 #if self.aum is not None:
                 #    self.aum.updates(
@@ -221,9 +218,6 @@ class PyTorchTrainer:
                 print(cross_entropy(outputs, observed_label, self.num_classes))
                 train_ce = cross_entropy(outputs, observed_label, self.num_classes)
                 running_ce += train_ce.mean().item()
-
-                if torch.isnan(train_loss):
-                    break
 
                 train_loss.mean().backward()
                 self.optimizer.step()
@@ -290,10 +284,7 @@ class PyTorchTrainer:
                 test_inputs = test_inputs.to(self.device)
                 test_true_label = test_true_label.to(self.device)
                 test_observed_label = test_observed_label.to(self.device)
-                if self.calibrate:
-                    test_outputs = scaled_model.model(test_inputs)
-                else:
-                    test_outputs = self.model(test_inputs)
+                test_outputs = self.model(test_inputs)
 
                 test_outputs = test_outputs.float()  # Ensure the outputs are float
                 test_observed_label = test_observed_label.long()  # Ensure the labels are long
