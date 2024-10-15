@@ -4,6 +4,12 @@
 # run this script from the root directory of the project
 # bash run.sh
 
+# Datasets:
+# 
+
+# Models:
+#
+
 # Hardness types:
 # - "uniform": Uniform mislabeling
 # - "asymmetric": Asymmetric mislabeling
@@ -20,27 +26,18 @@
 # Set the parameterizable arguments
 
 #SBATCH --ntasks=1
-#SBATCH --mem=64G  
+#SBATCH --mem=64G
 #SBATCH -c 2
-#SBATCH --time=4:00:00  
-#SBATCH --partition=t4v1,t4v2,rtx6000  
-#SBATCH --qos=m3  
-#SBATCH --export=ALL  
-#SBATCH --output=%x.%j.log  
+#SBATCH --time=4:00:00
+#SBATCH --partition=t4v1,t4v2,rtx6000
+#SBATCH --qos=m3
+#SBATCH --export=ALL
+#SBATCH --output=%x.%j.log
 #SBATCH --gres=gpu:1
 #SBATCH --mail-type=FAIL
 
 conda activate py38
-
-total_runs=1
-epochs=10
-seed=0
-
-hardness="uniform"
-dataset="cifar10"
-model_name="ResNet"
 groupid=$(date +%F_%T)
-
 fuser -v /dev/nvidia0 -k
-# python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid
-python run_experiment.py --total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs --groupid $groupid --reweight
+python run_experiment.py --groupid $groupid $@
+#--total_runs $total_runs --hardness $hardness --dataset $dataset --model_name $model_name --seed $seed --prop $@ --epochs $epochs  --reweight
