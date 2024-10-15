@@ -16,7 +16,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
 
     def encode(self, targets):
         encoded_targets = torch.zeros(targets.size(0), self.num_classes).to(self.device)
-        encoded_targets.scatter_(1, targets.view(-1, 1).long(), 1).float()
+        encoded_targets.scatter_(1, targets.to(self.device).view(-1, 1).long(), 1).float()
         return encoded_targets
 
     def weights(self, outputs, encoded_targets, m=0):
@@ -62,7 +62,7 @@ class WeightedFocalLoss(nn.CrossEntropyLoss):
 
     def forward(self, outputs, targets, m=0):
         criterion = WeightedCrossEntropyLoss(reweight=self.reweight, alpha=None, num_classes=2)
-        cross_entropy_loss = criterion(outputs, targets.to(self.device), m=m)
+        cross_entropy_loss = criterion(outputs, targets, m=m)
         focal_loss = (1 - torch.exp(- cross_entropy_loss)) ** self.gamma * cross_entropy_loss
         encoded_targets = criterion.encode(targets)
         if self.reweight:
