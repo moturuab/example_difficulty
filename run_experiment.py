@@ -566,8 +566,8 @@ def main(args):
             if model_name == "ResNet":
                 model = ResNet18MNIST(num_classes=num_classes).to(device)
 
-        alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True).to(device)
-        beta = nn.Parameter(torch.tensor(init_beta), requires_grad=True).to(device)
+        alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True)
+        beta = nn.Parameter(torch.tensor(init_beta), requires_grad=True)
         if loss == 'CE':
             criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=alpha, beta=beta, num_classes=num_classes, device=device)
         elif loss == 'FL':
