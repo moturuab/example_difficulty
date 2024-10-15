@@ -40,4 +40,4 @@ conda activate py38
 groupid=$(date +%F_%T)
 fuser -v /dev/nvidia0 -k
 python run_experiment.py --groupid $groupid $@
-#--total_runs  --hardness  --loss  --dataset  --model_name  --init_alpha  --init_beta  --alpha_lr  --beta_lr  --lr  --focal_gamma  --seed  --prop  --epochs  --reweight --clean_val
+#--total_runs  --hardness  --loss  --dataset  --model_name  --init_alpha  --init_beta  --alpha_lr  --beta_lr  --lr  --focal_gamma  --seed  --prop  --epochs  --reweight --clean_val --calibrate

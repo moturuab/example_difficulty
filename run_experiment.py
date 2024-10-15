@@ -23,7 +23,7 @@ from src.evaluator import Evaluator
 from src.models import *
 from src.trainer import PyTorchTrainer
 from src.utils import seed_everything
-from src.losses import WeightedCrossEntropyLoss
+from src.losses import WeightedCrossEntropyLoss, WeightedFocalLoss
 
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
