@@ -447,8 +447,8 @@ def main(args):
         else:
             l = np.array(range(n))
             np.random.shuffle(l)
-            temp_train_idx = np.array(l[:int(0.85*n)])
-            temp_val_idx = np.array(l[int(0.85*n):])
+            temp_train_idx = np.array(l[:int(0.8*n)])
+            temp_val_idx = np.array(l[int(0.8*n):])
 
             temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, torch.from_numpy(np.array(train_dataset.targets))[temp_train_idx])
             temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, torch.from_numpy(np.array(train_dataset.targets))[temp_val_idx])

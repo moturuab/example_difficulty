@@ -173,7 +173,7 @@ class PerturbedDataset(Dataset):
                 # Convert the list of tensors to a flat tensor and create a TensorDataset
                 flat_data = torch.stack(perturbed_data)
             if self.dataset_name == "caltech256":
-                labels = [self.full_dataset[i][1] for i in self.train_idx]
+                labels = [self.full_dataset[i][1] for i in self.idx]
             elif self.dataset_name == "nih":
                 labels = self.dataset.labels
             else:
@@ -293,7 +293,7 @@ class PerturbedDataset(Dataset):
                 flat_data = torch.stack(perturbed_data)
 
             if self.dataset_name == "caltech256":
-                labels = [self.full_dataset[i][1] for i in self.train_idx]
+                labels = [self.full_dataset[i][1] for i in self.idx]
             elif self.dataset_name == "nih":
                 labels = self.dataset.labels
             else:
@@ -378,7 +378,7 @@ class PerturbedDataset(Dataset):
             # Convert the list of tensors to a flat tensor and create a TensorDataset
             flat_data = torch.stack(perturbed_data)
             if self.dataset_name == "caltech256":
-                labels = [self.full_dataset[i][1] for i in self.train_idx]
+                labels = [self.full_dataset[i][1] for i in self.idx]
             elif self.dataset_name == "nih":
                 labels = self.dataset.labels
             else:
@@ -397,7 +397,7 @@ class PerturbedDataset(Dataset):
         mislabels = []
 
         if self.dataset_name == "caltech256":
-            labels = [self.full_dataset[i][1] for i in self.train_idx]
+            labels = [self.full_dataset[i][1] for i in self.idx]
         elif self.dataset_name == "nih":
             labels = self.dataset.labels
         else:
