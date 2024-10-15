@@ -439,8 +439,8 @@ def main(args):
 
         l = np.array(range(n))
         np.random.shuffle(l)
-        temp_train_idx = l[:int(0.85*n)]
-        temp_val_idx = l[int(0.85*n):]
+        temp_train_idx = np.array(l[:int(0.85*n)])
+        temp_val_idx = np.array(l[int(0.85*n):])
         print(temp_train_idx)
         print(temp_val_idx)
 
