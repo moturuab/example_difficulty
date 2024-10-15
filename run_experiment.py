@@ -437,15 +437,23 @@ def main(args):
 
         #wandb.log(metadata)
 
-        l = np.array(range(n))
-        np.random.shuffle(l)
-        temp_train_idx = np.array(l[:int(0.85*n)])
-        temp_val_idx = np.array(l[int(0.85*n):])
+        if dataset == "caltech256":
+            temp_train_dataset = train_dataset
+            temp_val_dataset = val_dataset
+            temp_test_dataset = test_dataset
+            temp_train_idx = train_idx
+            temp_val_idx = val_idx
+            temp_test_idx = test_idx
+        else:
+            l = np.array(range(n))
+            np.random.shuffle(l)
+            temp_train_idx = np.array(l[:int(0.85*n)])
+            temp_val_idx = np.array(l[int(0.85*n):])
 
-        temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, torch.from_numpy(np.array(train_dataset.targets))[temp_train_idx])
-        temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, torch.from_numpy(np.array(train_dataset.targets))[temp_val_idx])
+            temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, torch.from_numpy(np.array(train_dataset.targets))[temp_train_idx])
+            temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, torch.from_numpy(np.array(train_dataset.targets))[temp_val_idx])
 
-        temp_test_dataset = SubsetDataset(test_dataset, np.array(range(len(test_dataset))), torch.from_numpy(np.array(test_dataset.targets))[np.array(range(len(test_dataset)))])
+            temp_test_dataset = SubsetDataset(test_dataset, np.array(range(len(test_dataset))), torch.from_numpy(np.array(test_dataset.targets))[np.array(range(len(test_dataset)))])
 
         if dataset == "nih":
             dataloader_class = loader(
