@@ -33,10 +33,13 @@ class PyTorchTrainer:
         optimizer: optim.Optimizer,
         device: torch.device = None,
         lr: float = 0.001,
+        alpha_lr: float = 0.01,
+        beta_lr: float = 0.01,
         epochs: int = 10,
         total_samples: int = 10000,
         num_classes: int = 10,
         reweight: bool = True,
+        clean_val: bool = True,
         characterization_methods: list = [
             "aum",
             "data_uncert",
@@ -84,10 +87,13 @@ class PyTorchTrainer:
         self.optimizer = optimizer
         self.device = device
         self.lr = lr
+        self.alpha_lr = alpha_lr
+        self.beta_lr = beta_lr
         self.epochs = epochs
         self.total_samples = total_samples
         self.num_classes = num_classes
         self.reweight = reweight
+        self.clean_val = clean_val
         self.characterization_methods = characterization_methods
 
     def fit(self, dataloader, dataloader_unshuffled, val_dataloader, val_dataloader_unshuffled, test_dataloader, test_dataloader_unshuffled, wandb_num=[0,0]):
@@ -234,7 +240,10 @@ class PyTorchTrainer:
 
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
-                    val_loss = self.criterion(val_outputs, val_observed_label, m=m)
+                    if self.clean_val:
+                        val_loss = self.criterion(val_outputs, val_true_label, m=m)
+                    else:
+                        val_loss = self.criterion(val_outputs, val_observed_label, m=m)
                     print('VAL')
                     print(val_loss)
                     print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
@@ -246,11 +255,11 @@ class PyTorchTrainer:
                     if self.reweight:
                         with torch.no_grad():
                             if not m:
-                                self.alpha -= 0.01 * self.alpha.grad
+                                self.alpha -= self.alpha_lr * self.alpha.grad
                             else:
-                                self.beta -= 0.01 * self.beta.grad
-                            wandb.log({"alpha": self.alpha.detach().item(), "st": c})
-                            wandb.log({"beta": self.beta.detach().item(), "st": c})
+                                self.beta -= self.beta_lr * self.beta.grad
+                            wandb.log({"alpha": self.alpha.detach().item(), "step": c})
+                            wandb.log({"beta": self.beta.detach().item(), "step": c})
                             c += 1
                             print('GRAD')
                             if not m:

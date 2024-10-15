@@ -61,11 +61,14 @@ def main(args):
     p = args.prop
     init_alpha = args.init_alpha
     init_beta = args.init_beta
+    lr = args.lr
+    alpha_lr = args.alpha_lr
+    beta_lr = args.beta_lr
     focal_gamma = args.focal_gamma
-    reweight = True #args.reweight
+    reweight = args.reweight
     clean_val = args.clean_val
     groupid = args.groupid
-    metainfo = f"{hardness}_{dataset}_{model_name}_{p}_{init_alpha}_{epochs}_{total_runs}_{seed}_{reweight}_{groupid}"
+    metainfo = f"{hardness}_{dataset}_{model_name}_{loss}_{p}_{reweight}_{init_alpha}_{init_beta}_{alpha_lr}_{beta_lr}_{lr}_{focal_gamma}_{clean_val}_{epochs}_{total_runs}_{seed}_{groupid}"
 
     full_dataset = None
     train_idx = None
@@ -73,8 +76,8 @@ def main(args):
     test_idx = None
 
     # new wandb run
-    config_dict = {'total_runs': total_runs, 'hardness': hardness, 'dataset': dataset, 'reweight': reweight, 'init_alpha': init_alpha,
-    'clean_val': clean_val, 'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p, 'groupid': groupid}
+    config_dict = {'total_runs': total_runs, 'hardness': hardness, 'loss': loss, 'dataset': dataset, 'reweight': reweight, 'init_alpha': init_alpha, 'alpha_lr': alpha_lr, 'beta_lr': beta_lr, 'lr': lr,
+    'fix_seed': args.fix_seed, 'init_beta': init_beta, 'focal_gamma': focal_gamma, 'clean_val': clean_val, 'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p, 'groupid': groupid}
 
     run = wandb.init(
         project="example_difficulty",
@@ -571,9 +574,9 @@ def main(args):
             criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, beta=beta, gamma=focal_gamma, num_classes=num_classes, device=device)
 
         if reweight:
-            optimizer = optim.Adam(list(model.parameters()) + list([alpha, beta]), lr=0.001)
+            optimizer = optim.Adam(list(model.parameters()) + list([alpha, beta]), lr=lr)
         else:
-            optimizer = optim.Adam(model.parameters(), lr=0.001)
+            optimizer = optim.Adam(model.parameters(), lr=lr)
 
         # Instantiate the PyTorchTrainer class
         trainer = PyTorchTrainer(
@@ -582,11 +585,14 @@ def main(args):
             beta=beta,
             criterion=criterion,
             optimizer=optimizer,
-            lr=0.001,
+            lr=lr,
+            alpha_lr=alpha_lr,
+            beta_lr=beta_lr,
             epochs=epochs,
             total_samples=total_samples,
             num_classes=num_classes,
             reweight=reweight,
+            reweight=clean_val,
             device=device,
         )
 
@@ -664,6 +670,9 @@ if __name__ == "__main__":
     parser.add_argument("--clean_val", action='store_true', help="optimize on clean validation set")
     parser.add_argument("--init_alpha", type=float, default=2.0, help="initialize alpha")
     parser.add_argument("--init_beta", type=float, default=2.0, help="initialize beta")
+    parser.add_argument("--lr", type=float, default=0.001, help="learning rate for network")
+    parser.add_argument("--alpha_lr", type=float, default=0.01, help="learning rate for alpha")
+    parser.add_argument("--beta_lr", type=float, default=0.01, help="learning rate for beta")
     parser.add_argument("--focal_gamma", type=float, default=2.0, help="gamma for focal loss")
     parser.add_argument("--epochs", type=int, default=10, help="Epochs")
     parser.add_argument("--hardness", type=str, default="uniform", help="hardness type")
@@ -682,7 +691,7 @@ if __name__ == "__main__":
         default="false",
         help="fix the seed for consistency exps",
     )
-
+    
     args = parser.parse_args()
 
     main(args)
