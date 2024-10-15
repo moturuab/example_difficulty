@@ -67,8 +67,9 @@ def main(args):
     focal_gamma = args.focal_gamma
     reweight = args.reweight
     clean_val = args.clean_val
+    calibrate = args.calibrate
     groupid = args.groupid
-    metainfo = f"{hardness}_{dataset}_{model_name}_{loss}_{p}_{reweight}_{init_alpha}_{init_beta}_{alpha_lr}_{beta_lr}_{lr}_{focal_gamma}_{clean_val}_{epochs}_{total_runs}_{seed}_{groupid}"
+    metainfo = f"{hardness}_{dataset}_{model_name}_{loss}_{p}_{reweight}_{clean_val}_{calibrate}_{init_alpha}_{init_beta}_{alpha_lr}_{beta_lr}_{lr}_{focal_gamma}_{epochs}_{total_runs}_{seed}_{groupid}"
 
     full_dataset = None
     train_idx = None
@@ -76,7 +77,7 @@ def main(args):
     test_idx = None
 
     # new wandb run
-    config_dict = {'total_runs': total_runs, 'hardness': hardness, 'loss': loss, 'dataset': dataset, 'reweight': reweight, 'init_alpha': init_alpha, 'alpha_lr': alpha_lr, 'beta_lr': beta_lr, 'lr': lr,
+    config_dict = {'total_runs': total_runs, 'hardness': hardness, 'loss': loss, 'dataset': dataset, 'reweight': reweight, 'calibrate':calibrate, 'init_alpha': init_alpha, 'alpha_lr': alpha_lr, 'beta_lr': beta_lr, 'lr': lr,
     'fix_seed': args.fix_seed, 'init_beta': init_beta, 'focal_gamma': focal_gamma, 'clean_val': clean_val, 'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p, 'groupid': groupid}
 
     run = wandb.init(
@@ -593,6 +594,7 @@ def main(args):
             num_classes=num_classes,
             reweight=reweight,
             clean_val=clean_val,
+            calibrate=calibrate,
             device=device,
         )
 
@@ -668,6 +670,7 @@ if __name__ == "__main__":
         help="type of loss function to use",
     )
     parser.add_argument("--clean_val", action='store_true', help="optimize on clean validation set")
+    parser.add_argument("--calibrate", action='store_true', help="calibrate on validation set")
     parser.add_argument("--init_alpha", type=float, default=2.0, help="initialize alpha")
     parser.add_argument("--init_beta", type=float, default=2.0, help="initialize beta")
     parser.add_argument("--lr", type=float, default=0.001, help="learning rate for network")

@@ -40,6 +40,7 @@ class PyTorchTrainer:
         num_classes: int = 10,
         reweight: bool = True,
         clean_val: bool = True,
+        calibrate: bool = True,
         characterization_methods: list = [
             "aum",
             "data_uncert",
@@ -94,6 +95,7 @@ class PyTorchTrainer:
         self.num_classes = num_classes
         self.reweight = reweight
         self.clean_val = clean_val
+        self.calibrate = calibrate
         self.characterization_methods = characterization_methods
 
     def fit(self, dataloader, dataloader_unshuffled, val_dataloader, val_dataloader_unshuffled, test_dataloader, test_dataloader_unshuffled, wandb_num=[0,0]):
@@ -200,7 +202,10 @@ class PyTorchTrainer:
 
                 self.optimizer.zero_grad()
 
-                outputs = scaled_model.model(inputs)
+                if self.calibrate:
+                    outputs = scaled_model.model(inputs)
+                else:
+                    outputs = self.model(inputs)
 
                 #if self.aum is not None:
                 #    self.aum.updates(
@@ -236,7 +241,10 @@ class PyTorchTrainer:
                     val_true_label = val_true_label.to(self.device)
                     val_observed_label = val_observed_label.to(self.device)
 
-                    val_outputs = scaled_model.model(val_inputs)
+                    if self.calibrate:
+                        val_outputs = scaled_model.model(val_inputs)
+                    else:
+                        val_outputs = self.model(val_inputs)
 
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
@@ -282,7 +290,10 @@ class PyTorchTrainer:
                 test_inputs = test_inputs.to(self.device)
                 test_true_label = test_true_label.to(self.device)
                 test_observed_label = test_observed_label.to(self.device)
-                test_outputs = scaled_model.model(test_inputs)
+                if self.calibrate:
+                    test_outputs = scaled_model.model(test_inputs)
+                else:
+                    test_outputs = self.model(test_inputs)
 
                 test_outputs = test_outputs.float()  # Ensure the outputs are float
                 test_observed_label = test_observed_label.long()  # Ensure the labels are long
