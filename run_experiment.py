@@ -592,7 +592,7 @@ def main(args):
             total_samples=total_samples,
             num_classes=num_classes,
             reweight=reweight,
-            reweight=clean_val,
+            clean_val=clean_val,
             device=device,
         )
 
