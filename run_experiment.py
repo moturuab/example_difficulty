@@ -25,8 +25,6 @@ from src.trainer import PyTorchTrainer
 from src.utils import seed_everything
 from src.losses import WeightedCrossEntropyLoss
 
-from temperature_scaling import ModelWithTemperature
-
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
