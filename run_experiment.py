@@ -441,6 +441,8 @@ def main(args):
         np.random.shuffle(l)
         temp_train_idx = l[:int(0.85*n)]
         temp_val_idx = l[int(0.85*n):]
+        print(temp_train_idx)
+        print(temp_val_idx)
 
         temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, train_dataset.targets[temp_train_idx])
         temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, train_dataset.targets[temp_val_idx])
