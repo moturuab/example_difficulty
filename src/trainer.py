@@ -266,7 +266,8 @@ class PyTorchTrainer:
 
                     val_running_loss += val_loss.mean().item()
 
-                    break
+                    if j > 5:
+                        break
 
                 running_loss += train_loss.mean().item()
 
