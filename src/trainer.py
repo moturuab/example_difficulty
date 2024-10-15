@@ -175,6 +175,7 @@ class PyTorchTrainer:
         # Set model to training mode
         self.optimizer.lr = self.lr
         c = 0
+        scaled_model = ModelWithTemperature(self.model)
         for epoch in range(self.epochs):
             self.model.train()
             running_loss = 0.0
@@ -183,7 +184,6 @@ class PyTorchTrainer:
             running_ce = 0.0
             val_running_ce = 0.0
             test_running_ce = 0.0
-            scaled_model = ModelWithTemperature(self.model)
             for i, data in enumerate(dataloader):
                 inputs, true_label, observed_label, indices = data
                 m = i % 2
