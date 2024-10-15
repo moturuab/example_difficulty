@@ -275,7 +275,7 @@ class PyTorchTrainer:
 
                 running_loss += train_loss.mean().item()
 
-            scaled_model.set_temperature(val_dataloader)
+            #scaled_model.set_temperature(val_dataloader)
 
             self.model.eval()
             for k, test_data in enumerate(test_dataloader):
