@@ -445,7 +445,6 @@ def main(args):
         temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, train_dataset.targets[temp_train_idx])
         temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, train_dataset.targets[temp_val_idx])
 
-
         temp_test_dataset = SubsetDataset(test_dataset, np.array(range(len(test_dataset))), test_dataset.targets[np.array(range(len(test_dataset)))])
 
         if dataset == "nih":
@@ -567,8 +566,8 @@ def main(args):
             if model_name == "ResNet":
                 model = ResNet18MNIST(num_classes=num_classes).to(device)
 
-        alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True)
-        beta = nn.Parameter(torch.tensor(init_beta), requires_grad=True)
+        alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True).to(device)
+        beta = nn.Parameter(torch.tensor(init_beta), requires_grad=True).to(device)
         if loss == 'CE':
             criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=alpha, beta=beta, num_classes=num_classes, device=device)
         elif loss == 'FL':
