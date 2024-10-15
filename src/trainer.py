@@ -304,10 +304,10 @@ class PyTorchTrainer:
 
             self.model.train()
             epoch_loss = running_loss / len(dataloader)
-            val_epoch_loss = val_running_loss / len(val_dataloader)
+            val_epoch_loss = val_running_loss / len(dataloader)
             test_epoch_loss = test_running_loss / len(test_dataloader)
             epoch_ce = running_ce / len(dataloader)
-            val_epoch_ce = val_running_ce / len(val_dataloader)
+            val_epoch_ce = val_running_ce / len(dataloader)
             test_epoch_ce = test_running_ce / len(test_dataloader)
             wandb.log({"train_loss": epoch_loss, "epoch": epoch})
             wandb.log({"val_loss": val_epoch_loss, "epoch": epoch})
