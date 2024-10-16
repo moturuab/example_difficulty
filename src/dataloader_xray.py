@@ -65,10 +65,8 @@ class XrayPerturbedDataset(Dataset):
 
         labels = []
         for idx in range(len(self.dataset)):
-            print(self.dataset[idx])
-            label = self.dataset[idx]["lab"]
-            print(label)
-            labels.append(label[0])
+            label = self.dataset[idx][1]
+            labels.append(label)
 
         self.targets = labels
 
@@ -95,8 +93,8 @@ class XrayPerturbedDataset(Dataset):
 
     def __getitem__(self, idx):
         data_point = self.dataset[idx]
-        indices = self.dataset[idx]["idx"]
-        target = data_point["lab"]
+        indices = self.indices[idx]
+        target = data_point[1]
         perturbed_target = target
 
         # # not sure if needed since anyway we've updated the perturbed target
@@ -110,7 +108,7 @@ class XrayPerturbedDataset(Dataset):
         #         assert self.perturbs[idx] == perturbed_target
         #         perturbed_target = self.perturbs[idx]
 
-        return data_point["img"], target, perturbed_target, indices
+        return data_point[0], target, perturbed_target, indices
 
     def _generate_shifts(self):
         """
