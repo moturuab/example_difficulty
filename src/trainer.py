@@ -192,6 +192,9 @@ class PyTorchTrainer:
             running_ce = 0.0
             val_running_ce = 0.0
             test_running_ce = 0.0
+            running_acc = 0.0
+            val_running_acc = 0.0
+            test_running_acc = 0.0
             for i, data in enumerate(dataloader):
                 inputs, true_label, observed_label, indices = data
                 m = i % 2
@@ -212,6 +215,9 @@ class PyTorchTrainer:
                 outputs = outputs.float()  # Ensure the outputs are float
                 observed_label = observed_label.long()  # Ensure the labels are long
                 train_loss = self.criterion(outputs, observed_label)
+                acc = (torch.argmax(outputs, 1) == torch.argmax(observed_label, 1))
+                print(acc.mean())
+                running_acc += acc.mean().item()
                 
                 print('TRAIN')
                 print(train_loss)
@@ -225,52 +231,52 @@ class PyTorchTrainer:
 
                 running_loss += train_loss.mean().item()
 
-            for j, val_data in enumerate(val_dataloader):
-                val_inputs, val_true_label, val_observed_label, val_indices = val_data
+                for j, val_data in enumerate(val_dataloader):
+                    val_inputs, val_true_label, val_observed_label, val_indices = val_data
 
-                val_inputs = val_inputs.to(self.device)
-                val_true_label = val_true_label.to(self.device)
-                val_observed_label = val_observed_label.to(self.device)
+                    val_inputs = val_inputs.to(self.device)
+                    val_true_label = val_true_label.to(self.device)
+                    val_observed_label = val_observed_label.to(self.device)
 
-                if self.calibrate:
-                    val_outputs = scaled_model.model(val_inputs)
-                else:
-                    val_outputs = self.model(val_inputs)
+                    if self.calibrate:
+                        val_outputs = scaled_model.model(val_inputs)
+                    else:
+                        val_outputs = self.model(val_inputs)
 
-                val_outputs = val_outputs.float()
-                val_observed_label = val_observed_label.long()
-                if self.clean_val:
-                    val_loss = self.criterion(val_outputs, val_true_label, m=m)
-                else:
-                    val_loss = self.criterion(val_outputs, val_observed_label, m=m)
-                print('VAL')
-                print(val_loss)
-                print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
-                print(cross_entropy(val_outputs, val_true_label, self.num_classes))
-                val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
-                val_running_ce += val_ce.mean().item()
-                val_loss.mean().backward()
+                    val_outputs = val_outputs.float()
+                    val_observed_label = val_observed_label.long()
+                    if self.clean_val:
+                        val_loss = self.criterion(val_outputs, val_true_label, m=m)
+                    else:
+                        val_loss = self.criterion(val_outputs, val_observed_label, m=m)
+                    print('VAL')
+                    print(val_loss)
+                    print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
+                    print(cross_entropy(val_outputs, val_true_label, self.num_classes))
+                    val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
+                    val_running_ce += val_ce.mean().item()
+                    val_loss.mean().backward()
 
-                if self.reweight:
-                    with torch.no_grad():
-                        if not m:
-                            self.alpha -= self.alpha_lr * self.alpha.grad
-                        else:
-                            self.beta -= self.beta_lr * self.beta.grad
-                        wandb.log({"alpha": self.alpha.detach().item(), "step": c})
-                        wandb.log({"beta": self.beta.detach().item(), "step": c})
-                        c += 1
-                        print('GRAD')
-                        if not m:
-                            print(0.01 * self.alpha.grad)
-                        else:
-                            print(0.01 * self.beta.grad)
+                    if self.reweight:
+                        with torch.no_grad():
+                            if not m:
+                                self.alpha -= self.alpha_lr * self.alpha.grad
+                            else:
+                                self.beta -= self.beta_lr * self.beta.grad
+                            wandb.log({"alpha": self.alpha.detach().item(), "step": c})
+                            wandb.log({"beta": self.beta.detach().item(), "step": c})
+                            c += 1
+                            print('GRAD')
+                            if not m:
+                                print(0.01 * self.alpha.grad)
+                            else:
+                                print(0.01 * self.beta.grad)
 
-                val_running_loss += val_loss.mean().item()
+                    val_running_loss += val_loss.mean().item()
 
-                # THINK ABOUT THIS
-                #if j > 0:
-                #    break
+                    # THINK ABOUT THIS
+                    if j > 0:
+                        break
 
             scaled_model.set_temperature(val_dataloader)
 

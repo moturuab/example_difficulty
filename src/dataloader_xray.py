@@ -38,7 +38,8 @@ class PerturbedDataset(Dataset):
         self.perturbation_method = perturbation_method
         self.p = p
         self.rule_matrix = rule_matrix
-
+        self.severity_ids = None
+        
         from collections import Counter
 
         labels = []
