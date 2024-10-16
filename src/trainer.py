@@ -216,12 +216,11 @@ class PyTorchTrainer:
                 observed_label = observed_label.long()  # Ensure the labels are long
                 train_loss = self.criterion(outputs, observed_label)
                 acc = (torch.argmax(outputs, 1) == observed_label).type(torch.float)
-                print(acc)
-                print(acc.mean())
                 running_acc += acc.mean().item()
                 
                 print('TRAIN')
                 print(train_loss)
+                print(acc)
                 print(cross_entropy(outputs, observed_label, self.num_classes))
                 train_ce = cross_entropy(outputs, observed_label, self.num_classes)
                 running_ce += train_ce.mean().item()
@@ -248,15 +247,23 @@ class PyTorchTrainer:
                     val_observed_label = val_observed_label.long()
                     if self.clean_val:
                         val_loss = self.criterion(val_outputs, val_true_label, m=m)
+                        val_acc = (torch.argmax(val_outputs, 1) == val_true_label).type(torch.float)
                     else:
                         val_loss = self.criterion(val_outputs, val_observed_label, m=m)
+                        val_acc = (torch.argmax(val_outputs, 1) == val_observed_label).type(torch.float)
+                    
+                    val_running_acc += val_acc.mean().item()
+
                     print('VAL')
                     print(val_loss)
+                    print(val_acc)
                     print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
                     print(cross_entropy(val_outputs, val_true_label, self.num_classes))
                     val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
                     val_running_ce += val_ce.mean().item()
                     val_loss.mean().backward()
+
+                    val_running_loss += val_loss.mean().item()
 
                     if self.reweight:
                         with torch.no_grad():
@@ -273,11 +280,7 @@ class PyTorchTrainer:
                             else:
                                 print(0.01 * self.beta.grad)
 
-                    val_running_loss += val_loss.mean().item()
-
-                    # THINK ABOUT THIS
-                    if j > 0:
-                        break
+                    break
 
             scaled_model.set_temperature(val_dataloader)
 
@@ -297,9 +300,12 @@ class PyTorchTrainer:
                 test_observed_label = test_observed_label.long()  # Ensure the labels are long
                 test_true_label = test_true_label.long()  # Ensure the labels are long
                 test_loss = self.criterion(test_outputs, test_true_label)
+                test_acc = (torch.argmax(test_outputs, 1) == test_true_label).type(torch.float)
+                test_running_acc += test_acc.mean().item()
 
                 print('TEST')
                 print(test_loss)
+                print(test_acc)
                 print(cross_entropy(test_outputs, test_observed_label, self.num_classes))
                 print(cross_entropy(test_outputs, test_true_label, self.num_classes))
                 test_ce = cross_entropy(test_outputs, test_true_label, self.num_classes)
@@ -313,12 +319,18 @@ class PyTorchTrainer:
             epoch_ce = running_ce / len(dataloader)
             val_epoch_ce = val_running_ce / len(dataloader)
             test_epoch_ce = test_running_ce / len(test_dataloader)
+            epoch_acc = running_acc / len(dataloader)
+            val_epoch_acc = val_running_acc / len(dataloader)
+            test_epoch_acc = test_running_acc / len(test_dataloader)
             wandb.log({"train_loss": epoch_loss, "epoch": epoch})
             wandb.log({"val_loss": val_epoch_loss, "epoch": epoch})
             wandb.log({"test_loss": test_epoch_loss, "epoch": epoch})
             wandb.log({"train_ce": epoch_ce, "epoch": epoch})
             wandb.log({"val_ce": val_epoch_ce, "epoch": epoch})
             wandb.log({"test_ce": test_epoch_ce, "epoch": epoch})
+            wandb.log({"train_acc": epoch_acc, "epoch": epoch})
+            wandb.log({"val_acc": val_epoch_acc, "epoch": epoch})
+            wandb.log({"test_acc": test_epoch_acc, "epoch": epoch})
             print(f"Epoch {epoch+1}/{self.epochs}: Train Loss={epoch_loss:.4f} | Val Loss={val_epoch_loss:.4f} | Test Loss={test_epoch_loss:.4f}")
 
             if epoch == 0:
