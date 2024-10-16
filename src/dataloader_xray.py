@@ -28,6 +28,8 @@ class XraySubsetDataset(Dataset):
         self.labels = labels
 
     def __getitem__(self, idx):
+        print(np.shape(self.dataset))
+        print(np.shape(self.dataset[idx]))
         image = self.dataset[idx][0]
         target = self.labels[idx]
         return image, target
