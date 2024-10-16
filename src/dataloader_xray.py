@@ -30,7 +30,7 @@ class XraySubsetDataset(Dataset):
     def __getitem__(self, idx):
         image = self.dataset[idx]["img"]
         target = self.labels[idx]
-        return image, target.to_list()
+        return image, target.tolist()
 
     def __len__(self):
         return len(self.labels)
