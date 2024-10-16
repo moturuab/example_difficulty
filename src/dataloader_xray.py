@@ -29,7 +29,7 @@ class XraySubsetDataset(Dataset):
 
     def __getitem__(self, idx):
         image = self.dataset[idx]["img"]
-        target = self.labels[idx]
+        target = torch.argmax(self.labels[idx], dim=1)
         return image, target
 
     def __len__(self):
