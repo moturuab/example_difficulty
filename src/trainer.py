@@ -387,11 +387,6 @@ class PyTorchTrainer:
             wandb.log({"test_top5_acc": test_epoch_top5_acc, "epoch": epoch})
             print(f"Epoch {epoch+1}/{self.epochs}: Train Loss={epoch_loss:.4f} | Val Loss={val_epoch_loss:.4f} | Test Loss={test_epoch_loss:.4f}")
 
-            if epoch == 0:
-                continue
-            else:
-                print(error)
-
             # streamline repeated computation across methods
             if any(
                 method in self.characterization_methods
