@@ -480,9 +480,9 @@ def main(args):
             temp_val_idx = np.array(l[int(0.8*0.85*n):int(0.8*n)])
             temp_test_idx = np.array(l[int(0.8*n):])
 
-            temp_train_dataset = XraySubsetDataset(train_dataset, temp_train_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_train_idx], nih=True)
-            temp_val_dataset = XraySubsetDataset(train_dataset, temp_val_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_val_idx], nih=True)
-            temp_test_dataset = XraySubsetDataset(train_dataset, temp_test_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_test_idx], nih=True)
+            temp_train_dataset = XraySubsetDataset(train_dataset, temp_train_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_train_idx])
+            temp_val_dataset = XraySubsetDataset(train_dataset, temp_val_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_val_idx])
+            temp_test_dataset = XraySubsetDataset(train_dataset, temp_test_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_test_idx])
         else:
             l = np.array(range(n))
             np.random.shuffle(l)
