@@ -574,7 +574,6 @@ class XrayMultiFormatDataLoader:
     def get_perturbed_dataset(self):
         return self.perturbed_dataset
 
-    '''
     def get_flag_ids(self):
         """
         This function returns an array of zeros and ones indicating whether each index in a dataset is a
@@ -585,7 +584,7 @@ class XrayMultiFormatDataLoader:
         dataset. The function then sets the value of 1 at the indices specified by the `flag_ids` attribute
         of the object. Finally, the function returns the updated flag array.
         """
-
+        return None
         flag_array = np.zeros(len(self.perturbed_dataset))
 
         for i in range(len(flag_array)):
@@ -593,7 +592,6 @@ class XrayMultiFormatDataLoader:
                 flag_array[i] = 1
 
         return flag_array
-    '''
 
     def get_severity_ids(self):
         return self.severity_ids
