@@ -627,11 +627,12 @@ def main(args):
                 model = LeNetImageNet(num_classes=num_classes).to(device)
             if model_name == "ResNet":
                 model = models.resnet18().to(device)
-        elif dataset == "xray":
+        elif dataset == "nih":
             if model_name == "LeNet":
-                model = LeNetMNIST(num_classes=num_classes).to(device)
+                model = LeNet(num_classes=num_classes).to(device)
             if model_name == "ResNet":
-                model = ResNet18MNIST(num_classes=num_classes).to(device)
+                model = ResNet18(num_classes=num_classes).to(device)
+
 
         alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True)
         beta = nn.Parameter(torch.tensor(init_beta), requires_grad=True)
