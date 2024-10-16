@@ -33,6 +33,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
     def forward(self, outputs, targets, m=0):
         softmax_outputs = self.softmax(outputs)
         encoded_targets = self.encode(targets)
+        print(np.shape(outputs))
         print(np.shape(softmax_outputs))
         print(np.shape(targets))
         print(np.shape(encoded_targets))
