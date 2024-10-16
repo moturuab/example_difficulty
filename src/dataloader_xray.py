@@ -501,7 +501,7 @@ class XrayMultiFormatDataLoader:
                 )
 
         self.rule_matrix = rule_matrix
-        
+
         self.perturbed_dataset = XrayPerturbedDataset(
             self.dataset,
             perturbation_method=perturbation_method,
@@ -574,6 +574,7 @@ class XrayMultiFormatDataLoader:
     def get_perturbed_dataset(self):
         return self.perturbed_dataset
 
+    '''
     def get_flag_ids(self):
         """
         This function returns an array of zeros and ones indicating whether each index in a dataset is a
@@ -592,6 +593,7 @@ class XrayMultiFormatDataLoader:
                 flag_array[i] = 1
 
         return flag_array
+    '''
 
     def get_severity_ids(self):
         return self.severity_ids
