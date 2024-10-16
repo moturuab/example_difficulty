@@ -444,9 +444,9 @@ def main(args):
             temp_val_idx = np.array(l[int(0.8*0.85*n):int(0.8*n)])
             temp_test_idx = np.array(l[int(0.8*n):])
 
-            temp_train_dataset = SubsetDataset(full_dataset, temp_train_idx, torch.from_numpy(np.array([self.full_dataset[i][1] for i in temp_train_idx])))
-            temp_val_dataset = SubsetDataset(full_dataset, temp_val_idx, torch.from_numpy(np.array([self.full_dataset[i][1] for i in temp_val_idx])))
-            temp_test_dataset = SubsetDataset(full_dataset, temp_test_idx, torch.from_numpy(np.array([self.full_dataset[i][1] for i in temp_test_idx])))
+            temp_train_dataset = SubsetDataset(full_dataset, temp_train_idx, torch.from_numpy(np.array([full_dataset[i][1] for i in temp_train_idx])))
+            temp_val_dataset = SubsetDataset(full_dataset, temp_val_idx, torch.from_numpy(np.array([full_dataset[i][1] for i in temp_val_idx])))
+            temp_test_dataset = SubsetDataset(full_dataset, temp_test_idx, torch.from_numpy(np.array([full_dataset[i][1] for i in temp_test_idx])))
 
         else:
             l = np.array(range(n))
