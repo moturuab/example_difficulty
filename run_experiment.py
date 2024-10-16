@@ -671,7 +671,7 @@ def main(args):
         #
         ####################
 
-        eval = Evaluator(hardness_dict=hardness_dict, flag_ids=flag_ids, p=p)
+        eval = Evaluator(hardness_dict=hardness_dict, flag_ids=train_flag_ids, p=p)
 
         eval_dict, raw_scores_dict = eval.compute_results()
         # add sleep in case of machine latency
@@ -682,7 +682,7 @@ def main(args):
         scores_dict = {
             "metadata": metadata,
             "scores": raw_scores_dict,
-            "flag_ids": flag_ids,
+            "flag_ids": train_flag_ids,
         }
         # add sleep in case of machine latency
         time.sleep(30)
