@@ -217,7 +217,9 @@ class PyTorchTrainer:
                 train_loss = self.criterion(outputs, observed_label)
                 print(outputs)
                 print(torch.argmax(outputs, 0))
-                acc = (torch.argmax(outputs, 0) == torch.argmax(observed_label, 0))
+                print(torch.argmax(outputs, 1))
+                print(observed_label)
+                acc = (torch.argmax(outputs, 1) == observed_label)
                 print(acc.mean())
                 running_acc += acc.mean().item()
                 
