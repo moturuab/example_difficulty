@@ -70,7 +70,7 @@ class XrayPerturbedDataset(Dataset):
 
         self.targets = labels
 
-        '''
+    '''
 
         if perturbation_method in ["uniform", "asymmetric", "adjacent", "instance"]:
             self.perturbs = self._generate_mislabels()
@@ -83,13 +83,13 @@ class XrayPerturbedDataset(Dataset):
             "far_ood",
         ]:
             self.perturbs = self._generate_shifts()
-        '''
-
+        
     def get_flag_ids(self):
         return self.flag_ids
 
     def get_severity_ids(self):
         return self.severity_ids
+    '''
 
     def __len__(self):
         return len(self.dataset)
@@ -501,14 +501,15 @@ class XrayMultiFormatDataLoader:
                 )
 
         self.rule_matrix = rule_matrix
+        
         self.perturbed_dataset = XrayPerturbedDataset(
             self.dataset,
             perturbation_method=perturbation_method,
             p=p,
             rule_matrix=self.rule_matrix,
         )
-        self.flag_ids = self.perturbed_dataset.get_flag_ids()
-        self.severity_ids = self.perturbed_dataset.get_severity_ids()
+        #self.flag_ids = self.perturbed_dataset.get_flag_ids()
+        #self.severity_ids = self.perturbed_dataset.get_severity_ids()
         self.dataloader = DataLoader(
             self.perturbed_dataset,
             batch_size=batch_size,

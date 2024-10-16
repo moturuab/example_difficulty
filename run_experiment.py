@@ -508,9 +508,9 @@ def main(args):
             num_workers=0,
             transform=None,
             image_transform=None,
-            perturbation_method=hardness,
-            p=p,
-            rule_matrix=rule_matrix)
+            perturbation_method=None,
+            p=None,
+            rule_matrix=None)
 
             val_dataloader_class = XrayMultiFormatDataLoader(
             data=temp_val_dataset,
@@ -525,9 +525,9 @@ def main(args):
             num_workers=0,
             transform=None,
             image_transform=None,
-            perturbation_method=hardness,
-            p=p,
-            rule_matrix=rule_matrix)
+            perturbation_method=None,
+            p=None,
+            rule_matrix=None)
 
             test_dataloader_class = XrayMultiFormatDataLoader(
             data=temp_test_dataset,
@@ -542,9 +542,9 @@ def main(args):
             num_workers=0,
             transform=None,
             image_transform=None,
-            perturbation_method=hardness,
-            p=p,
-            rule_matrix=rule_matrix)
+            perturbation_method=None,
+            p=None,
+            rule_matrix=None)
 
         else:
             dataloader_class = MultiFormatDataLoader(
