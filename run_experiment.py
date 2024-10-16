@@ -324,17 +324,17 @@ def main(args):
             # 112120, resize to 224x224
             transform = transforms.Compose(
                 [
-                    xrv.datasets.XRayResizer(224),
+                    #xrv.datasets.XRayResizer(224),
                     #transforms.ToTensor(),
                     #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
             # National Institutes of Health ChestX-ray8 dataset. https://arxiv.org/abs/1705.02315
             train_dataset = xrv.datasets.NIH_Dataset(
-                imgpath="/datasets/NIH/images-224", transform=transform, unique_patients=True
+                imgpath="/datasets/NIH/images-224", transform=None, unique_patients=True
             )
             test_dataset = xrv.datasets.NIH_Dataset(
-                imgpath="/datasets/NIH/images-224", transform=transform, unique_patients=True
+                imgpath="/datasets/NIH/images-224", transform=None, unique_patients=True
             )
             num_classes = 14
 
