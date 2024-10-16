@@ -325,8 +325,8 @@ def main(args):
             transform = transforms.Compose(
                 [
                     xrv.datasets.XRayResizer(224),
-                    transforms.ToTensor(),
-                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                    #transforms.ToTensor(),
+                    #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
             # National Institutes of Health ChestX-ray8 dataset. https://arxiv.org/abs/1705.02315
@@ -472,9 +472,6 @@ def main(args):
             temp_train_idx = np.array(l[:int(0.85*n)])
             temp_val_idx = np.array(l[int(0.85*n):])
             temp_test_idx = np.array(range(len(test_dataset)))
-            print(train_dataset.labels)
-            print(torch.min(torch.from_numpy(np.array(train_dataset.labels))[temp_train_idx]))
-            print(torch.max(torch.from_numpy(np.array(train_dataset.labels))[temp_train_idx]))
 
             temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_train_idx])
             temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_val_idx])
