@@ -229,6 +229,13 @@ class PyTorchTrainer:
                 train_ce = cross_entropy(outputs, observed_label, self.num_classes)
                 running_ce += train_ce.mean().item()
 
+                """
+                # Show top categories per image
+                top5_prob, top5_catid = torch.topk(probabilities, 5)
+                for i in range(top5_prob.size(0)):
+                    print(categories[top5_catid[i]], top5_prob[i].item())
+                """
+
                 train_loss.mean().backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad()

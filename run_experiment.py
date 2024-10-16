@@ -19,7 +19,6 @@ from collections import Counter
 
 from src.dataloader import MultiFormatDataLoader, SubsetDataset
 from src.dataloader_xray import XrayMultiFormatDataLoader, XraySubsetDataset
-#from src.dataloader_xray import MultiFormatDataLoader as loader
 from src.evaluator import Evaluator
 from src.models import *
 from src.trainer import PyTorchTrainer
@@ -617,7 +616,7 @@ def main(args):
                 model = LeNet(num_classes=num_classes).to(device)
             if model_name == "ResNet":
                 model = ResNet18(num_classes=num_classes).to(device)
-        elif dataset == "mnist" or dataset == "fashionmnist" or dataset == "nih":
+        elif dataset == "mnist" or dataset == "fashionmnist":
             if model_name == "LeNet":
                 model = LeNetMNIST(num_classes=num_classes).to(device)
             if model_name == "ResNet":
@@ -627,7 +626,9 @@ def main(args):
                 model = LeNetImageNet(num_classes=num_classes).to(device)
             if model_name == "ResNet":
                 model = models.resnet18().to(device)
-
+        elif dataset == "nih":
+            model = models.densenet121().to(device)
+            model.classifier = nn.Linear(-1, num_classes)
 
         alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True)
         beta = nn.Parameter(torch.tensor(init_beta), requires_grad=True)
