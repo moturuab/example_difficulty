@@ -21,6 +21,21 @@ def cross_entropy(inp, target, num_classes):
     target = encode(target, num_classes)
     return torch.mean(-torch.sum(target * torch.log(inp), 1))
 
+def accuracy(output, target, topk=(1,5,)):
+    """Computes the precision@k for the specified values of k"""
+    maxk = max(topk)
+    batch_size = target.size(0)
+
+    _, pred = output.topk(maxk, 1, True, True)
+    pred = pred.t()
+    correct = pred.eq(target.view(1, -1).expand_as(pred))
+
+    res = []
+    for k in topk:
+        correct_k = correct[:k].view(-1).float().sum(0)
+        res.append(correct_k.mul_(100.0 / batch_size))
+    return res
+
 # The PyTorchTrainer class is a helper class for training PyTorch models with various characterization
 # methods.
 class PyTorchTrainer:
@@ -200,16 +215,12 @@ class PyTorchTrainer:
                 m = i % 2
 
                 inputs = inputs.to(self.device)
-                print(inputs.shape)
                 true_label = true_label.to(self.device)
-                print(true_label.shape)
                 observed_label = observed_label.to(self.device)
-                print(observed_label.shape)
 
                 self.optimizer.zero_grad()
 
                 outputs = self.model(inputs)
-                print(outputs.shape)
 
                 #if self.aum is not None:
                 #    self.aum.updates(
@@ -221,6 +232,7 @@ class PyTorchTrainer:
                 train_loss = self.criterion(outputs, observed_label)
                 acc = (torch.argmax(outputs, 1) == observed_label).type(torch.float)
                 running_acc += acc.mean().item()
+                print(accuracy(outputs, observed_label))
                 
                 print('TRAIN')
                 print(train_loss)
@@ -228,13 +240,6 @@ class PyTorchTrainer:
                 print(cross_entropy(outputs, observed_label, self.num_classes))
                 train_ce = cross_entropy(outputs, observed_label, self.num_classes)
                 running_ce += train_ce.mean().item()
-
-                """
-                # Show top categories per image
-                top5_prob, top5_catid = torch.topk(probabilities, 5)
-                for i in range(top5_prob.size(0)):
-                    print(categories[top5_catid[i]], top5_prob[i].item())
-                """
 
                 train_loss.mean().backward()
                 self.optimizer.step()
