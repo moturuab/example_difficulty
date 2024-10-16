@@ -29,8 +29,8 @@ class XraySubsetDataset(Dataset):
 
     def __getitem__(self, idx):
         image = self.dataset[idx]["img"]
-        target = self.labels[idx]
-        return image, target.tolist()
+        target = torch.argmax(self.labels[idx])
+        return image, target
 
     def __len__(self):
         return len(self.labels)
@@ -375,7 +375,7 @@ class XrayPerturbedDataset(Dataset):
 
             y = np.array(self.targets)
             noisy_y = instance_mislabeling(
-                y=y, flip_ids=self.flag_ids, rule_matrix=torch.argmax(self.rule_matrix, dim=1)
+                y=y, flip_ids=self.flag_ids, rule_matrix=self.rule_matrix
             )
             new_labels = noisy_y[self.flag_ids]
 
