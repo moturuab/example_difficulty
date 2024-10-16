@@ -70,6 +70,8 @@ class XrayPerturbedDataset(Dataset):
 
         self.targets = labels
 
+        '''
+
         if perturbation_method in ["uniform", "asymmetric", "adjacent", "instance"]:
             self.perturbs = self._generate_mislabels()
         elif perturbation_method in [
@@ -81,6 +83,7 @@ class XrayPerturbedDataset(Dataset):
             "far_ood",
         ]:
             self.perturbs = self._generate_shifts()
+        '''
 
     def get_flag_ids(self):
         return self.flag_ids
