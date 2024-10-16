@@ -232,7 +232,7 @@ class PyTorchTrainer:
                 #if self.aum is not None:
                 #    self.aum.updates(
                 #        y_pred=outputs, y_batch=observed_label, sample_ids=indices
-                #    )
+                #    ) 
 
                 outputs = outputs.float()  # Ensure the outputs are float
                 observed_label = observed_label.long()  # Ensure the labels are long
