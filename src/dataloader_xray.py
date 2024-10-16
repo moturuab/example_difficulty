@@ -65,7 +65,9 @@ class XrayPerturbedDataset(Dataset):
 
         labels = []
         for idx in range(len(self.dataset)):
+            print(self.dataset[idx])
             label = self.dataset[idx]["lab"]
+            print(label)
             labels.append(label[0])
 
         self.targets = labels
