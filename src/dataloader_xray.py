@@ -360,10 +360,8 @@ class PerturbedDataset(Dataset):
             try:
                 self.targets[self.flag_ids] = new_labels
             except:
-                corrupt_labels = torch.tensor(self.targets)
-                corrupt_labels[self.flag_ids] = torch.from_numpy(new_labels).to(
-                    torch.long
-                )
+                corrupt_labels = torch.tensor(self.targets).to(torch.long)
+                corrupt_labels[self.flag_ids] = torch.from_numpy(new_labels).to(torch.long)
                 self.targets = corrupt_labels.tolist()
 
         elif self.perturbation_method == "adjacent":
@@ -377,7 +375,7 @@ class PerturbedDataset(Dataset):
             try:
                 self.targets[self.flag_ids] = new_labels
             except:
-                corrupt_labels = torch.tensor(self.targets)
+                corrupt_labels = torch.tensor(self.targets).to(torch.long)
                 corrupt_labels[self.flag_ids] = torch.from_numpy(new_labels).to(
                     torch.long
                 )

@@ -269,7 +269,7 @@ class PyTorchTrainer:
                 val_running_loss += val_loss.mean().item()
 
                 # THINK ABOUT THIS
-                #if j > 5:
+                #if j > 0:
                 #    break
 
             scaled_model.set_temperature(val_dataloader)
