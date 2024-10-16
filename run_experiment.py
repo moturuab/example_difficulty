@@ -627,8 +627,7 @@ def main(args):
             if model_name == "ResNet":
                 model = models.resnet18().to(device)
         elif dataset == "nih":
-            model = models.densenet121().to(device)
-            model.classifier = nn.Linear(-1, num_classes)
+            model = xrv.models.DenseNet().to(device)
 
         alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True)
         beta = nn.Parameter(torch.tensor(init_beta), requires_grad=True)
