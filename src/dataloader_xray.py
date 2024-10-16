@@ -28,11 +28,9 @@ class XraySubsetDataset(Dataset):
         self.labels = labels
 
     def __getitem__(self, idx):
-        print(self.dataset)
-        print(self.dataset[idx])
         image = self.dataset[idx]["img"]
-        target = torch.argmax(self.labels[idx])
-        return image, target
+        target = self.labels[idx]
+        return image, target.tolist()
 
     def __len__(self):
         return len(self.labels)
