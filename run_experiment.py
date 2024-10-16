@@ -467,15 +467,24 @@ def main(args):
             temp_val_dataset = SubsetDataset(full_dataset, temp_val_idx, torch.from_numpy(np.array([full_dataset[i][1] for i in temp_val_idx])))
             temp_test_dataset = SubsetDataset(full_dataset, temp_test_idx, torch.from_numpy(np.array([full_dataset[i][1] for i in temp_test_idx])))
         elif dataset == "nih":
-            l = np.array(range(n))
+
+            labels = torch.from_numpy(np.array(train_dataset.labels))
+            row_sums = torch.sum(labels, dim=1)
+            indices = torch.nonzero(row_sums <= 1).squeeze()
+            print(indices)
+            print(len(indices))
+            l = np.array(indices)
+            n = len(indices)
+
             np.random.shuffle(l)
-            temp_train_idx = np.array(l[:int(0.85*n)])
-            temp_val_idx = np.array(l[int(0.85*n):])
-            temp_test_idx = np.array(range(len(test_dataset)))
+
+            temp_train_idx = np.array(l[:int(0.8*0.85*n)])
+            temp_val_idx = np.array(l[int(0.8*0.85*n):int(0.8*n)])
+            temp_test_idx = np.array(l[int(0.8*n):])
 
             temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_train_idx])
             temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_val_idx])
-            temp_test_dataset = SubsetDataset(test_dataset, temp_test_idx, torch.from_numpy(np.array(test_dataset.labels))[temp_test_idx])
+            temp_test_dataset = SubsetDataset(train_dataset, temp_test_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_test_idx])
         else:
             l = np.array(range(n))
             np.random.shuffle(l)

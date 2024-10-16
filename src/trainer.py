@@ -220,7 +220,7 @@ class PyTorchTrainer:
                 
                 print('TRAIN')
                 print(train_loss)
-                print(acc)
+                print(acc.mean())
                 print(cross_entropy(outputs, observed_label, self.num_classes))
                 train_ce = cross_entropy(outputs, observed_label, self.num_classes)
                 running_ce += train_ce.mean().item()
@@ -256,7 +256,7 @@ class PyTorchTrainer:
 
                     print('VAL')
                     print(val_loss)
-                    print(val_acc)
+                    print(val_acc.mean())
                     print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
                     print(cross_entropy(val_outputs, val_true_label, self.num_classes))
                     val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
@@ -305,7 +305,7 @@ class PyTorchTrainer:
 
                 print('TEST')
                 print(test_loss)
-                print(test_acc)
+                print(test_acc.mean())
                 print(cross_entropy(test_outputs, test_observed_label, self.num_classes))
                 print(cross_entropy(test_outputs, test_true_label, self.num_classes))
                 test_ce = cross_entropy(test_outputs, test_true_label, self.num_classes)
