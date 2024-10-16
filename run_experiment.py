@@ -187,6 +187,25 @@ def main(args):
                 9: [7]        # ankle boot -> sneaker
                 }
 
+# (1, Atelectasis; 2, Cardiomegaly; 3, Effusion; 4, Infiltration; 5, Mass; 6, Nodule; 7, Pneumonia; 8, Pneumothorax; 9, Consolidation; 10, Edema; 11, Emphysema; 12, Fibrosis; 13, Pleural_Thickening; 14 Hernia)
+            if dataset == "nih":
+                rule_matrix = {
+                0: [2,7],
+                1: [1],
+                2: [0,7],
+                3: [6,8,9,10,11],
+                4: [5],
+                5: [4],
+                6: [3,8,9,10,11],
+                7: [0,2],
+                8: [3,6,9,10,11],
+                9: [3,6,8,10,11],
+                10: [3,6,8,9,11],
+                11: [3,6,8,9,10],
+                12: [12],
+                13: [13]
+                }
+
         else:
             rule_matrix = None
 
@@ -453,6 +472,9 @@ def main(args):
             temp_train_idx = np.array(l[:int(0.85*n)])
             temp_val_idx = np.array(l[int(0.85*n):])
             temp_test_idx = np.array(range(len(test_dataset)))
+
+            print(torch.min(torch.from_numpy(np.array(test_dataset.labels))[temp_test_idx]))
+            print(torch.max(torch.from_numpy(np.array(test_dataset.labels))[temp_test_idx]))
 
             temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_train_idx])
             temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_val_idx])
