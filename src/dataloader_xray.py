@@ -375,7 +375,7 @@ class XrayPerturbedDataset(Dataset):
 
             y = np.array(self.targets)
             noisy_y = instance_mislabeling(
-                y=y, flip_ids=self.flag_ids, rule_matrix=self.rule_matrix
+                y=y, flip_ids=self.flag_ids, rule_matrix=torch.argmax(self.rule_matrix, dim=1)
             )
             new_labels = noisy_y[self.flag_ids]
 

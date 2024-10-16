@@ -188,7 +188,7 @@ def main(args):
                 9: [7]        # ankle boot -> sneaker
                 }
 
-# (1, Atelectasis; 2, Cardiomegaly; 3, Effusion; 4, Infiltration; 5, Mass; 6, Nodule; 7, Pneumonia; 8, Pneumothorax; 9, Consolidation; 10, Edema; 11, Emphysema; 12, Fibrosis; 13, Pleural_Thickening; 14 Hernia)
+            # (1, Atelectasis; 2, Cardiomegaly; 3, Effusion; 4, Infiltration; 5, Mass; 6, Nodule; 7, Pneumonia; 8, Pneumothorax; 9, Consolidation; 10, Edema; 11, Emphysema; 12, Fibrosis; 13, Pleural_Thickening; 14 Hernia)
             if dataset == "nih":
                 rule_matrix = {
                 0: [2,7],
@@ -327,15 +327,15 @@ def main(args):
                 [
                     #xrv.datasets.XRayResizer(224),
                     transforms.ToTensor(),
-                    #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
             # National Institutes of Health ChestX-ray8 dataset. https://arxiv.org/abs/1705.02315
             train_dataset = xrv.datasets.NIH_Dataset(
-                imgpath="/datasets/NIH/images-224", transform=None, unique_patients=True
+                imgpath="/datasets/NIH/images-224", transform=transform, unique_patients=True
             )
             test_dataset = xrv.datasets.NIH_Dataset(
-                imgpath="/datasets/NIH/images-224", transform=None, unique_patients=True
+                imgpath="/datasets/NIH/images-224", transform=transform, unique_patients=True
             )
             num_classes = 14
 
@@ -387,7 +387,7 @@ def main(args):
             )
             # VinDr-CXR: An open dataset of chest X-rays with radiologist's annotations. https://arxiv.org/abs/2012.15029
             train_dataset = xrv.datasets.VinBrain_Dataset(
-                imgpath=".data/vindrcxr/train", csvpath=".data/vindrcxr/train.csv",  transform=transform
+                imgpath=".data/vindrcxr/train", csvpath=".data/vindrcxr/train.csv", transform=transform
             )
             test_dataset = xrv.datasets.VinBrain_Dataset(
                 imgpath=".data/vindrcxr/test", csvpath=".data/vindrcxr/sample_submission.csv", transform=transform
