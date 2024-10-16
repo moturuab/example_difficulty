@@ -628,7 +628,7 @@ def main(args):
                 model = models.resnet18().to(device)
         elif dataset == "nih":
             xrv.datasets.default_pathologies = list(range(num_classes))
-            model = models.DenseNet().to(device)
+            model = xrv.models.DenseNet().to(device)
 
         alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True)
         beta = nn.Parameter(torch.tensor(init_beta), requires_grad=True)
