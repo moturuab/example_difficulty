@@ -200,12 +200,16 @@ class PyTorchTrainer:
                 m = i % 2
 
                 inputs = inputs.to(self.device)
+                print(inputs.shape)
                 true_label = true_label.to(self.device)
+                print(true_label.shape)
                 observed_label = observed_label.to(self.device)
+                print(observed_label.shape)
 
                 self.optimizer.zero_grad()
 
                 outputs = self.model(inputs)
+                print(outputs.shape)
 
                 #if self.aum is not None:
                 #    self.aum.updates(
