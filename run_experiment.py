@@ -617,7 +617,7 @@ def main(args):
                 model = LeNet(num_classes=num_classes).to(device)
             if model_name == "ResNet":
                 model = ResNet18(num_classes=num_classes).to(device)
-        elif dataset == "mnist" or dataset == "fashionmnist":
+        elif dataset == "mnist" or dataset == "fashionmnist" or dataset == "nih":
             if model_name == "LeNet":
                 model = LeNetMNIST(num_classes=num_classes).to(device)
             if model_name == "ResNet":
@@ -627,11 +627,6 @@ def main(args):
                 model = LeNetImageNet(num_classes=num_classes).to(device)
             if model_name == "ResNet":
                 model = models.resnet18().to(device)
-        elif dataset == "nih":
-            if model_name == "LeNet":
-                model = LeNet(num_classes=num_classes).to(device)
-            if model_name == "ResNet":
-                model = ResNet18(num_classes=num_classes).to(device)
 
 
         alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True)
