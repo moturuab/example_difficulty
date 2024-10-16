@@ -198,7 +198,8 @@ class PyTorchTrainer:
         # Set model to training mode
         self.optimizer.lr = self.lr
         c = 0
-        scaled_model = ModelWithTemperature(self.model)
+        if self.calibrate:
+            scaled_model = ModelWithTemperature(self.model)
         for epoch in range(self.epochs):
             self.model.train()
             running_loss = 0.0
@@ -210,6 +211,12 @@ class PyTorchTrainer:
             running_acc = 0.0
             val_running_acc = 0.0
             test_running_acc = 0.0
+            running_top1_acc = 0.0
+            val_running_top1_acc = 0.0
+            test_running_top1_acc = 0.0
+            running_top5_acc = 0.0
+            val_running_top5_acc = 0.0
+            test_running_top5_acc = 0.0
             for i, data in enumerate(dataloader):
                 inputs, true_label, observed_label, indices = data
                 m = i % 2
@@ -232,7 +239,12 @@ class PyTorchTrainer:
                 train_loss = self.criterion(outputs, observed_label)
                 acc = (torch.argmax(outputs, 1) == observed_label).type(torch.float)
                 running_acc += acc.mean().item()
-                print(accuracy(outputs, observed_label))
+
+                topk_acc = accuracy(outputs, observed_label)
+                top1_acc = topk_acc[0]
+                top5_acc = topk_acc[1]
+                running_top1_acc += top1_acc.mean().item()
+                running_top5_acc += top5_acc.mean().item()
                 
                 print('TRAIN')
                 print(train_loss)
@@ -264,11 +276,18 @@ class PyTorchTrainer:
                     if self.clean_val:
                         val_loss = self.criterion(val_outputs, val_true_label, m=m)
                         val_acc = (torch.argmax(val_outputs, 1) == val_true_label).type(torch.float)
+                        val_topk_acc = accuracy(val_outputs, val_true_label)
                     else:
                         val_loss = self.criterion(val_outputs, val_observed_label, m=m)
                         val_acc = (torch.argmax(val_outputs, 1) == val_observed_label).type(torch.float)
+                        val_topk_acc = accuracy(val_outputs, val_observed_label)
                     
                     val_running_acc += val_acc.mean().item()
+
+                    val_top1_acc = val_topk_acc[0]
+                    val_top5_acc = val_topk_acc[1]
+                    val_running_top1_acc += val_top1_acc.mean().item()
+                    val_running_top5_acc += val_top5_acc.mean().item()
 
                     print('VAL')
                     print(val_loss)
@@ -298,7 +317,8 @@ class PyTorchTrainer:
 
                     break
 
-            scaled_model.set_temperature(val_dataloader)
+            if self.calibrate:
+                scaled_model.set_temperature(val_dataloader)
 
             self.model.eval()
             for k, test_data in enumerate(test_dataloader):
@@ -319,6 +339,12 @@ class PyTorchTrainer:
                 test_acc = (torch.argmax(test_outputs, 1) == test_true_label).type(torch.float)
                 test_running_acc += test_acc.mean().item()
 
+                test_topk_acc = accuracy(test_outputs, test_true_label)
+                test_top1_acc = test_topk_acc[0]
+                test_top5_acc = test_topk_acc[1]
+                test_running_top1_acc += test_top1_acc.mean().item()
+                test_running_top5_acc += test_top5_acc.mean().item()
+
                 print('TEST')
                 print(test_loss)
                 print(test_acc.mean())
@@ -338,6 +364,12 @@ class PyTorchTrainer:
             epoch_acc = running_acc / len(dataloader)
             val_epoch_acc = val_running_acc / len(dataloader)
             test_epoch_acc = test_running_acc / len(test_dataloader)
+            epoch_top1_acc = running_top1_acc / len(dataloader)
+            val_epoch_top1_acc = val_running_top1_acc / len(dataloader)
+            test_epoch_top1_acc = test_running_top1_acc / len(test_dataloader)
+            epoch_top5_acc = running_top5_acc / len(dataloader)
+            val_epoch_top5_acc = val_running_top5_acc / len(dataloader)
+            test_epoch_top5_acc = test_running_top5_acc / len(test_dataloader)
             wandb.log({"train_loss": epoch_loss, "epoch": epoch})
             wandb.log({"val_loss": val_epoch_loss, "epoch": epoch})
             wandb.log({"test_loss": test_epoch_loss, "epoch": epoch})
@@ -347,6 +379,12 @@ class PyTorchTrainer:
             wandb.log({"train_acc": epoch_acc, "epoch": epoch})
             wandb.log({"val_acc": val_epoch_acc, "epoch": epoch})
             wandb.log({"test_acc": test_epoch_acc, "epoch": epoch})
+            wandb.log({"train_top1_acc": epoch_top1_acc, "epoch": epoch})
+            wandb.log({"val_top1_acc": val_epoch_top1_acc, "epoch": epoch})
+            wandb.log({"test_top1_acc": test_epoch_top1_acc, "epoch": epoch})
+            wandb.log({"train_top5_acc": epoch_top5_acc, "epoch": epoch})
+            wandb.log({"val_top5_acc": val_epoch_top5_acc, "epoch": epoch})
+            wandb.log({"test_top5_acc": test_epoch_top5_acc, "epoch": epoch})
             print(f"Epoch {epoch+1}/{self.epochs}: Train Loss={epoch_loss:.4f} | Val Loss={val_epoch_loss:.4f} | Test Loss={test_epoch_loss:.4f}")
 
             if epoch == 0:
