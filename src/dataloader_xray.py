@@ -454,16 +454,21 @@ class XrayMultiFormatDataLoader:
         self,
         data,
         target_column,
-        data_type="csv",
+        full_dataset=None,
+        idx=None,
+        data_type="torch_dataset",
         data_modality="image",
+        dataset_name="",
         batch_size=32,
         shuffle=True,
         num_workers=0,
         transform=None,
         image_transform=None,
+        train_or_val='train',
         perturbation_method="uniform",
         p=0.1,
         rule_matrix=None,
+        atypical_marginal=[],
     ):
 
         if data_type == "torch_dataset":

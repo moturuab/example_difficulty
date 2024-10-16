@@ -495,58 +495,6 @@ def main(args):
             temp_test_dataset = SubsetDataset(test_dataset, temp_test_idx, torch.from_numpy(np.array(test_dataset.targets))[temp_test_idx])
         
         if dataset == "nih":
-            dataloader_class = MultiFormatDataLoader(
-            data=temp_train_dataset,
-            full_dataset=full_dataset,
-            idx=temp_train_idx,
-            target_column=None,
-            data_type="torch_dataset",
-            data_modality="image",
-            dataset_name=dataset,
-            batch_size=64,
-            shuffle=True,
-            num_workers=0,
-            transform=None,
-            image_transform=None,
-            perturbation_method=hardness,
-            p=p,
-            rule_matrix=rule_matrix)
-
-            val_dataloader_class = MultiFormatDataLoader(
-            data=temp_val_dataset,
-            full_dataset=full_dataset,
-            idx=temp_val_idx,
-            target_column=None,
-            data_type="torch_dataset",
-            data_modality="image",
-            dataset_name=dataset,
-            batch_size=64,
-            shuffle=True,
-            num_workers=0,
-            transform=None,
-            image_transform=None,
-            perturbation_method=hardness,
-            p=p,
-            rule_matrix=rule_matrix)
-
-            test_dataloader_class = MultiFormatDataLoader(
-            data=temp_test_dataset,
-            full_dataset=full_dataset,
-            idx=temp_test_idx,
-            target_column=None,
-            data_type="torch_dataset",
-            data_modality="image",
-            dataset_name=dataset,
-            batch_size=64,
-            shuffle=False,
-            num_workers=0,
-            transform=None,
-            image_transform=None,
-            perturbation_method=hardness,
-            p=p,
-            rule_matrix=rule_matrix)
-
-        else:
             dataloader_class = XrayMultiFormatDataLoader(
             data=temp_train_dataset,
             full_dataset=full_dataset,
@@ -582,6 +530,58 @@ def main(args):
             rule_matrix=rule_matrix)
 
             test_dataloader_class = XrayMultiFormatDataLoader(
+            data=temp_test_dataset,
+            full_dataset=full_dataset,
+            idx=temp_test_idx,
+            target_column=None,
+            data_type="torch_dataset",
+            data_modality="image",
+            dataset_name=dataset,
+            batch_size=64,
+            shuffle=False,
+            num_workers=0,
+            transform=None,
+            image_transform=None,
+            perturbation_method=hardness,
+            p=p,
+            rule_matrix=rule_matrix)
+
+        else:
+            dataloader_class = MultiFormatDataLoader(
+            data=temp_train_dataset,
+            full_dataset=full_dataset,
+            idx=temp_train_idx,
+            target_column=None,
+            data_type="torch_dataset",
+            data_modality="image",
+            dataset_name=dataset,
+            batch_size=64,
+            shuffle=True,
+            num_workers=0,
+            transform=None,
+            image_transform=None,
+            perturbation_method=hardness,
+            p=p,
+            rule_matrix=rule_matrix)
+
+            val_dataloader_class = MultiFormatDataLoader(
+            data=temp_val_dataset,
+            full_dataset=full_dataset,
+            idx=temp_val_idx,
+            target_column=None,
+            data_type="torch_dataset",
+            data_modality="image",
+            dataset_name=dataset,
+            batch_size=64,
+            shuffle=True,
+            num_workers=0,
+            transform=None,
+            image_transform=None,
+            perturbation_method=hardness,
+            p=p,
+            rule_matrix=rule_matrix)
+
+            test_dataloader_class = MultiFormatDataLoader(
             data=temp_test_dataset,
             full_dataset=full_dataset,
             idx=temp_test_idx,
