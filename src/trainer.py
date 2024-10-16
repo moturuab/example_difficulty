@@ -215,11 +215,7 @@ class PyTorchTrainer:
                 outputs = outputs.float()  # Ensure the outputs are float
                 observed_label = observed_label.long()  # Ensure the labels are long
                 train_loss = self.criterion(outputs, observed_label)
-                print(outputs)
-                print(torch.argmax(outputs, 0))
-                print(torch.argmax(outputs, 1))
-                print(observed_label)
-                acc = (torch.argmax(outputs, 1) == observed_label)
+                acc = (torch.argmax(outputs, 1) == observed_label).type(torch.uint8)
                 print(acc.mean())
                 running_acc += acc.mean().item()
                 
