@@ -471,8 +471,9 @@ def main(args):
             row_sums = torch.sum(labels, dim=1)
             indices = torch.nonzero(row_sums <= 1).squeeze()
             l = np.array(indices)
+            print(n)
             n = len(indices)
-
+            print(n)
             np.random.shuffle(l)
 
             temp_train_idx = np.array(l[:int(0.8*0.85*n)])
