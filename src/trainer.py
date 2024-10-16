@@ -223,54 +223,54 @@ class PyTorchTrainer:
                 self.optimizer.step()
                 self.optimizer.zero_grad()
 
-                for j, val_data in enumerate(val_dataloader):
-                    val_inputs, val_true_label, val_observed_label, val_indices = val_data
-
-                    val_inputs = val_inputs.to(self.device)
-                    val_true_label = val_true_label.to(self.device)
-                    val_observed_label = val_observed_label.to(self.device)
-
-                    if self.calibrate:
-                        val_outputs = scaled_model.model(val_inputs)
-                    else:
-                        val_outputs = self.model(val_inputs)
-
-                    val_outputs = val_outputs.float()
-                    val_observed_label = val_observed_label.long()
-                    if self.clean_val:
-                        val_loss = self.criterion(val_outputs, val_true_label, m=m)
-                    else:
-                        val_loss = self.criterion(val_outputs, val_observed_label, m=m)
-                    print('VAL')
-                    print(val_loss)
-                    print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
-                    print(cross_entropy(val_outputs, val_true_label, self.num_classes))
-                    val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
-                    val_running_ce += val_ce.mean().item()
-                    val_loss.mean().backward()
-
-                    if self.reweight:
-                        with torch.no_grad():
-                            if not m:
-                                self.alpha -= self.alpha_lr * self.alpha.grad
-                            else:
-                                self.beta -= self.beta_lr * self.beta.grad
-                            wandb.log({"alpha": self.alpha.detach().item(), "step": c})
-                            wandb.log({"beta": self.beta.detach().item(), "step": c})
-                            c += 1
-                            print('GRAD')
-                            if not m:
-                                print(0.01 * self.alpha.grad)
-                            else:
-                                print(0.01 * self.beta.grad)
-
-                    val_running_loss += val_loss.mean().item()
-
-                    # THINK ABOUT THIS
-                    if j > 5:
-                        break
-
                 running_loss += train_loss.mean().item()
+
+            for j, val_data in enumerate(val_dataloader):
+                val_inputs, val_true_label, val_observed_label, val_indices = val_data
+
+                val_inputs = val_inputs.to(self.device)
+                val_true_label = val_true_label.to(self.device)
+                val_observed_label = val_observed_label.to(self.device)
+
+                if self.calibrate:
+                    val_outputs = scaled_model.model(val_inputs)
+                else:
+                    val_outputs = self.model(val_inputs)
+
+                val_outputs = val_outputs.float()
+                val_observed_label = val_observed_label.long()
+                if self.clean_val:
+                    val_loss = self.criterion(val_outputs, val_true_label, m=m)
+                else:
+                    val_loss = self.criterion(val_outputs, val_observed_label, m=m)
+                print('VAL')
+                print(val_loss)
+                print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
+                print(cross_entropy(val_outputs, val_true_label, self.num_classes))
+                val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
+                val_running_ce += val_ce.mean().item()
+                val_loss.mean().backward()
+
+                if self.reweight:
+                    with torch.no_grad():
+                        if not m:
+                            self.alpha -= self.alpha_lr * self.alpha.grad
+                        else:
+                            self.beta -= self.beta_lr * self.beta.grad
+                        wandb.log({"alpha": self.alpha.detach().item(), "step": c})
+                        wandb.log({"beta": self.beta.detach().item(), "step": c})
+                        c += 1
+                        print('GRAD')
+                        if not m:
+                            print(0.01 * self.alpha.grad)
+                        else:
+                            print(0.01 * self.beta.grad)
+
+                val_running_loss += val_loss.mean().item()
+
+                # THINK ABOUT THIS
+                #if j > 5:
+                #    break
 
             scaled_model.set_temperature(val_dataloader)
 
