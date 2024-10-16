@@ -67,7 +67,7 @@ class PerturbedDataset(Dataset):
         generate the mislabeled data. If `perturbation_method` is set to "rule_based", then `rule
         """
         self.dataset = dataset
-        if dataset_name == "altech256":
+        if dataset_name == "caltech256":
             self.full_dataset = full_dataset
         self.idx = idx
         self.indices = torch.from_numpy(np.array(range(len(dataset))))
@@ -172,7 +172,7 @@ class PerturbedDataset(Dataset):
             else:
                 # Convert the list of tensors to a flat tensor and create a TensorDataset
                 flat_data = torch.stack(perturbed_data)
-            if self.dataset_name == "altech256":
+            if self.dataset_name == "caltech256":
                 labels = [self.full_dataset[i][1] for i in self.idx]
             elif self.dataset_name == "nih":
                 labels = self.dataset.labels
@@ -292,7 +292,7 @@ class PerturbedDataset(Dataset):
             else:
                 flat_data = torch.stack(perturbed_data)
 
-            if self.dataset_name == "altech256":
+            if self.dataset_name == "caltech256":
                 labels = [self.full_dataset[i][1] for i in self.idx]
             elif self.dataset_name == "nih":
                 labels = self.dataset.labels
@@ -377,7 +377,7 @@ class PerturbedDataset(Dataset):
 
             # Convert the list of tensors to a flat tensor and create a TensorDataset
             flat_data = torch.stack(perturbed_data)
-            if self.dataset_name == "altech256":
+            if self.dataset_name == "caltech256":
                 labels = [self.full_dataset[i][1] for i in self.idx]
             elif self.dataset_name == "nih":
                 labels = self.dataset.labels
@@ -396,7 +396,7 @@ class PerturbedDataset(Dataset):
         """
         mislabels = []
 
-        if self.dataset_name == "altech256":
+        if self.dataset_name == "caltech256":
             labels = [self.full_dataset[i][1] for i in self.idx]
         elif self.dataset_name == "nih":
             labels = self.dataset.labels

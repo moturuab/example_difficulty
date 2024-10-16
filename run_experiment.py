@@ -438,22 +438,26 @@ def main(args):
         #wandb.log(metadata)
 
         if dataset == "caltech256":
-            temp_train_dataset = train_dataset
-            temp_val_dataset = val_dataset
-            temp_test_dataset = test_dataset
-            temp_train_idx = train_idx
-            temp_val_idx = val_idx
-            temp_test_idx = test_idx
+            l = np.array(range(len(full_dataset)))
+            np.random.shuffle(l)
+            temp_train_idx = np.array(l[:int(0.8*0.85*n)])
+            temp_val_idx = np.array(l[int(0.8*0.85*n):int(0.8*n)])
+            temp_test_idx = np.array(l[int(0.8*n):])
+
+            temp_train_dataset = SubsetDataset(full_dataset, temp_train_idx, torch.from_numpy(np.array(full_dataset.targets))[temp_train_idx])
+            temp_val_dataset = SubsetDataset(full_dataset, temp_val_idx, torch.from_numpy(np.array(full_dataset.targets))[temp_val_idx])
+            temp_test_dataset = SubsetDataset(full_dataset, np.array(range(len(test_dataset))), torch.from_numpy(np.array(full_dataset.targets))[temp_test_idx])
+
         else:
             l = np.array(range(n))
             np.random.shuffle(l)
             temp_train_idx = np.array(l[:int(0.85*n)])
             temp_val_idx = np.array(l[int(0.85*n):])
+            temp_test_idx = np.array(range(len(test_dataset)))
 
             temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, torch.from_numpy(np.array(train_dataset.targets))[temp_train_idx])
             temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, torch.from_numpy(np.array(train_dataset.targets))[temp_val_idx])
-
-            temp_test_dataset = SubsetDataset(test_dataset, np.array(range(len(test_dataset))), torch.from_numpy(np.array(test_dataset.targets))[np.array(range(len(test_dataset)))])
+            temp_test_dataset = SubsetDataset(test_dataset, np.array(range(len(test_dataset))), torch.from_numpy(np.array(test_dataset.targets))[temp_test_idx])
 
         if dataset == "nih":
             dataloader_class = loader(
@@ -507,7 +511,7 @@ def main(args):
             test_dataloader_class = MultiFormatDataLoader(
             data=temp_test_dataset,
             full_dataset=full_dataset,
-            idx=test_idx,
+            idx=temp_test_idx,
             target_column=None,
             data_type="torch_dataset",
             data_modality="image",
