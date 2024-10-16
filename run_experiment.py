@@ -336,7 +336,7 @@ def main(args):
             test_dataset = xrv.datasets.NIH_Dataset(
                 imgpath="/datasets/NIH/images-224", transform=None, unique_patients=True
             )
-            num_classes = 14
+            num_classes = 18
 
         elif dataset == "pneumonia":
             # Define transforms for the dataset
@@ -627,7 +627,6 @@ def main(args):
             if model_name == "ResNet":
                 model = models.resnet18().to(device)
         elif dataset == "nih":
-            xrv.datasets.default_pathologies = list(range(num_classes))
             model = xrv.models.DenseNet().to(device)
 
         alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True)
