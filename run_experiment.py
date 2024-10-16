@@ -487,40 +487,22 @@ def main(args):
             p=p,
             rule_matrix=rule_matrix)
 
-            if val_idx is not None:
-                val_dataloader_class = MultiFormatDataLoader(
-                data=val_dataset,
-                full_dataset=full_dataset,
-                idx=val_idx,
-                target_column=None,
-                data_type="torch_dataset",
-                data_modality="image",
-                dataset_name=dataset,
-                batch_size=64,
-                shuffle=True,
-                num_workers=0,
-                transform=None,
-                image_transform=None,
-                perturbation_method=hardness,
-                p=p,
-                rule_matrix=rule_matrix)
-            else:
-                val_dataloader_class = MultiFormatDataLoader(
-                data=temp_val_dataset,
-                full_dataset=full_dataset,
-                idx=temp_val_idx,
-                target_column=None,
-                data_type="torch_dataset",
-                data_modality="image",
-                dataset_name=dataset,
-                batch_size=64,
-                shuffle=True,
-                num_workers=0,
-                transform=None,
-                image_transform=None,
-                perturbation_method=hardness,
-                p=p,
-                rule_matrix=rule_matrix)
+            val_dataloader_class = MultiFormatDataLoader(
+            data=temp_val_dataset,
+            full_dataset=full_dataset,
+            idx=temp_val_idx,
+            target_column=None,
+            data_type="torch_dataset",
+            data_modality="image",
+            dataset_name=dataset,
+            batch_size=64,
+            shuffle=True,
+            num_workers=0,
+            transform=None,
+            image_transform=None,
+            perturbation_method=hardness,
+            p=p,
+            rule_matrix=rule_matrix)
 
             test_dataloader_class = MultiFormatDataLoader(
             data=temp_test_dataset,
