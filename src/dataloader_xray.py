@@ -14,8 +14,29 @@ from torchvision.transforms.functional import to_pil_image, to_tensor
 
 from .perturbations import *
 
+class XraySubsetDataset(Dataset):
+    r"""
+    Subset of a dataset at specified indices.
 
-class PerturbedDataset(Dataset):
+    Arguments:
+        dataset (Dataset): The whole Dataset
+        indices (sequence): Indices in the whole set selected for subset
+        labels(sequence) : targets as required for the indices. will be the same length as indices
+    """
+    def __init__(self, dataset, indices, labels):
+        self.dataset = torch.utils.data.Subset(dataset, indices)
+        self.labels = labels
+
+    def __getitem__(self, idx):
+        image = self.dataset[idx][0]
+        target = self.labels[idx]
+        return image, target
+
+    def __len__(self):
+        return len(self.labels)
+
+
+class XrayPerturbedDataset(Dataset):
     def __init__(self, dataset, perturbation_method="uniform", p=0.1, rule_matrix=None):
         """
         This function initializes an object with a dataset, perturbation method, perturbation
@@ -39,7 +60,7 @@ class PerturbedDataset(Dataset):
         self.p = p
         self.rule_matrix = rule_matrix
         self.severity_ids = None
-        
+
         from collections import Counter
 
         labels = []
@@ -396,7 +417,7 @@ class PerturbedDataset(Dataset):
         self.dataset = torch.utils.data.TensorDataset(flat_data, labels)
 
 
-class CustomDataset(Dataset):
+class XrayCustomDataset(Dataset):
     def __init__(self, data, target_column, transform=None, image_data=False):
         self.data = data
         self.target_column = target_column
@@ -428,7 +449,7 @@ class CustomDataset(Dataset):
 
 # The MultiFormatDataLoader class is a data loader that can handle multiple data formats, perturb the
 # data, and shuffle the data for use in machine learning models.
-class MultiFormatDataLoader:
+class XrayMultiFormatDataLoader:
     def __init__(
         self,
         data,
@@ -463,16 +484,16 @@ class MultiFormatDataLoader:
                         ]
                     )
 
-                self.dataset = CustomDataset(
+                self.dataset = XrayCustomDataset(
                     self.data, target_column, transform=image_transform, image_data=True
                 )
             else:
-                self.dataset = CustomDataset(
+                self.dataset = XrayCustomDataset(
                     self.data, target_column, transform=transform
                 )
 
         self.rule_matrix = rule_matrix
-        self.perturbed_dataset = PerturbedDataset(
+        self.perturbed_dataset = XrayPerturbedDataset(
             self.dataset,
             perturbation_method=perturbation_method,
             p=p,

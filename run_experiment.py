@@ -18,7 +18,8 @@ from sklearn.model_selection import train_test_split
 from collections import Counter
 
 from src.dataloader import MultiFormatDataLoader, SubsetDataset
-from src.dataloader_xray import MultiFormatDataLoader as loader
+from src.dataloader_xray import XrayMultiFormatDataLoader, XraySubsetDataset
+#from src.dataloader_xray import MultiFormatDataLoader as loader
 from src.evaluator import Evaluator
 from src.models import *
 from src.trainer import PyTorchTrainer
@@ -471,7 +472,6 @@ def main(args):
             row_sums = torch.sum(labels, dim=1)
             indices = torch.nonzero(row_sums <= 1).squeeze()
             l = np.array(indices)
-            print(n)
             n = len(indices)
             print(n)
             np.random.shuffle(l)
@@ -480,9 +480,9 @@ def main(args):
             temp_val_idx = np.array(l[int(0.8*0.85*n):int(0.8*n)])
             temp_test_idx = np.array(l[int(0.8*n):])
 
-            temp_train_dataset = SubsetDataset(train_dataset, temp_train_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_train_idx], nih=True)
-            temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_val_idx], nih=True)
-            temp_test_dataset = SubsetDataset(train_dataset, temp_test_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_test_idx], nih=True)
+            temp_train_dataset = XraySubsetDataset(train_dataset, temp_train_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_train_idx], nih=True)
+            temp_val_dataset = XraySubsetDataset(train_dataset, temp_val_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_val_idx], nih=True)
+            temp_test_dataset = XraySubsetDataset(train_dataset, temp_test_idx, torch.from_numpy(np.array(train_dataset.labels))[temp_test_idx], nih=True)
         else:
             l = np.array(range(n))
             np.random.shuffle(l)
@@ -494,56 +494,109 @@ def main(args):
             temp_val_dataset = SubsetDataset(train_dataset, temp_val_idx, torch.from_numpy(np.array(train_dataset.targets))[temp_val_idx])
             temp_test_dataset = SubsetDataset(test_dataset, temp_test_idx, torch.from_numpy(np.array(test_dataset.targets))[temp_test_idx])
         
-        dataloader_class = MultiFormatDataLoader(
-        data=temp_train_dataset,
-        full_dataset=full_dataset,
-        idx=temp_train_idx,
-        target_column=None,
-        data_type="torch_dataset",
-        data_modality="image",
-        dataset_name=dataset,
-        batch_size=64,
-        shuffle=True,
-        num_workers=0,
-        transform=None,
-        image_transform=None,
-        perturbation_method=hardness,
-        p=p,
-        rule_matrix=rule_matrix)
+        if dataset == "nih":
+            dataloader_class = MultiFormatDataLoader(
+            data=temp_train_dataset,
+            full_dataset=full_dataset,
+            idx=temp_train_idx,
+            target_column=None,
+            data_type="torch_dataset",
+            data_modality="image",
+            dataset_name=dataset,
+            batch_size=64,
+            shuffle=True,
+            num_workers=0,
+            transform=None,
+            image_transform=None,
+            perturbation_method=hardness,
+            p=p,
+            rule_matrix=rule_matrix)
 
-        val_dataloader_class = MultiFormatDataLoader(
-        data=temp_val_dataset,
-        full_dataset=full_dataset,
-        idx=temp_val_idx,
-        target_column=None,
-        data_type="torch_dataset",
-        data_modality="image",
-        dataset_name=dataset,
-        batch_size=64,
-        shuffle=True,
-        num_workers=0,
-        transform=None,
-        image_transform=None,
-        perturbation_method=hardness,
-        p=p,
-        rule_matrix=rule_matrix)
+            val_dataloader_class = MultiFormatDataLoader(
+            data=temp_val_dataset,
+            full_dataset=full_dataset,
+            idx=temp_val_idx,
+            target_column=None,
+            data_type="torch_dataset",
+            data_modality="image",
+            dataset_name=dataset,
+            batch_size=64,
+            shuffle=True,
+            num_workers=0,
+            transform=None,
+            image_transform=None,
+            perturbation_method=hardness,
+            p=p,
+            rule_matrix=rule_matrix)
 
-        test_dataloader_class = MultiFormatDataLoader(
-        data=temp_test_dataset,
-        full_dataset=full_dataset,
-        idx=temp_test_idx,
-        target_column=None,
-        data_type="torch_dataset",
-        data_modality="image",
-        dataset_name=dataset,
-        batch_size=64,
-        shuffle=False,
-        num_workers=0,
-        transform=None,
-        image_transform=None,
-        perturbation_method=hardness,
-        p=p,
-        rule_matrix=rule_matrix)
+            test_dataloader_class = MultiFormatDataLoader(
+            data=temp_test_dataset,
+            full_dataset=full_dataset,
+            idx=temp_test_idx,
+            target_column=None,
+            data_type="torch_dataset",
+            data_modality="image",
+            dataset_name=dataset,
+            batch_size=64,
+            shuffle=False,
+            num_workers=0,
+            transform=None,
+            image_transform=None,
+            perturbation_method=hardness,
+            p=p,
+            rule_matrix=rule_matrix)
+
+        else:
+            dataloader_class = XrayMultiFormatDataLoader(
+            data=temp_train_dataset,
+            full_dataset=full_dataset,
+            idx=temp_train_idx,
+            target_column=None,
+            data_type="torch_dataset",
+            data_modality="image",
+            dataset_name=dataset,
+            batch_size=64,
+            shuffle=True,
+            num_workers=0,
+            transform=None,
+            image_transform=None,
+            perturbation_method=hardness,
+            p=p,
+            rule_matrix=rule_matrix)
+
+            val_dataloader_class = XrayMultiFormatDataLoader(
+            data=temp_val_dataset,
+            full_dataset=full_dataset,
+            idx=temp_val_idx,
+            target_column=None,
+            data_type="torch_dataset",
+            data_modality="image",
+            dataset_name=dataset,
+            batch_size=64,
+            shuffle=True,
+            num_workers=0,
+            transform=None,
+            image_transform=None,
+            perturbation_method=hardness,
+            p=p,
+            rule_matrix=rule_matrix)
+
+            test_dataloader_class = XrayMultiFormatDataLoader(
+            data=temp_test_dataset,
+            full_dataset=full_dataset,
+            idx=temp_test_idx,
+            target_column=None,
+            data_type="torch_dataset",
+            data_modality="image",
+            dataset_name=dataset,
+            batch_size=64,
+            shuffle=False,
+            num_workers=0,
+            transform=None,
+            image_transform=None,
+            perturbation_method=hardness,
+            p=p,
+            rule_matrix=rule_matrix)
 
         dataloader, dataloader_unshuffled = dataloader_class.get_dataloader()
         train_flag_ids = dataloader_class.get_flag_ids()
