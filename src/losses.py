@@ -28,7 +28,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
             weights = self.sigmoid(self.alpha*correct_outputs - max_outputs + self.alpha)**self.alpha
         else:
             weights = torch.exp(-(self.beta*correct_outputs - max_outputs - self.beta))**2
-            weights[weights>0.5] = 0
+            #weights[weights>0.5] = 0
         return weights
 
     def forward(self, outputs, targets, m=0):
