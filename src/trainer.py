@@ -227,6 +227,9 @@ class PyTorchTrainer:
 
                 self.optimizer.zero_grad()
 
+                self.alpha.requires_grad = False
+                self.beta.requires_grad = False
+
                 outputs = self.model(inputs)
 
                 #if self.aum is not None:
@@ -261,6 +264,9 @@ class PyTorchTrainer:
 
                 for j, val_data in enumerate(val_dataloader):
                     val_inputs, val_true_label, val_observed_label, val_indices = val_data
+
+                    self.alpha.requires_grad = True
+                    self.beta.requires_grad = True
 
                     val_inputs = val_inputs.to(self.device)
                     val_true_label = val_true_label.to(self.device)
@@ -305,10 +311,10 @@ class PyTorchTrainer:
                         with torch.no_grad():
                             if not m:
                                 self.alpha -= self.alpha_lr * self.alpha.grad
-                                self.alpha.data.clamp_(min=0.0)
+                                self.alpha.data.clamp_(min=1.0)
                             else:
                                 self.beta -= self.beta_lr * self.beta.grad
-                                self.beta.data.clamp_(min=0.0)
+                                self.beta.data.clamp_(min=1.0)
                             wandb.log({"alpha": self.alpha.detach().item(), "step": c})
                             wandb.log({"beta": self.beta.detach().item(), "step": c})
                             c += 1
