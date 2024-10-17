@@ -257,6 +257,8 @@ class PyTorchTrainer:
                 running_ce += train_ce.mean().item()
 
                 train_loss.mean().backward()
+                self.alpha.grad.zero_()
+                self.beta.grad.zero_()
                 self.optimizer.step()
                 self.optimizer.zero_grad()
 
@@ -267,9 +269,7 @@ class PyTorchTrainer:
 
                     self.alpha.requires_grad = True
                     self.beta.requires_grad = True
-                    self.alpha.grad.zero_()
-                    self.beta.grad.zero_()
-                    
+
                     val_inputs = val_inputs.to(self.device)
                     val_true_label = val_true_label.to(self.device)
                     val_observed_label = val_observed_label.to(self.device)
