@@ -309,6 +309,11 @@ class PyTorchTrainer:
 
                     if self.reweight:
                         with torch.no_grad():
+                            print('GRAD')
+                            if not m:
+                                print(0.01 * self.alpha.grad)
+                            else:
+                                print(0.01 * self.beta.grad)
                             if not m:
                                 self.alpha -= self.alpha_lr * self.alpha.grad
                                 #self.alpha.data.clamp_(min=1.0)
@@ -320,11 +325,6 @@ class PyTorchTrainer:
                             wandb.log({"alpha": self.alpha.detach().item(), "step": c})
                             wandb.log({"beta": self.beta.detach().item(), "step": c})
                             c += 1
-                            print('GRAD')
-                            if not m:
-                                print(0.01 * self.alpha.grad)
-                            else:
-                                print(0.01 * self.beta.grad)
                     
                     break
 

@@ -25,9 +25,9 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
         max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
         if not m:
-            weights = (correct_outputs-self.alpha)**2 + (max_outputs-self.beta)**2
+            weights = (1/self.alpha) * self.sigmoid(self.alpha*correct_outputs - max_outputs)
         else:
-            weights = (correct_outputs-self.alpha)**2 + (max_outputs-self.beta)**2
+            weights = self.beta * self.sigmoid(-(self.beta*correct_outputs - max_outputs))
         return weights
 
     def forward(self, outputs, targets, m=0):
