@@ -257,8 +257,6 @@ class PyTorchTrainer:
                 running_ce += train_ce.mean().item()
 
                 train_loss.mean().backward()
-                self.alpha.grad.zero_()
-                self.beta.grad.zero_()
                 self.optimizer.step()
                 self.optimizer.zero_grad()
 
