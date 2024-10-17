@@ -262,71 +262,71 @@ class PyTorchTrainer:
 
                 running_loss += train_loss.mean().item()
 
-                for j, val_data in enumerate(val_dataloader):
-                    val_inputs, val_true_label, val_observed_label, val_indices = val_data
+            for j, val_data in enumerate(val_dataloader):
+                val_inputs, val_true_label, val_observed_label, val_indices = val_data
 
-                    self.alpha.requires_grad = True
-                    self.beta.requires_grad = True
+                self.alpha.requires_grad = True
+                self.beta.requires_grad = True
 
-                    val_inputs = val_inputs.to(self.device)
-                    val_true_label = val_true_label.to(self.device)
-                    val_observed_label = val_observed_label.to(self.device)
+                val_inputs = val_inputs.to(self.device)
+                val_true_label = val_true_label.to(self.device)
+                val_observed_label = val_observed_label.to(self.device)
 
-                    if self.calibrate:
-                        val_outputs = scaled_model.model(val_inputs)
-                    else:
-                        val_outputs = self.model(val_inputs)
+                if self.calibrate:
+                    val_outputs = scaled_model.model(val_inputs)
+                else:
+                    val_outputs = self.model(val_inputs)
 
-                    val_outputs = val_outputs.float()
-                    val_observed_label = val_observed_label.long()
-                    if self.clean_val:
-                        val_loss = self.criterion(val_outputs, val_true_label, m=m)
-                        val_acc = (torch.argmax(val_outputs, 1) == val_true_label).type(torch.float)
-                        val_topk_acc = accuracy(val_outputs, val_true_label)
-                        val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
-                    else:
-                        val_loss = self.criterion(val_outputs, val_observed_label, m=m)
-                        val_acc = (torch.argmax(val_outputs, 1) == val_observed_label).type(torch.float)
-                        val_topk_acc = accuracy(val_outputs, val_observed_label)
-                        val_ce = cross_entropy(val_outputs, val_observed_label, self.num_classes)
+                val_outputs = val_outputs.float()
+                val_observed_label = val_observed_label.long()
+                if self.clean_val:
+                    val_loss = self.criterion(val_outputs, val_true_label, m=m)
+                    val_acc = (torch.argmax(val_outputs, 1) == val_true_label).type(torch.float)
+                    val_topk_acc = accuracy(val_outputs, val_true_label)
+                    val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
+                else:
+                    val_loss = self.criterion(val_outputs, val_observed_label, m=m)
+                    val_acc = (torch.argmax(val_outputs, 1) == val_observed_label).type(torch.float)
+                    val_topk_acc = accuracy(val_outputs, val_observed_label)
+                    val_ce = cross_entropy(val_outputs, val_observed_label, self.num_classes)
+                
+                val_running_acc += val_acc.mean().item()
+
+                val_top1_acc = val_topk_acc[0]
+                val_top5_acc = val_topk_acc[1]
+                val_running_top1_acc += val_top1_acc.mean().item()
+                val_running_top5_acc += val_top5_acc.mean().item()
+
+                print('VAL')
+                print(val_loss)
+                print(val_acc.mean())
+                print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
+                print(cross_entropy(val_outputs, val_true_label, self.num_classes))
+                val_running_ce += val_ce.mean().item()
+                val_loss.mean().backward()
+
+                val_running_loss += val_loss.mean().item()
+
+                if self.reweight:
+                    with torch.no_grad():
+                        if not m:
+                            self.alpha -= self.alpha_lr * self.alpha.grad
+                            self.alpha.data.clamp_(min=1.0)
+                            self.alpha.grad.zero_()
+                        else:
+                            self.beta -= self.beta_lr * self.beta.grad
+                            self.beta.data.clamp_(min=1.0)
+                            self.beta.grad.zero_()
+                        wandb.log({"alpha": self.alpha.detach().item(), "step": c})
+                        wandb.log({"beta": self.beta.detach().item(), "step": c})
+                        c += 1
+                        print('GRAD')
+                        if not m:
+                            print(0.01 * self.alpha.grad)
+                        else:
+                            print(0.01 * self.beta.grad)
                     
-                    val_running_acc += val_acc.mean().item()
-
-                    val_top1_acc = val_topk_acc[0]
-                    val_top5_acc = val_topk_acc[1]
-                    val_running_top1_acc += val_top1_acc.mean().item()
-                    val_running_top5_acc += val_top5_acc.mean().item()
-
-                    print('VAL')
-                    print(val_loss)
-                    print(val_acc.mean())
-                    print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
-                    print(cross_entropy(val_outputs, val_true_label, self.num_classes))
-                    val_running_ce += val_ce.mean().item()
-                    val_loss.mean().backward()
-
-                    val_running_loss += val_loss.mean().item()
-
-                    if self.reweight:
-                        with torch.no_grad():
-                            if not m:
-                                self.alpha -= self.alpha_lr * self.alpha.grad
-                                self.alpha.data.clamp_(min=1.0)
-                                self.alpha.grad.zero_()
-                            else:
-                                self.beta -= self.beta_lr * self.beta.grad
-                                self.beta.data.clamp_(min=1.0)
-                                self.beta.grad.zero_()
-                            wandb.log({"alpha": self.alpha.detach().item(), "step": c})
-                            wandb.log({"beta": self.beta.detach().item(), "step": c})
-                            c += 1
-                            print('GRAD')
-                            if not m:
-                                print(0.01 * self.alpha.grad)
-                            else:
-                                print(0.01 * self.beta.grad)
-                    
-                    break
+                    #break
 
             if self.calibrate:
                 scaled_model.set_temperature(val_dataloader)
@@ -367,19 +367,19 @@ class PyTorchTrainer:
 
             self.model.train()
             epoch_loss = running_loss / len(dataloader)
-            val_epoch_loss = val_running_loss / len(dataloader)
+            val_epoch_loss = val_running_loss / len(val_dataloader)
             test_epoch_loss = test_running_loss / len(test_dataloader)
             epoch_ce = running_ce / len(dataloader)
-            val_epoch_ce = val_running_ce / len(dataloader)
+            val_epoch_ce = val_running_ce / len(val_dataloader)
             test_epoch_ce = test_running_ce / len(test_dataloader)
             epoch_acc = running_acc / len(dataloader)
-            val_epoch_acc = val_running_acc / len(dataloader)
+            val_epoch_acc = val_running_acc / len(val_dataloader)
             test_epoch_acc = test_running_acc / len(test_dataloader)
             epoch_top1_acc = running_top1_acc / len(dataloader)
-            val_epoch_top1_acc = val_running_top1_acc / len(dataloader)
+            val_epoch_top1_acc = val_running_top1_acc / len(val_dataloader)
             test_epoch_top1_acc = test_running_top1_acc / len(test_dataloader)
             epoch_top5_acc = running_top5_acc / len(dataloader)
-            val_epoch_top5_acc = val_running_top5_acc / len(dataloader)
+            val_epoch_top5_acc = val_running_top5_acc / len(val_dataloader)
             test_epoch_top5_acc = test_running_top5_acc / len(test_dataloader)
             wandb.log({"train_loss": epoch_loss, "epoch": epoch})
             wandb.log({"val_loss": val_epoch_loss, "epoch": epoch})
