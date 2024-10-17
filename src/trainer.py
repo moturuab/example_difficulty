@@ -259,65 +259,65 @@ class PyTorchTrainer:
 
                 running_loss += train_loss.mean().item()
 
-                for j, val_data in enumerate(val_dataloader):
-                    val_inputs, val_true_label, val_observed_label, val_indices = val_data
+            for j, val_data in enumerate(val_dataloader):
+                val_inputs, val_true_label, val_observed_label, val_indices = val_data
 
-                    val_inputs = val_inputs.to(self.device)
-                    val_true_label = val_true_label.to(self.device)
-                    val_observed_label = val_observed_label.to(self.device)
+                val_inputs = val_inputs.to(self.device)
+                val_true_label = val_true_label.to(self.device)
+                val_observed_label = val_observed_label.to(self.device)
 
-                    if self.calibrate:
-                        val_outputs = scaled_model.model(val_inputs)
-                    else:
-                        val_outputs = self.model(val_inputs)
+                if self.calibrate:
+                    val_outputs = scaled_model.model(val_inputs)
+                else:
+                    val_outputs = self.model(val_inputs)
 
-                    val_outputs = val_outputs.float()
-                    val_observed_label = val_observed_label.long()
-                    if self.clean_val:
-                        val_loss = self.criterion(val_outputs, val_true_label, m=m)
-                        val_acc = (torch.argmax(val_outputs, 1) == val_true_label).type(torch.float)
-                        val_topk_acc = accuracy(val_outputs, val_true_label)
-                    else:
-                        val_loss = self.criterion(val_outputs, val_observed_label, m=m)
-                        val_acc = (torch.argmax(val_outputs, 1) == val_observed_label).type(torch.float)
-                        val_topk_acc = accuracy(val_outputs, val_observed_label)
-                    
-                    val_running_acc += val_acc.mean().item()
+                val_outputs = val_outputs.float()
+                val_observed_label = val_observed_label.long()
+                if self.clean_val:
+                    val_loss = self.criterion(val_outputs, val_true_label, m=m)
+                    val_acc = (torch.argmax(val_outputs, 1) == val_true_label).type(torch.float)
+                    val_topk_acc = accuracy(val_outputs, val_true_label)
+                else:
+                    val_loss = self.criterion(val_outputs, val_observed_label, m=m)
+                    val_acc = (torch.argmax(val_outputs, 1) == val_observed_label).type(torch.float)
+                    val_topk_acc = accuracy(val_outputs, val_observed_label)
+                
+                val_running_acc += val_acc.mean().item()
 
-                    val_top1_acc = val_topk_acc[0]
-                    val_top5_acc = val_topk_acc[1]
-                    val_running_top1_acc += val_top1_acc.mean().item()
-                    val_running_top5_acc += val_top5_acc.mean().item()
+                val_top1_acc = val_topk_acc[0]
+                val_top5_acc = val_topk_acc[1]
+                val_running_top1_acc += val_top1_acc.mean().item()
+                val_running_top5_acc += val_top5_acc.mean().item()
 
-                    print('VAL')
-                    print(val_loss)
-                    print(val_acc.mean())
-                    print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
-                    print(cross_entropy(val_outputs, val_true_label, self.num_classes))
-                    val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
-                    val_running_ce += val_ce.mean().item()
-                    val_loss.mean().backward()
+                print('VAL')
+                print(val_loss)
+                print(val_acc.mean())
+                print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
+                print(cross_entropy(val_outputs, val_true_label, self.num_classes))
+                val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
+                val_running_ce += val_ce.mean().item()
+                val_loss.mean().backward()
 
-                    val_running_loss += val_loss.mean().item()
+                val_running_loss += val_loss.mean().item()
 
-                    if self.reweight:
-                        with torch.no_grad():
-                            if not m:
-                                self.alpha -= self.alpha_lr * self.alpha.grad
-                                self.alpha.data.clamp_(min=1.0)
-                            else:
-                                self.beta -= self.beta_lr * self.beta.grad
-                                self.beta.data.clamp_(min=1.0)
-                            wandb.log({"alpha": self.alpha.detach().item(), "step": c})
-                            wandb.log({"beta": self.beta.detach().item(), "step": c})
-                            c += 1
-                            print('GRAD')
-                            if not m:
-                                print(0.01 * self.alpha.grad)
-                            else:
-                                print(0.01 * self.beta.grad)
+                if self.reweight:
+                    with torch.no_grad():
+                        if not m:
+                            self.alpha -= self.alpha_lr * self.alpha.grad
+                            self.alpha.data.clamp_(min=1.0)
+                        else:
+                            self.beta -= self.beta_lr * self.beta.grad
+                            self.beta.data.clamp_(min=1.0)
+                        wandb.log({"alpha": self.alpha.detach().item(), "step": c})
+                        wandb.log({"beta": self.beta.detach().item(), "step": c})
+                        c += 1
+                        print('GRAD')
+                        if not m:
+                            print(0.01 * self.alpha.grad)
+                        else:
+                            print(0.01 * self.beta.grad)
 
-                    break
+                    #break
 
             if self.calibrate:
                 scaled_model.set_temperature(val_dataloader)
