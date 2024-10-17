@@ -274,12 +274,12 @@ class PyTorchTrainer:
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
                     if self.clean_val:
-                        val_loss = self.criterion(val_outputs, val_true_label, m=m)
+                        val_loss = self.criterion(val_outputs, val_true_label, m=j)
                         val_acc = (torch.argmax(val_outputs, 1) == val_true_label).type(torch.float)
                         val_topk_acc = accuracy(val_outputs, val_true_label)
                         val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
                     else:
-                        val_loss = self.criterion(val_outputs, val_observed_label, m=m)
+                        val_loss = self.criterion(val_outputs, val_observed_label, m=j)
                         val_acc = (torch.argmax(val_outputs, 1) == val_observed_label).type(torch.float)
                         val_topk_acc = accuracy(val_outputs, val_observed_label)
                         val_ce = cross_entropy(val_outputs, val_observed_label, self.num_classes)
@@ -303,7 +303,7 @@ class PyTorchTrainer:
 
                     if self.reweight:
                         with torch.no_grad():
-                            if not m:
+                            if j == 0:
                                 self.alpha -= self.alpha_lr * self.alpha.grad
                                 self.alpha.data.clamp_(min=1.0)
                             else:
@@ -313,12 +313,13 @@ class PyTorchTrainer:
                             wandb.log({"beta": self.beta.detach().item(), "step": c})
                             c += 1
                             print('GRAD')
-                            if not m:
+                            if not j:
                                 print(0.01 * self.alpha.grad)
                             else:
                                 print(0.01 * self.beta.grad)
-
-                    break
+                    
+                    if j == 1:
+                        break
 
             if self.calibrate:
                 scaled_model.set_temperature(val_dataloader)
