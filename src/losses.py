@@ -27,7 +27,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         if not m:
             weights = self.sigmoid(self.alpha*correct_outputs - max_outputs)
         else:
-            weights = self.sigmoid(-(self.alpha*correct_outputs - max_outputs))
+            weights = self.sigmoid(-(self.beta*correct_outputs - max_outputs))
         return weights
 
     def forward(self, outputs, targets, m=0):
