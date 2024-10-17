@@ -267,7 +267,9 @@ class PyTorchTrainer:
 
                     self.alpha.requires_grad = True
                     self.beta.requires_grad = True
-
+                    self.alpha.grad.zero_()
+                    self.beta.grad.zero_()
+                    
                     val_inputs = val_inputs.to(self.device)
                     val_true_label = val_true_label.to(self.device)
                     val_observed_label = val_observed_label.to(self.device)
@@ -312,9 +314,11 @@ class PyTorchTrainer:
                             if not m:
                                 self.alpha -= self.alpha_lr * self.alpha.grad
                                 self.alpha.data.clamp_(min=1.0)
+                                self.alpha.grad.zero_()
                             else:
                                 self.beta -= self.beta_lr * self.beta.grad
                                 self.beta.data.clamp_(min=1.0)
+                                self.beta.grad.zero_()
                             wandb.log({"alpha": self.alpha.detach().item(), "step": c})
                             wandb.log({"beta": self.beta.detach().item(), "step": c})
                             c += 1
