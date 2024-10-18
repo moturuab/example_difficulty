@@ -249,7 +249,7 @@ class PyTorchTrainer:
                     print(self.beta*correct_outputs - max_outputs)
                     print(observed_label != true_label)
                     observed_label = torch.where(self.beta*correct_outputs - max_outputs > 0, torch.argmax(softmax_outputs, dim=1), observed_label)
-                    print(cl != observed_label)
+                    print(true_label != observed_label)
 
                 train_loss = self.criterion(outputs, observed_label, m=m)
                 acc = (torch.argmax(outputs, 1) == observed_label).type(torch.float)
