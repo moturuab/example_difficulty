@@ -297,7 +297,7 @@ class PyTorchTrainer:
                         correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
                         max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
                         weights = self.sigmoid(-(self.beta*correct_outputs - max_outputs + self.beta))
-                        val_observed_label = torch.where(weights > (torch.mean(weights)+torch.max(weights))/2, torch.argmax(softmax_outputs, dim=1), val_observed_label)
+                        val_observed_label = torch.where(weights > 0.9, torch.argmax(softmax_outputs, dim=1), val_observed_label)
                         print(val_observed_label)
 
                     if self.clean_val:
