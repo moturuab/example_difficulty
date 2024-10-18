@@ -108,6 +108,7 @@ class PyTorchTrainer:
         self.lr = lr
         self.alpha_lr = alpha_lr
         self.beta_lr = beta_lr
+        self.delta_lr = delta_lr
         self.epochs = epochs
         self.total_samples = total_samples
         self.num_classes = num_classes
