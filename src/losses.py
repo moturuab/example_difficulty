@@ -28,16 +28,16 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
             print('ALPHA')
             print(torch.min(self.alpha*correct_outputs - max_outputs))
             print(torch.max(self.alpha*correct_outputs - max_outputs))
-            #weights = self.sigmoid(self.alpha*correct_outputs - max_outputs + self.alpha)**self.alpha
-            weights = self.sigmoid(self.alpha*correct_outputs - max_outputs) #**self.alpha
+            #weights = self.sigmoid(self.alpha*correct_outputs - max_outputs)
+            weights = self.sigmoid(self.alpha*correct_outputs - max_outputs)
             print(torch.min(weights))
             print(torch.max(weights))
         else:
             print('BETA')
             print(torch.min(-(self.beta*correct_outputs - max_outputs)))
             print(torch.max(-(self.beta*correct_outputs - max_outputs)))
-            #weights = self.sigmoid(-(self.beta*correct_outputs - max_outputs) + self.beta)**self.beta
-            weights = torch.exp(-2*(-(self.beta*correct_outputs - max_outputs))**2) #**self.beta
+            # weights = torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)
+            weights = torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/self.beta)
             print(torch.min(weights))
             print(torch.max(weights))
             #weights = torch.where(weights > torch.max(weights)-0.1, 0, weights)
