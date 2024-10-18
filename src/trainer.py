@@ -247,7 +247,8 @@ class PyTorchTrainer:
                     correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
                     max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
                     weights = self.sigmoid(-(self.beta*correct_outputs - max_outputs + self.beta))
-                    observed_label = torch.where(self.beta*correct_outputs - max_outputs < 0, torch.argmax(softmax_outputs, dim=1), observed_label)
+                    if epoch > 0:
+                        observed_label = torch.where(self.beta*correct_outputs - max_outputs < 0, torch.argmax(softmax_outputs, dim=1), observed_label)
                     print(cl != observed_label)
 
                 train_loss = self.criterion(outputs, observed_label, m=m)
@@ -298,8 +299,8 @@ class PyTorchTrainer:
                         encoded_targets = encode(val_observed_label, self.num_classes)
                         correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
                         max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
-                        weights = self.sigmoid(-(self.beta*correct_outputs - max_outputs + self.beta))
-                        val_observed_label = torch.where(self.beta*correct_outputs - max_outputs < 0, torch.argmax(softmax_outputs, dim=1), val_observed_label)
+                        if epoch > 0:
+                            val_observed_label = torch.where(self.beta*correct_outputs - max_outputs < 0, torch.argmax(softmax_outputs, dim=1), val_observed_label)
                         print(cl != val_observed_label)
 
                     if self.clean_val:
