@@ -3,11 +3,12 @@ import torch
 import numpy as np
 
 class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
-    def __init__(self, reweight=True, alpha=None, beta=None, num_classes=2, device=None):
+    def __init__(self, reweight=True, alpha=None, beta=None, delta=None, num_classes=2, device=None):
         super(nn.CrossEntropyLoss, self).__init__()
         self.reweight = reweight
         self.alpha = alpha
         self.beta=beta
+        self.delta = delta
         self.num_classes = num_classes
         self.device = device
         self.sigmoid = nn.Sigmoid()
@@ -29,7 +30,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
             print(torch.min(self.alpha*correct_outputs - max_outputs))
             print(torch.max(self.alpha*correct_outputs - max_outputs))
             #weights = self.sigmoid(self.alpha*correct_outputs - max_outputs)
-            weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs) + torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2))**0.5
+            weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs) + self.sigmoid(-(self.delta*correct_outputs - max_outputs)) + torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2))**0.5
             #weights = self.sigmoid(self.alpha*correct_outputs - max_outputs)**(1/self.alpha)
             print(torch.min(weights))
             print(torch.max(weights))
@@ -39,7 +40,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
             print(torch.min(-(self.beta*correct_outputs - max_outputs)))
             print(torch.max(-(self.beta*correct_outputs - max_outputs)))
             # weights = torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)
-            weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs) + torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2))**0.5
+            weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs) + self.sigmoid(-(self.delta*correct_outputs - max_outputs)) + torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2))**0.5
             #weights = torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)**0.5
             print(torch.min(weights))
             print(torch.max(weights))

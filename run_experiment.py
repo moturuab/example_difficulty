@@ -64,6 +64,7 @@ def main(args):
     lr = args.lr
     alpha_lr = args.alpha_lr
     beta_lr = args.beta_lr
+    delta_lr = args.delta_lr
     focal_gamma = args.focal_gamma
     reweight = args.reweight
     clean_val = args.clean_val
@@ -631,13 +632,14 @@ def main(args):
 
         alpha = nn.Parameter(torch.tensor(init_alpha), requires_grad=True)
         beta = nn.Parameter(torch.tensor(init_beta), requires_grad=True)
+        delta = nn.Parameter(torch.tensor(init_delta), requires_grad=True)
         if loss == 'CE':
-            criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=alpha, beta=beta, num_classes=num_classes, device=device)
+            criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=alpha, beta=beta, delta=delta, num_classes=num_classes, device=device)
         elif loss == 'FL':
-            criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, beta=beta, gamma=focal_gamma, num_classes=num_classes, device=device)
+            criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, beta=beta, delta=delta, gamma=focal_gamma, num_classes=num_classes, device=device)
 
         if reweight:
-            optimizer = optim.Adam(list(model.parameters()) + list([alpha, beta]), lr=lr, weight_decay=lr)
+            optimizer = optim.Adam(list(model.parameters()) + list([alpha, beta, delta]), lr=lr, weight_decay=lr)
         else:
             optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=lr)
 
@@ -646,11 +648,13 @@ def main(args):
             model=model,
             alpha=alpha,
             beta=beta,
+            delta=delta,
             criterion=criterion,
             optimizer=optimizer,
             lr=lr,
             alpha_lr=alpha_lr,
             beta_lr=beta_lr,
+            delta_lr=delta_lr,
             epochs=epochs,
             total_samples=total_samples,
             num_classes=num_classes,

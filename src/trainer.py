@@ -44,12 +44,14 @@ class PyTorchTrainer:
         model: nn.Module,
         alpha: nn.Module,
         beta: nn.Module,
+        delta: nn.Module,
         criterion: nn.Module,
         optimizer: optim.Optimizer,
         device: torch.device = None,
         lr: float = 0.001,
         alpha_lr: float = 0.01,
         beta_lr: float = 0.01,
+        delta_lr: float = 0.01,
         epochs: int = 10,
         total_samples: int = 10000,
         num_classes: int = 10,
@@ -99,6 +101,7 @@ class PyTorchTrainer:
         self.model = model
         self.alpha = alpha
         self.beta = beta
+        self.delta = delta
         self.criterion = criterion
         self.optimizer = optimizer
         self.device = device
@@ -357,8 +360,13 @@ class PyTorchTrainer:
                             self.beta -= self.beta_lr * self.beta.grad + 1e-5*self.beta
                             self.beta.data.clamp_(min=1.0)
                             self.beta.grad.zero_()
+
+                            self.delta -= self.delta_lr * self.delta.grad + 1e-5*self.delta
+                            self.delta.data.clamp_(min=1.0)
+                            self.delta.grad.zero_()
                             wandb.log({"alpha": self.alpha.detach().item(), "step": c})
                             wandb.log({"beta": self.beta.detach().item(), "step": c})
+                            wandb.log({"delta": self.delta.detach().item(), "step": c})
                             c += 1
                     
                     break
