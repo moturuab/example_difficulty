@@ -112,6 +112,7 @@ class PyTorchTrainer:
         self.clean_val = clean_val
         self.calibrate = calibrate
         self.characterization_methods = characterization_methods
+        self.sigmoid = nn.Sigmoid()
 
     def fit(self, dataloader, dataloader_unshuffled, val_dataloader, val_dataloader_unshuffled, test_dataloader, test_dataloader_unshuffled, wandb_num=[0,0]):
         """
