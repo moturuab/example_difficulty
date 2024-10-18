@@ -250,7 +250,7 @@ class PyTorchTrainer:
                     print(true_label)
                     print(observed_label)
                     print(torch.sum(observed_label != true_label))
-                    observed_label = torch.where(self.beta*correct_outputs - max_outputs > 0.5, torch.argmax(softmax_outputs, dim=1), observed_label)
+                    observed_label = torch.where(self.beta*correct_outputs - max_outputs < -0.5, torch.argmax(softmax_outputs, dim=1), observed_label)
                     print(torch.sum(true_label != observed_label))
                     print(observed_label)
 
@@ -306,7 +306,7 @@ class PyTorchTrainer:
                         print(val_true_label)
                         print(val_observed_label)
                         print(torch.sum(val_observed_label != val_true_label))
-                        val_observed_label = torch.where(self.beta*correct_outputs - max_outputs > 0.5, torch.argmax(softmax_outputs, dim=1), val_observed_label)
+                        val_observed_label = torch.where(self.beta*correct_outputs - max_outputs < -0.5, torch.argmax(softmax_outputs, dim=1), val_observed_label)
                         print(torch.sum(val_observed_label != val_true_label))
                         print(val_observed_label)
 
