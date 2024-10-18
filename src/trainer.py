@@ -299,6 +299,8 @@ class PyTorchTrainer:
                         max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
                         val_observed_label = torch.where(self.beta*correct_outputs - max_outputs < 0, torch.argmax(softmax_outputs, dim=1), val_observed_label)
                         print(cl != val_observed_label)
+                        if torch.isnan(self.beta):
+                            print(error)
 
                     if self.clean_val:
                         val_loss = self.criterion(val_outputs, val_true_label, m=m)
