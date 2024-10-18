@@ -302,7 +302,7 @@ class PyTorchTrainer:
                         print(self.beta*correct_outputs - max_outputs)
                         print(val_observed_label != val_true_label)
                         val_observed_label = torch.where(self.beta*correct_outputs - max_outputs > 0, torch.argmax(softmax_outputs, dim=1), val_observed_label)
-                        print(cl != val_observed_label)
+                        print(val_observed_label != val_true_label)
                         if torch.isnan(self.beta):
                             print(error)
 
