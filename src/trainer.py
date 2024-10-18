@@ -239,6 +239,7 @@ class PyTorchTrainer:
                 outputs = outputs.float()  # Ensure the outputs are float
                 observed_label = observed_label.long()  # Ensure the labels are long
 
+                '''
                 if self.reweight and epoch > 0:
                     cl = torch.clone(observed_label)
                     print(cl)
@@ -253,6 +254,7 @@ class PyTorchTrainer:
                     observed_label = torch.where(self.beta*correct_outputs - max_outputs < -0.5, torch.argmax(softmax_outputs, dim=1), observed_label)
                     print(torch.sum(true_label != observed_label))
                     print(observed_label)
+                '''
 
                 train_loss = self.criterion(outputs, observed_label, m=m)
                 acc = (torch.argmax(outputs, 1) == observed_label).type(torch.float)
@@ -295,6 +297,7 @@ class PyTorchTrainer:
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
 
+                    '''
                     if self.reweight and epoch > 0:
                         cl = torch.clone(val_observed_label)
                         print(cl)
@@ -306,9 +309,10 @@ class PyTorchTrainer:
                         print(val_true_label)
                         print(val_observed_label)
                         print(torch.sum(val_observed_label != val_true_label))
-                        val_observed_label = torch.where(self.beta*correct_outputs - max_outputs < -0.5, torch.argmax(softmax_outputs, dim=1), val_observed_label)
+                        val_outputs = torch.where(self.beta*correct_outputs - max_outputs < -0.5, torch.argmax(softmax_outputs, dim=1), val_observed_label)
                         print(torch.sum(val_observed_label != val_true_label))
                         print(val_observed_label)
+                    '''
 
                     if self.clean_val:
                         val_loss = self.criterion(val_outputs, val_true_label, m=m)
