@@ -198,8 +198,6 @@ class PyTorchTrainer:
         # Set model to training mode
         self.optimizer.lr = self.lr
         c = 0
-        if self.calibrate:
-            scaled_model = ModelWithTemperature(self.model)
         for epoch in range(self.epochs):
             self.model.train()
             running_loss = 0.0
@@ -272,10 +270,10 @@ class PyTorchTrainer:
                     val_true_label = val_true_label.to(self.device)
                     val_observed_label = val_observed_label.to(self.device)
 
-                    if self.calibrate:
-                        val_outputs = scaled_model.model(val_inputs)
-                    else:
-                        val_outputs = self.model(val_inputs)
+                    #if self.calibrate:
+                    #    val_outputs = scaled_model.model(val_inputs)
+                    #else:
+                    val_outputs = self.model(val_inputs)
 
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
@@ -329,6 +327,7 @@ class PyTorchTrainer:
                     break
 
             if self.calibrate:
+                scaled_model = ModelWithTemperature(self.model)
                 scaled_model.set_temperature(val_dataloader)
 
             self.model.eval()
