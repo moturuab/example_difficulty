@@ -61,6 +61,7 @@ def main(args):
     p = args.prop
     init_alpha = args.init_alpha
     init_beta = args.init_beta
+    init_delta = args.init_delta
     lr = args.lr
     alpha_lr = args.alpha_lr
     beta_lr = args.beta_lr
@@ -739,9 +740,11 @@ if __name__ == "__main__":
     parser.add_argument("--calibrate", action='store_true', help="calibrate on validation set")
     parser.add_argument("--init_alpha", type=float, default=2.0, help="initialize alpha")
     parser.add_argument("--init_beta", type=float, default=2.0, help="initialize beta")
+    parser.add_argument("--init_delta", type=float, default=2.0, help="initialize delta")
     parser.add_argument("--lr", type=float, default=0.001, help="learning rate for network")
     parser.add_argument("--alpha_lr", type=float, default=0.01, help="learning rate for alpha")
     parser.add_argument("--beta_lr", type=float, default=0.01, help="learning rate for beta")
+    parser.add_argument("--delta_lr", type=float, default=0.01, help="learning rate for beta")
     parser.add_argument("--focal_gamma", type=float, default=2.0, help="gamma for focal loss")
     parser.add_argument("--epochs", type=int, default=10, help="Epochs")
     parser.add_argument("--hardness", type=str, default="uniform", help="hardness type")
