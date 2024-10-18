@@ -349,14 +349,14 @@ class PyTorchTrainer:
                                 print(0.01 * self.alpha.grad)
                             else:
                                 print(0.01 * self.beta.grad)
-                            if not m:
-                                self.alpha -= self.alpha_lr * self.alpha.grad + 1e-5*self.alpha
-                                self.alpha.data.clamp_(min=1.0)
-                                self.alpha.grad.zero_()
-                            else:
-                                self.beta -= self.beta_lr * self.beta.grad + 1e-5*self.beta
-                                self.beta.data.clamp_(min=1.0)
-                                self.beta.grad.zero_()
+                            #if not m:
+                            self.alpha -= self.alpha_lr * self.alpha.grad + 1e-5*self.alpha
+                            self.alpha.data.clamp_(min=1.0)
+                            self.alpha.grad.zero_()
+                            #else:
+                            self.beta -= self.beta_lr * self.beta.grad + 1e-5*self.beta
+                            self.beta.data.clamp_(min=1.0)
+                            self.beta.grad.zero_()
                             wandb.log({"alpha": self.alpha.detach().item(), "step": c})
                             wandb.log({"beta": self.beta.detach().item(), "step": c})
                             c += 1
