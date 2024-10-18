@@ -248,7 +248,7 @@ class PyTorchTrainer:
                     max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
                     print(self.beta*correct_outputs - max_outputs)
                     print(torch.sum(observed_label != true_label))
-                    observed_label = torch.where(self.beta*correct_outputs - max_outputs > 0, torch.argmax(softmax_outputs, dim=1), observed_label)
+                    observed_label = torch.where(self.beta*correct_outputs - max_outputs > 0.5, torch.argmax(softmax_outputs, dim=1), observed_label)
                     print(torch.sum(true_label != observed_label))
 
                 train_loss = self.criterion(outputs, observed_label, m=m)
@@ -301,7 +301,7 @@ class PyTorchTrainer:
                         max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
                         print(self.beta*correct_outputs - max_outputs)
                         print(torch.sum(val_observed_label != val_true_label))
-                        val_observed_label = torch.where(self.beta*correct_outputs - max_outputs > 0, torch.argmax(softmax_outputs, dim=1), val_observed_label)
+                        val_observed_label = torch.where(self.beta*correct_outputs - max_outputs > 0.5, torch.argmax(softmax_outputs, dim=1), val_observed_label)
                         print(torch.sum(val_observed_label != val_true_label))
 
                     if self.clean_val:
