@@ -313,11 +313,11 @@ class PyTorchTrainer:
                             else:
                                 print(0.01 * self.beta.grad)
                             if not m:
-                                self.alpha -= self.alpha_lr * self.alpha.grad #+ 0.0001*self.alpha
+                                self.alpha -= self.alpha_lr * self.alpha.grad + 1e-6*self.alpha
                                 self.alpha.data.clamp_(min=1.0)
                                 self.alpha.grad.zero_()
                             else:
-                                self.beta -= self.beta_lr * self.beta.grad #+ 0.0001*self.beta
+                                self.beta -= self.beta_lr * self.beta.grad + 1e-6*self.beta
                                 self.beta.data.clamp_(min=1.0)
                                 self.beta.grad.zero_()
                             wandb.log({"alpha": self.alpha.detach().item(), "step": c})
