@@ -239,15 +239,14 @@ class PyTorchTrainer:
                 outputs = outputs.float()  # Ensure the outputs are float
                 observed_label = observed_label.long()  # Ensure the labels are long
 
-                if self.reweight:
+                if self.reweight and epoch > 0:
                     cl = torch.clone(observed_label)
                     print(cl)
                     softmax_outputs = softmax(outputs)
                     encoded_targets = encode(observed_label, self.num_classes)
                     correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
                     max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
-                    if epoch > 0:
-                        observed_label = torch.where(self.beta*correct_outputs - max_outputs < 0, torch.argmax(softmax_outputs, dim=1), observed_label)
+                    observed_label = torch.where(self.beta*correct_outputs - max_outputs < 0, torch.argmax(softmax_outputs, dim=1), observed_label)
                     print(cl != observed_label)
 
                 train_loss = self.criterion(outputs, observed_label, m=m)
@@ -291,15 +290,14 @@ class PyTorchTrainer:
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
 
-                    if self.reweight:
+                    if self.reweight and epoch > 0:
                         cl = torch.clone(val_observed_label)
                         print(cl)
                         softmax_outputs = softmax(val_outputs)
                         encoded_targets = encode(val_observed_label, self.num_classes)
                         correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
                         max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
-                        if epoch > 0:
-                            val_observed_label = torch.where(self.beta*correct_outputs - max_outputs < 0, torch.argmax(softmax_outputs, dim=1), val_observed_label)
+                        val_observed_label = torch.where(self.beta*correct_outputs - max_outputs < 0, torch.argmax(softmax_outputs, dim=1), val_observed_label)
                         print(cl != val_observed_label)
 
                     if self.clean_val:
