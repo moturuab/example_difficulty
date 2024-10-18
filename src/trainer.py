@@ -246,7 +246,6 @@ class PyTorchTrainer:
                     encoded_targets = encode(observed_label, self.num_classes)
                     correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
                     max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
-                    weights = self.sigmoid(-(self.beta*correct_outputs - max_outputs + self.beta))
                     if epoch > 0:
                         observed_label = torch.where(self.beta*correct_outputs - max_outputs < 0, torch.argmax(softmax_outputs, dim=1), observed_label)
                     print(cl != observed_label)
