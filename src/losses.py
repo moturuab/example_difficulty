@@ -26,13 +26,13 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         softmax_outputs = self.softmax(outputs)
         correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
         max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
-        weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs)**0.5 + 
-            self.sigmoid(-(self.beta*correct_outputs - max_outputs))**0.5 + 
-            torch.exp(-(-(self.delta*correct_outputs - max_outputs))**2/2)**0.5)
+        weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs) + 
+            self.sigmoid(-(self.beta*correct_outputs - max_outputs)) + 
+            torch.exp(-(-(self.delta*correct_outputs - max_outputs))**2/2))
 
-        print((self.sigmoid(self.alpha*correct_outputs - max_outputs)**0.5))
-        print(self.sigmoid(-(self.beta*correct_outputs - max_outputs))**0.5)
-        print(torch.exp(-(-(self.delta*correct_outputs - max_outputs))**2/2)**0.5)
+        print((self.sigmoid(self.alpha*correct_outputs - max_outputs)))
+        print(self.sigmoid(-(self.beta*correct_outputs - max_outputs)))
+        print(torch.exp(-(-(self.delta*correct_outputs - max_outputs))**2/2))
         print(weights) 
         '''
         if not m:
