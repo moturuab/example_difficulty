@@ -231,7 +231,7 @@ class PyTorchTrainer:
             running_top5_acc = 0.0
             val_running_top5_acc = 0.0
             test_running_top5_acc = 0.0
-            for i, data in enumerate(dataloader):
+            for i, data in enumerate(dataloader_unshuffled):
                 inputs, true_label, observed_label, indices = data
                 m = i % 2
 
@@ -273,7 +273,7 @@ class PyTorchTrainer:
 
                 running_loss += train_loss.mean().item()
 
-                for j, val_data in enumerate(val_dataloader):
+                for j, val_data in enumerate(val_dataloader_unshuffled):
                     val_inputs, val_true_label, val_observed_label, val_indices = val_data
 
                     if self.reweight and epoch > self.warmup:
@@ -341,7 +341,7 @@ class PyTorchTrainer:
                             wandb.log({"beta": self.beta.detach().item(), "step": c})
                             wandb.log({"delta": self.delta.detach().item(), "step": c})
                             c += 1
-                        
+
                     self.optimizer.zero_grad()
                     
                     break
@@ -351,7 +351,7 @@ class PyTorchTrainer:
                 scaled_model.set_temperature(val_dataloader)
 
             self.model.eval()
-            for k, test_data in enumerate(test_dataloader):
+            for k, test_data in enumerate(test_dataloader_unshuffled):
                 test_inputs, test_true_label, test_observed_label, test_indices = test_data
 
                 test_inputs = test_inputs.to(self.device)
