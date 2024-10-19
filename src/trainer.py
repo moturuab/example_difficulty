@@ -238,7 +238,6 @@ class PyTorchTrainer:
                 inputs = inputs.to(self.device)
                 true_label = true_label.to(self.device)
                 observed_label = observed_label.to(self.device)
-                print(true_label != observed_label)
 
                 self.optimizer.zero_grad()
 
@@ -285,7 +284,6 @@ class PyTorchTrainer:
                     val_inputs = val_inputs.to(self.device)
                     val_true_label = val_true_label.to(self.device)
                     val_observed_label = val_observed_label.to(self.device)
-                    print(val_true_label != val_observed_label)
 
                     val_outputs = self.model(val_inputs)
 
@@ -343,6 +341,8 @@ class PyTorchTrainer:
                             wandb.log({"beta": self.beta.detach().item(), "step": c})
                             wandb.log({"delta": self.delta.detach().item(), "step": c})
                             c += 1
+                        
+                    self.optimizer.zero_grad()
                     
                     break
 
