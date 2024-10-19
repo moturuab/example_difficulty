@@ -238,32 +238,10 @@ class PyTorchTrainer:
 
                 outputs = self.model(inputs)
 
-                #if self.aum is not None:
-                #    self.aum.updates(
-                #        y_pred=outputs, y_batch=observed_label, sample_ids=indices
-                #    ) 
+                outputs = outputs.float()
+                observed_label = observed_label.long()
 
-                outputs = outputs.float()  # Ensure the outputs are float
-                observed_label = observed_label.long()  # Ensure the labels are long
-
-                '''
-                if self.reweight and epoch > 0:
-                    cl = torch.clone(observed_label)
-                    print(cl)
-                    softmax_outputs = softmax(outputs)
-                    encoded_targets = encode(observed_label, self.num_classes)
-                    correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
-                    max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
-                    print(self.beta*correct_outputs - max_outputs)
-                    print(true_label)
-                    print(observed_label)
-                    print(torch.sum(observed_label != true_label))
-                    observed_label = torch.where(self.beta*correct_outputs - max_outputs < -0.5, torch.argmax(softmax_outputs, dim=1), observed_label)
-                    print(torch.sum(true_label != observed_label))
-                    print(observed_label)
-                '''
-
-                train_loss = self.criterion(outputs, observed_label, m=m, epoch=epoch)
+                train_loss = self.criterion(outputs, observed_label, epoch=epoch)
                 acc = (torch.argmax(outputs, 1) == observed_label).type(torch.float)
                 running_acc += acc.mean().item()
 
@@ -297,38 +275,18 @@ class PyTorchTrainer:
                     val_true_label = val_true_label.to(self.device)
                     val_observed_label = val_observed_label.to(self.device)
 
-                    #if self.calibrate:
-                    #    val_outputs = scaled_model.model(val_inputs)
-                    #else:
                     val_outputs = self.model(val_inputs)
 
                     val_outputs = val_outputs.float()
                     val_observed_label = val_observed_label.long()
 
-                    '''
-                    if self.reweight and epoch > 0:
-                        cl = torch.clone(val_observed_label)
-                        print(cl)
-                        softmax_outputs = softmax(val_outputs)
-                        encoded_targets = encode(val_observed_label, self.num_classes)
-                        correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
-                        max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
-                        print(self.beta*correct_outputs - max_outputs)
-                        print(val_true_label)
-                        print(val_observed_label)
-                        print(torch.sum(val_observed_label != val_true_label))
-                        val_outputs = torch.where(self.beta*correct_outputs - max_outputs < -0.5, torch.argmax(softmax_outputs, dim=1), val_observed_label)
-                        print(torch.sum(val_observed_label != val_true_label))
-                        print(val_observed_label)
-                    '''
-
                     if self.clean_val:
-                        val_loss = self.criterion(val_outputs, val_true_label, m=m, epoch=epoch)
+                        val_loss = self.criterion(val_outputs, val_true_label, epoch=epoch)
                         val_acc = (torch.argmax(val_outputs, 1) == val_true_label).type(torch.float)
                         val_topk_acc = accuracy(val_outputs, val_true_label)
                         val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
                     else:
-                        val_loss = self.criterion(val_outputs, val_observed_label, m=m, epoch=epoch)
+                        val_loss = self.criterion(val_outputs, val_observed_label, epoch=epoch)
                         val_acc = (torch.argmax(val_outputs, 1) == val_observed_label).type(torch.float)
                         val_topk_acc = accuracy(val_outputs, val_observed_label)
                         val_ce = cross_entropy(val_outputs, val_observed_label, self.num_classes)
@@ -356,11 +314,11 @@ class PyTorchTrainer:
                             print(self.alpha.grad)
                             print(self.beta.grad)
                             print(self.delta.grad)
-                            #if not m:
+
                             self.alpha -= self.alpha_lr * self.alpha.grad + 1e-6*self.alpha
                             self.alpha.data.clamp_(min=1.0)
                             self.alpha.grad.zero_()
-                            #else:
+
                             self.beta -= self.beta_lr * self.beta.grad + 1e-6*self.beta
                             self.beta.data.clamp_(min=1.0)
                             self.beta.grad.zero_()
@@ -368,6 +326,7 @@ class PyTorchTrainer:
                             self.delta -= self.delta_lr * self.delta.grad + 1e-6*self.delta
                             self.delta.data.clamp_(min=1.0)
                             self.delta.grad.zero_()
+
                             wandb.log({"alpha": self.alpha.detach().item(), "step": c})
                             wandb.log({"beta": self.beta.detach().item(), "step": c})
                             wandb.log({"delta": self.delta.detach().item(), "step": c})
@@ -391,9 +350,9 @@ class PyTorchTrainer:
                 else:
                     test_outputs = self.model(test_inputs)
 
-                test_outputs = test_outputs.float()  # Ensure the outputs are float
-                test_observed_label = test_observed_label.long()  # Ensure the labels are long
-                test_true_label = test_true_label.long()  # Ensure the labels are long
+                test_outputs = test_outputs.float()
+                test_observed_label = test_observed_label.long()
+                test_true_label = test_true_label.long()
                 test_loss = self.criterion(test_outputs, test_true_label, epoch=epoch)
                 test_acc = (torch.argmax(test_outputs, 1) == test_true_label).type(torch.float)
                 test_running_acc += test_acc.mean().item()

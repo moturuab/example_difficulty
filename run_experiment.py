@@ -63,16 +63,20 @@ def main(args):
     init_beta = args.init_beta
     init_delta = args.init_delta
     lr = args.lr
+    wd = args.wd
     alpha_lr = args.alpha_lr
     beta_lr = args.beta_lr
     delta_lr = args.delta_lr
+    alpha_wd = args.alpha_wd
+    beta_wd = args.beta_wd
+    delta_wd = args.delta_wd
     warmup = args.warmup
     focal_gamma = args.focal_gamma
     reweight = args.reweight
     clean_val = args.clean_val
     calibrate = args.calibrate
     groupid = args.groupid
-    metainfo = f"{hardness}_{dataset}_{model_name}_{loss}_{p}_{reweight}_{clean_val}_{calibrate}_{init_alpha}_{init_beta}_{alpha_lr}_{beta_lr}_{lr}_{focal_gamma}_{epochs}_{total_runs}_{seed}_{groupid}"
+    metainfo = f"{hardness}_{dataset}_{model_name}_{loss}_{p}_{reweight}_{clean_val}_{calibrate}_{init_alpha}_{init_beta}__{init_delta}_{alpha_lr}_{beta_lr}_{delta_lr}_{alpha_wd}_{beta_wd}_{delta_wd}_{lr}_{wd}_{focal_gamma}_{epochs}_{total_runs}_{seed}_{groupid}"
 
     full_dataset = None
     train_idx = None
@@ -80,8 +84,11 @@ def main(args):
     test_idx = None
 
     # new wandb run
-    config_dict = {'total_runs': total_runs, 'hardness': hardness, 'loss': loss, 'dataset': dataset, 'reweight': reweight, 'calibrate':calibrate, 'init_alpha': init_alpha, 'alpha_lr': alpha_lr, 'beta_lr': beta_lr, 'lr': lr,
-    'fix_seed': args.fix_seed, 'init_beta': init_beta, 'init_delta': init_delta, 'warmup': warmup, 'focal_gamma': focal_gamma, 'clean_val': clean_val, 'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p, 'groupid': groupid}
+    config_dict = {'total_runs': total_runs, 'hardness': hardness, 'loss': loss, 'dataset': dataset, 'reweight': reweight, 
+    'calibrate':calibrate, 'init_alpha': init_alpha, 'alpha_lr': alpha_lr, 'beta_lr': beta_lr, 'delta_lr': delta_lr, 'lr': lr, 
+    'wd': wd, 'alpha_wd': alpha_wd, 'beta_wd': beta_wd, 'delta_wd': delta_wd, 'fix_seed': args.fix_seed, 'init_beta': init_beta,
+    'init_delta': init_delta, 'warmup': warmup, 'focal_gamma': focal_gamma, 'clean_val': clean_val, 'model_name': model_name,
+    'total_epochs': epochs, 'seed': seed, 'prop': p, 'groupid': groupid}
 
     run = wandb.init(
         project="example_difficulty",
@@ -641,9 +648,9 @@ def main(args):
             criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, beta=beta, delta=delta, gamma=focal_gamma, num_classes=num_classes, warmup=warmup, device=device)
 
         if reweight:
-            optimizer = optim.Adam(list(model.parameters()) + list([alpha, beta, delta]), lr=lr, weight_decay=1e-4)
+            optimizer = optim.Adam(list(model.parameters()) + list([alpha, beta, delta]), lr=lr, weight_decay=wd)
         else:
-            optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
+            optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=wd)
 
         # Instantiate the PyTorchTrainer class
         trainer = PyTorchTrainer(
@@ -743,10 +750,14 @@ if __name__ == "__main__":
     parser.add_argument("--init_alpha", type=float, default=2.0, help="initialize alpha")
     parser.add_argument("--init_beta", type=float, default=2.0, help="initialize beta")
     parser.add_argument("--init_delta", type=float, default=2.0, help="initialize delta")
-    parser.add_argument("--lr", type=float, default=0.001, help="learning rate for network")
+    parser.add_argument("--lr", type=float, default=1e-3, help="learning rate for network")
+    parser.add_argument("--wd", type=float, default=1e-4, help="weight decay for network")
     parser.add_argument("--alpha_lr", type=float, default=0.01, help="learning rate for alpha")
     parser.add_argument("--beta_lr", type=float, default=0.01, help="learning rate for beta")
     parser.add_argument("--delta_lr", type=float, default=0.01, help="learning rate for delta")
+    parser.add_argument("--alpha_wd", type=float, default=0.01, help="weight decay for alpha")
+    parser.add_argument("--beta_wd", type=float, default=0.01, help="weight decay for beta")
+    parser.add_argument("--delta_wd", type=float, default=0.01, help="weight decay for delta")
     parser.add_argument("--warmup", type=int, default=0, help="weighting starts after warmup epochs")
     parser.add_argument("--focal_gamma", type=float, default=2.0, help="gamma for focal loss")
     parser.add_argument("--epochs", type=int, default=10, help="Epochs")
