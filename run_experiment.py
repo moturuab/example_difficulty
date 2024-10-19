@@ -76,7 +76,7 @@ def main(args):
     clean_val = args.clean_val
     calibrate = args.calibrate
     groupid = args.groupid
-    metainfo = f"{hardness}_{dataset}_{model_name}_{loss}_{p}_{reweight}_{clean_val}_{calibrate}_{init_alpha}_{init_beta}__{init_delta}_{alpha_lr}_{beta_lr}_{delta_lr}_{alpha_wd}_{beta_wd}_{delta_wd}_{lr}_{wd}_{focal_gamma}_{epochs}_{total_runs}_{seed}_{groupid}"
+    metainfo = f"{hardness}_{dataset}_{model_name}_{loss}_{p}_{reweight}_{clean_val}_{calibrate}_{init_alpha}_{init_beta}_{init_delta}_{alpha_lr}_{beta_lr}_{delta_lr}_{alpha_wd}_{beta_wd}_{delta_wd}_{lr}_{wd}_{focal_gamma}_{epochs}_{total_runs}_{seed}_{groupid}"
 
     full_dataset = None
     train_idx = None

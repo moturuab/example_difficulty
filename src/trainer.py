@@ -277,9 +277,10 @@ class PyTorchTrainer:
                 for j, val_data in enumerate(val_dataloader):
                     val_inputs, val_true_label, val_observed_label, val_indices = val_data
 
-                    self.alpha.requires_grad = True
-                    self.beta.requires_grad = True
-                    self.delta.requires_grad = True
+                    if self.reweight and epoch > self.warmup:
+                        self.alpha.requires_grad = True
+                        self.beta.requires_grad = True
+                        self.delta.requires_grad = True
 
                     val_inputs = val_inputs.to(self.device)
                     val_true_label = val_true_label.to(self.device)
