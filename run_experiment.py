@@ -641,9 +641,9 @@ def main(args):
             criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, beta=beta, delta=delta, gamma=focal_gamma, num_classes=num_classes, warmup=warmup, device=device)
 
         if reweight:
-            optimizer = optim.Adam(list(model.parameters()) + list([alpha, beta, delta]), lr=lr, weight_decay=1e-2)
+            optimizer = optim.Adam(list(model.parameters()) + list([alpha, beta, delta]), lr=lr, weight_decay=1e-4)
         else:
-            optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=1e-2)
+            optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
 
         # Instantiate the PyTorchTrainer class
         trainer = PyTorchTrainer(
