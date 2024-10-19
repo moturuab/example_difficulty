@@ -33,7 +33,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         print((self.sigmoid(self.alpha*correct_outputs - max_outputs)**0.5))
         print(self.sigmoid(-(self.beta*correct_outputs - max_outputs))**0.5)
         print(torch.exp(-(-(self.delta*correct_outputs - max_outputs))**2/2)**0.5)
-        print(weights)
+        print(weights) 
         '''
         if not m:
             print('ALPHA')
