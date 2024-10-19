@@ -66,6 +66,7 @@ def main(args):
     alpha_lr = args.alpha_lr
     beta_lr = args.beta_lr
     delta_lr = args.delta_lr
+    warmup = args.warmup
     focal_gamma = args.focal_gamma
     reweight = args.reweight
     clean_val = args.clean_val
@@ -80,7 +81,7 @@ def main(args):
 
     # new wandb run
     config_dict = {'total_runs': total_runs, 'hardness': hardness, 'loss': loss, 'dataset': dataset, 'reweight': reweight, 'calibrate':calibrate, 'init_alpha': init_alpha, 'alpha_lr': alpha_lr, 'beta_lr': beta_lr, 'lr': lr,
-    'fix_seed': args.fix_seed, 'init_beta': init_beta, 'focal_gamma': focal_gamma, 'clean_val': clean_val, 'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p, 'groupid': groupid}
+    'fix_seed': args.fix_seed, 'init_beta': init_beta, 'init_delta': init_delta, 'warmup': warmup, 'focal_gamma': focal_gamma, 'clean_val': clean_val, 'model_name': model_name, 'total_epochs': epochs, 'seed': seed, 'prop': p, 'groupid': groupid}
 
     run = wandb.init(
         project="example_difficulty",
@@ -635,9 +636,9 @@ def main(args):
         beta = nn.Parameter(torch.tensor(init_beta), requires_grad=True)
         delta = nn.Parameter(torch.tensor(init_delta), requires_grad=True)
         if loss == 'CE':
-            criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=alpha, beta=beta, delta=delta, num_classes=num_classes, device=device)
+            criterion = WeightedCrossEntropyLoss(reweight=reweight, alpha=alpha, beta=beta, delta=delta, num_classes=num_classes, warmup=warmup, device=device)
         elif loss == 'FL':
-            criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, beta=beta, delta=delta, gamma=focal_gamma, num_classes=num_classes, device=device)
+            criterion = WeightedFocalLoss(reweight=reweight, alpha=alpha, beta=beta, delta=delta, gamma=focal_gamma, num_classes=num_classes, warmup=warmup, device=device)
 
         if reweight:
             optimizer = optim.Adam(list(model.parameters()) + list([alpha, beta, delta]), lr=lr, weight_decay=lr)
@@ -656,6 +657,7 @@ def main(args):
             alpha_lr=alpha_lr,
             beta_lr=beta_lr,
             delta_lr=delta_lr,
+            warmup=warmup, 
             epochs=epochs,
             total_samples=total_samples,
             num_classes=num_classes,
@@ -744,7 +746,8 @@ if __name__ == "__main__":
     parser.add_argument("--lr", type=float, default=0.001, help="learning rate for network")
     parser.add_argument("--alpha_lr", type=float, default=0.01, help="learning rate for alpha")
     parser.add_argument("--beta_lr", type=float, default=0.01, help="learning rate for beta")
-    parser.add_argument("--delta_lr", type=float, default=0.01, help="learning rate for beta")
+    parser.add_argument("--delta_lr", type=float, default=0.01, help="learning rate for delta")
+    parser.add_argument("--warmup", type=int, default=0, help="weighting starts after warmup epochs")
     parser.add_argument("--focal_gamma", type=float, default=2.0, help="gamma for focal loss")
     parser.add_argument("--epochs", type=int, default=10, help="Epochs")
     parser.add_argument("--hardness", type=str, default="uniform", help="hardness type")

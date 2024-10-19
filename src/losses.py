@@ -3,12 +3,13 @@ import torch
 import numpy as np
 
 class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
-    def __init__(self, reweight=True, alpha=None, beta=None, delta=None, num_classes=2, device=None):
+    def __init__(self, reweight=True, alpha=None, beta=None, delta=None, num_classes=2, warmup=0, device=None):
         super(nn.CrossEntropyLoss, self).__init__()
         self.reweight = reweight
         self.alpha = alpha
         self.beta=beta
         self.delta = delta
+        self.warmup = warmup
         self.num_classes = num_classes
         self.device = device
         self.sigmoid = nn.Sigmoid()
@@ -30,7 +31,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
             print(torch.min(self.alpha*correct_outputs - max_outputs))
             print(torch.max(self.alpha*correct_outputs - max_outputs))
             #weights = self.sigmoid(self.alpha*correct_outputs - max_outputs)
-            weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs)**0.5 + self.sigmoid(-(self.delta*correct_outputs - max_outputs))**0.5 + torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)**0.5)
+            weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs)**0.5 + self.sigmoid(-(self.delta*correct_outputs - max_outputs))**0.5 + torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)**0.5)/3
             #weights = self.sigmoid(self.alpha*correct_outputs - max_outputs)**(1/self.alpha)
             print(torch.min(weights))
             print(torch.max(weights))
@@ -40,7 +41,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
             print(torch.min(-(self.beta*correct_outputs - max_outputs)))
             print(torch.max(-(self.beta*correct_outputs - max_outputs)))
             # weights = torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)
-            weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs)**0.5 + self.sigmoid(-(self.delta*correct_outputs - max_outputs))**0.5 + torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)**0.5)
+            weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs)**0.5 + self.sigmoid(-(self.delta*correct_outputs - max_outputs))**0.5 + torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)**0.5)/3
             #weights = torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)**0.5
             print(torch.min(weights))
             print(torch.max(weights))
@@ -51,7 +52,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         softmax_outputs = self.softmax(outputs)
         encoded_targets = self.encode(targets)
         loss = - torch.sum(torch.log(softmax_outputs) * (encoded_targets), dim=1)
-        if self.reweight and epoch > 1:
+        if self.reweight and epoch > self.warmup:
             weights = self.weights(outputs, encoded_targets, m=m)
             weighted_loss = weights * loss
             return weighted_loss.mean()
@@ -59,12 +60,13 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
             return loss.mean()
 
 class WeightedFocalLoss(nn.CrossEntropyLoss):
-    def __init__(self, reweight=True, alpha=None, beta=None, gamma=None, num_classes=2, device=None):
+    def __init__(self, reweight=True, alpha=None, beta=None, gamma=None, num_classes=2, warmup=0, device=None):
         super(nn.CrossEntropyLoss, self).__init__()
         self.reweight = reweight
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
+        self.warmup = warmup
         self.num_classes = num_classes
         self.device = device
 
@@ -79,7 +81,7 @@ class WeightedFocalLoss(nn.CrossEntropyLoss):
         return weights
 
     def forward(self, outputs, targets, m=0):
-        criterion = WeightedCrossEntropyLoss(reweight=self.reweight, alpha=self.alpha, beta=self.beta, num_classes=self.num_classes, device=self.device)
+        criterion = WeightedCrossEntropyLoss(reweight=False, num_classes=self.num_classes, device=self.device)
         cross_entropy_loss = criterion(outputs, targets, m=m)
         focal_loss = (1 - torch.exp(- cross_entropy_loss)) ** self.gamma * cross_entropy_loss
         encoded_targets = criterion.encode(targets)

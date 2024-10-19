@@ -52,6 +52,7 @@ class PyTorchTrainer:
         alpha_lr: float = 0.01,
         beta_lr: float = 0.01,
         delta_lr: float = 0.01,
+        warmup: int = 0, 
         epochs: int = 10,
         total_samples: int = 10000,
         num_classes: int = 10,
@@ -110,6 +111,7 @@ class PyTorchTrainer:
         self.beta_lr = beta_lr
         self.delta_lr = delta_lr
         self.epochs = epochs
+        self.warmup = warmup
         self.total_samples = total_samples
         self.num_classes = num_classes
         self.reweight = reweight
@@ -346,7 +348,7 @@ class PyTorchTrainer:
 
                     val_running_loss += val_loss.mean().item()
 
-                    if self.reweight and epoch > 1:
+                    if self.reweight and epoch > self.warmup:
                         with torch.no_grad():
                             print('GRAD')
                             if not m:
