@@ -346,7 +346,7 @@ class PyTorchTrainer:
 
                     val_running_loss += val_loss.mean().item()
 
-                    if self.reweight and epoch > 0:
+                    if self.reweight and epoch > 1:
                         with torch.no_grad():
                             print('GRAD')
                             if not m:
