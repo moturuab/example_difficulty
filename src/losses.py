@@ -26,12 +26,16 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         softmax_outputs = self.softmax(outputs)
         correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
         max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
+        weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs)**0.5 + 
+            self.sigmoid(-(self.delta*correct_outputs - max_outputs))**0.5 + 
+            torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)**0.5)
+        '''
         if not m:
             print('ALPHA')
             print(torch.min(self.alpha*correct_outputs - max_outputs))
             print(torch.max(self.alpha*correct_outputs - max_outputs))
             #weights = self.sigmoid(self.alpha*correct_outputs - max_outputs)
-            weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs) + self.sigmoid(-(self.delta*correct_outputs - max_outputs)) + torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2))**0.5
+            weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs)**0.5 + self.sigmoid(-(self.delta*correct_outputs - max_outputs))**0.5 + torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)**0.5)
             #weights = self.sigmoid(self.alpha*correct_outputs - max_outputs)**(1/self.alpha)
             print(torch.min(weights))
             print(torch.max(weights))
@@ -41,11 +45,12 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
             print(torch.min(-(self.beta*correct_outputs - max_outputs)))
             print(torch.max(-(self.beta*correct_outputs - max_outputs)))
             # weights = torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)
-            weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs) + self.sigmoid(-(self.delta*correct_outputs - max_outputs)) + torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2))**0.5
+            weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs)**0.5 + self.sigmoid(-(self.delta*correct_outputs - max_outputs))**0.5 + torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)**0.5)
             #weights = torch.exp(-(-(self.beta*correct_outputs - max_outputs))**2/2)**0.5
             print(torch.min(weights))
             print(torch.max(weights))
             #weights = torch.where(weights == torch.min(weights), torch.min(weights)/2, weights)
+        '''
         return weights
 
     def forward(self, outputs, targets, m=0, epoch=0):

@@ -234,6 +234,7 @@ class PyTorchTrainer:
 
                 self.alpha.requires_grad = False
                 self.beta.requires_grad = False
+                self.delta.requires_grad = False
 
                 outputs = self.model(inputs)
 
@@ -290,6 +291,7 @@ class PyTorchTrainer:
 
                     self.alpha.requires_grad = True
                     self.beta.requires_grad = True
+                    self.delta.requires_grad = True
 
                     val_inputs = val_inputs.to(self.device)
                     val_true_label = val_true_label.to(self.device)
@@ -351,20 +353,19 @@ class PyTorchTrainer:
                     if self.reweight and epoch > self.warmup:
                         with torch.no_grad():
                             print('GRAD')
-                            if not m:
-                                print(0.01 * self.alpha.grad)
-                            else:
-                                print(0.01 * self.beta.grad)
+                            print(self.alpha.grad)
+                            print(self.beta.grad)
+                            print(self.delta.grad)
                             #if not m:
-                            self.alpha -= self.alpha_lr * self.alpha.grad + 1e-5*self.alpha
+                            self.alpha -= self.alpha_lr * self.alpha.grad + 1e-6*self.alpha
                             self.alpha.data.clamp_(min=1.0)
                             self.alpha.grad.zero_()
                             #else:
-                            self.beta -= self.beta_lr * self.beta.grad + 1e-5*self.beta
+                            self.beta -= self.beta_lr * self.beta.grad + 1e-6*self.beta
                             self.beta.data.clamp_(min=1.0)
                             self.beta.grad.zero_()
 
-                            self.delta -= self.delta_lr * self.delta.grad + 1e-5*self.delta
+                            self.delta -= self.delta_lr * self.delta.grad + 1e-6*self.delta
                             self.delta.data.clamp_(min=1.0)
                             self.delta.grad.zero_()
                             wandb.log({"alpha": self.alpha.detach().item(), "step": c})
