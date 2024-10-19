@@ -260,7 +260,7 @@ class PyTorchTrainer:
                     print(observed_label)
                 '''
 
-                train_loss = self.criterion(outputs, observed_label, m=m)
+                train_loss = self.criterion(outputs, observed_label, m=m, epoch=epoch)
                 acc = (torch.argmax(outputs, 1) == observed_label).type(torch.float)
                 running_acc += acc.mean().item()
 
@@ -319,12 +319,12 @@ class PyTorchTrainer:
                     '''
 
                     if self.clean_val:
-                        val_loss = self.criterion(val_outputs, val_true_label, m=m)
+                        val_loss = self.criterion(val_outputs, val_true_label, m=m, epoch=epoch)
                         val_acc = (torch.argmax(val_outputs, 1) == val_true_label).type(torch.float)
                         val_topk_acc = accuracy(val_outputs, val_true_label)
                         val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
                     else:
-                        val_loss = self.criterion(val_outputs, val_observed_label, m=m)
+                        val_loss = self.criterion(val_outputs, val_observed_label, m=m, epoch=epoch)
                         val_acc = (torch.argmax(val_outputs, 1) == val_observed_label).type(torch.float)
                         val_topk_acc = accuracy(val_outputs, val_observed_label)
                         val_ce = cross_entropy(val_outputs, val_observed_label, self.num_classes)
@@ -339,8 +339,8 @@ class PyTorchTrainer:
                     print('VAL')
                     print(val_loss)
                     print(val_acc.mean())
-                    print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
-                    print(cross_entropy(val_outputs, val_true_label, self.num_classes))
+                    print(cross_entropy(val_outputs, val_observed_label, self.num_classes, epoch=epoch))
+                    print(cross_entropy(val_outputs, val_true_label, self.num_classes, epoch=epoch))
                     val_running_ce += val_ce.mean().item()
                     val_loss.mean().backward()
 
@@ -391,7 +391,7 @@ class PyTorchTrainer:
                 test_outputs = test_outputs.float()  # Ensure the outputs are float
                 test_observed_label = test_observed_label.long()  # Ensure the labels are long
                 test_true_label = test_true_label.long()  # Ensure the labels are long
-                test_loss = self.criterion(test_outputs, test_true_label)
+                test_loss = self.criterion(test_outputs, test_true_label, epoch=epoch)
                 test_acc = (torch.argmax(test_outputs, 1) == test_true_label).type(torch.float)
                 test_running_acc += test_acc.mean().item()
 
