@@ -52,6 +52,10 @@ class PyTorchTrainer:
         alpha_lr: float = 0.01,
         beta_lr: float = 0.01,
         delta_lr: float = 0.01,
+        wd: float = 0.001,
+        alpha_wd: float = 0.01,
+        beta_wd: float = 0.01,
+        delta_wd: float = 0.01,
         warmup: int = 0, 
         epochs: int = 10,
         total_samples: int = 10000,
@@ -110,6 +114,10 @@ class PyTorchTrainer:
         self.alpha_lr = alpha_lr
         self.beta_lr = beta_lr
         self.delta_lr = delta_lr
+        self.wd = wd
+        self.alpha_wd = alpha_wd
+        self.beta_wd = beta_wd
+        self.delta_wd = delta_wd
         self.epochs = epochs
         self.warmup = warmup
         self.total_samples = total_samples
@@ -201,6 +209,7 @@ class PyTorchTrainer:
         self.model.to(self.device)
         self.alpha.to(self.device)
         self.beta.to(self.device)
+        self.delta.to(self.device)
 
         # Set model to training mode
         self.optimizer.lr = self.lr
@@ -315,15 +324,15 @@ class PyTorchTrainer:
                             print(self.beta.grad)
                             print(self.delta.grad)
 
-                            self.alpha -= self.alpha_lr * self.alpha.grad + 1e-6*self.alpha
+                            self.alpha -= self.alpha_lr * (self.alpha.grad + self.alpha_wd*self.alpha)
                             self.alpha.data.clamp_(min=1.0)
                             self.alpha.grad.zero_()
 
-                            self.beta -= self.beta_lr * self.beta.grad + 1e-6*self.beta
+                            self.beta -= self.beta_lr * (self.beta.grad + self.beta_wd*self.beta)
                             self.beta.data.clamp_(min=1.0)
                             self.beta.grad.zero_()
 
-                            self.delta -= self.delta_lr * self.delta.grad + 1e-6*self.delta
+                            self.delta -= self.delta_lr * (self.delta.grad + self.delta_wd*self.delta)
                             self.delta.data.clamp_(min=1.0)
                             self.delta.grad.zero_()
 

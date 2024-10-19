@@ -664,6 +664,10 @@ def main(args):
             alpha_lr=alpha_lr,
             beta_lr=beta_lr,
             delta_lr=delta_lr,
+            wd=wd,
+            alpha_wd=alpha_wd,
+            beta_wd=beta_wd,
+            delta_wd=delta_wd,
             warmup=warmup, 
             epochs=epochs,
             total_samples=total_samples,
@@ -742,7 +746,7 @@ if __name__ == "__main__":
         "--loss",
         type=str,
         default="CE",
-        choices=["CE", "FL"],
+        choices=["MSE", "CE", "FL"],
         help="type of loss function to use",
     )
     parser.add_argument("--clean_val", action='store_true', help="optimize on clean validation set")

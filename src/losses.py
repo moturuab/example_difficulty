@@ -80,23 +80,13 @@ class WeightedFocalLoss(nn.CrossEntropyLoss):
         self.num_classes = num_classes
         self.device = device
 
-    def weights(self, outputs, encoded_targets, m=0):
-        softmax_outputs = self.softmax(outputs)
-        correct_outputs = softmax_outputs.gather(1, torch.argmax(encoded_targets, dim=1).unsqueeze(1)).squeeze(1)
-        max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
-        if not m:
-            weights = self.sigmoid(self.alpha*correct_outputs - max_outputs)
-        else:
-            weights = self.sigmoid(-(self.beta*correct_outputs - max_outputs))
-        return weights
-
-    def forward(self, outputs, targets, m=0):
+    def forward(self, outputs, targets, epoch=-1):
         criterion = WeightedCrossEntropyLoss(reweight=False, num_classes=self.num_classes, device=self.device)
-        cross_entropy_loss = criterion(outputs, targets, m=m)
+        cross_entropy_loss = criterion(outputs, targets, epoch=epoch)
         focal_loss = (1 - torch.exp(- cross_entropy_loss)) ** self.gamma * cross_entropy_loss
         encoded_targets = criterion.encode(targets)
-        if self.reweight:
-            weighted_focal_loss = self.weights(outputs, encoded_targets, m=m) * focal_loss
+        if self.reweight and epoch > self.warmup:
+            weighted_focal_loss = criterion.weights(outputs, encoded_targets) * focal_loss
             return weighted_focal_loss.mean()
         else:
             return focal_loss.mean()
