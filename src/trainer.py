@@ -339,8 +339,8 @@ class PyTorchTrainer:
                     print('VAL')
                     print(val_loss)
                     print(val_acc.mean())
-                    print(cross_entropy(val_outputs, val_observed_label, self.num_classes, epoch=epoch))
-                    print(cross_entropy(val_outputs, val_true_label, self.num_classes, epoch=epoch))
+                    print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
+                    print(cross_entropy(val_outputs, val_true_label, self.num_classes))
                     val_running_ce += val_ce.mean().item()
                     val_loss.mean().backward()
 
