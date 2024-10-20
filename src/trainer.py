@@ -334,12 +334,12 @@ class PyTorchTrainer:
                     val_observed_label = val_observed_label.long()
 
                     if self.clean_val:
-                        val_loss = self.criterion(val_outputs, val_true_label, epoch=epoch)
+                        correct_outputs, max_outputs, weights, val_loss = self.criterion(val_outputs, val_true_label, epoch=epoch)
                         val_acc = (torch.argmax(val_outputs, 1) == val_true_label).type(torch.float)
                         val_topk_acc = accuracy(val_outputs, val_true_label)
                         val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
                     else:
-                        val_loss = self.criterion(val_outputs, val_observed_label, epoch=epoch)
+                        correct_outputs, max_outputs, weights, val_loss = self.criterion(val_outputs, val_observed_label, epoch=epoch)
                         val_acc = (torch.argmax(val_outputs, 1) == val_observed_label).type(torch.float)
                         val_topk_acc = accuracy(val_outputs, val_observed_label)
                         val_ce = cross_entropy(val_outputs, val_observed_label, self.num_classes)
@@ -403,7 +403,7 @@ class PyTorchTrainer:
                 test_outputs = test_outputs.float()
                 test_observed_label = test_observed_label.long()
                 test_true_label = test_true_label.long()
-                test_loss = self.criterion(test_outputs, test_true_label, epoch=epoch)
+                correct_outputs, max_outputs, weights, test_loss = self.criterion(test_outputs, test_true_label, epoch=epoch)
                 test_acc = (torch.argmax(test_outputs, 1) == test_true_label).type(torch.float)
                 test_running_acc += test_acc.mean().item()
 
