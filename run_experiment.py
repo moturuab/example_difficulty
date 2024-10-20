@@ -78,6 +78,8 @@ def main(args):
     groupid = args.groupid
     metainfo = f"{hardness}_{dataset}_{model_name}_{loss}_{p}_{reweight}_{clean_val}_{calibrate}_{init_alpha}_{init_beta}_{init_delta}_{alpha_lr}_{beta_lr}_{delta_lr}_{alpha_wd}_{beta_wd}_{delta_wd}_{lr}_{wd}_{focal_gamma}_{epochs}_{total_runs}_{seed}_{groupid}"
 
+    #os.mkdir(metainfo)
+
     full_dataset = None
     train_idx = None
     val_idx = None
@@ -513,7 +515,7 @@ def main(args):
             data_modality="image",
             dataset_name=dataset,
             batch_size=64,
-            shuffle=True,
+            shuffle=False,
             num_workers=0,
             transform=None,
             image_transform=None,
@@ -530,7 +532,7 @@ def main(args):
             data_modality="image",
             dataset_name=dataset,
             batch_size=64,
-            shuffle=True,
+            shuffle=False,
             num_workers=0,
             transform=None,
             image_transform=None,
@@ -676,6 +678,7 @@ def main(args):
             clean_val=clean_val,
             calibrate=calibrate,
             device=device,
+            metainfo=metainfo,
         )
 
         # Train the model

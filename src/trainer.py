@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
+import pandas as pd
 
 from .temperature_scaling import ModelWithTemperature
 
@@ -20,6 +21,13 @@ def cross_entropy(inp, target, num_classes):
     inp = softmax(inp)
     target = encode(target, num_classes)
     return torch.mean(-torch.sum(target * torch.log(inp), 1))
+
+def convert_lst(l):
+    if not isinstance(l, list):
+        lst_scores = l.flatten().tolist()
+    else:
+        lst_scores = l
+    return lst_scores
 
 def accuracy(output, target, topk=(1,5,)):
     """Computes the precision@k for the specified values of k"""
@@ -63,19 +71,20 @@ class PyTorchTrainer:
         reweight: bool = True,
         clean_val: bool = True,
         calibrate: bool = True,
+        metainfo: str = True,
         characterization_methods: list = [
             "aum",
             "data_uncert",
             "el2n",
             "grand",
-            "cleanlab",
+            #"cleanlab",
             "forgetting",
             "vog",
-            "prototypicality",
-            "allsh",
+            #"prototypicality",
+            #"allsh",
             "loss",
-            "conf_agree",
-            "detector",
+            #"conf_agree",
+            #"detector",
         ],
     ):
         """
@@ -126,6 +135,7 @@ class PyTorchTrainer:
         self.clean_val = clean_val
         self.calibrate = calibrate
         self.characterization_methods = characterization_methods
+        self.metainfo = metainfo
         self.sigmoid = nn.Sigmoid()
 
     def fit(self, dataloader, dataloader_unshuffled, val_dataloader, val_dataloader_unshuffled, test_dataloader, test_dataloader_unshuffled, wandb_num=[0,0]):
@@ -137,7 +147,11 @@ class PyTorchTrainer:
         certain metrics during training and/or after training.
         """
 
-        self.aum = AUM_Class(save_dir=str(wandb_num[0]) + '-' + str(wandb_num[1])) if "aum" in self.characterization_methods else None
+        self.aum = (
+            AUM_Class(save_dir=str(wandb_num[0]) + '-' + str(wandb_num[1])) 
+            if "aum" in self.characterization_methods 
+            else None
+        )
         self.data_uncert = (
             DataIQ_Maps_Class(dataloader=dataloader_unshuffled)
             if "data_uncert" in self.characterization_methods
@@ -214,6 +228,7 @@ class PyTorchTrainer:
         # Set model to training mode
         self.optimizer.lr = self.lr
         c = 0
+        dictionary = {}
         for epoch in range(self.epochs):
             self.model.train()
             running_loss = 0.0
@@ -231,9 +246,23 @@ class PyTorchTrainer:
             running_top5_acc = 0.0
             val_running_top5_acc = 0.0
             test_running_top5_acc = 0.0
+            dictionary[epoch] = {'index': [], 'predicted_output': [], 'max_output': [],
+            'predicted_label': [] 'true_label': [], 'observed_label': [],
+            'aum': [], 'dataiq': [], 'datamaps': [], 'el2n': [], 'grand': [], 'forgetting': [], 'vog': [], 'loss': []}
+            if self.reweight:
+                dictionary[epoch]['alpha'] = []
+                dictionary[epoch]['beta'] = []
+                dictionary[epoch]['delta'] = []
+                dictionary[epoch]['weight'] = []
             for i, data in enumerate(dataloader_unshuffled):
                 inputs, true_label, observed_label, indices = data
-                m = i % 2
+                dictionary[epoch]['index'].extend(indices.flatten().tolist())
+                dictionary[epoch]['true_label'].extend(true_label.flatten().tolist())
+                dictionary[epoch]['observed_label'].extend(observed_label.flatten().tolist())
+                if self.reweight:
+                    dictionary[epoch]['alpha'].extend([self.alpha]*len(indices))
+                    dictionary[epoch]['beta'].extend([self.beta]*len(indices))
+                    dictionary[epoch]['delta'].extend([self.delta]*len(indices))
 
                 inputs = inputs.to(self.device)
                 true_label = true_label.to(self.device)
@@ -247,10 +276,21 @@ class PyTorchTrainer:
 
                 outputs = self.model(inputs)
 
+                if self.aum is not None:
+                    self.aum.updates(
+                        y_pred=outputs, y_batch=observed_label, sample_ids=indices
+                    )
+
                 outputs = outputs.float()
+                dictionary[epoch]['predicted_label'].extend(torch.argmax(outputs, 1).flatten().tolist())
                 observed_label = observed_label.long()
 
-                train_loss = self.criterion(outputs, observed_label, epoch=epoch)
+                correct_outputs, max_outputs, weights, train_loss = self.criterion(outputs, observed_label, epoch=epoch)
+                dictionary[epoch]['predicted_output'].extend(correct_outputs.flatten().tolist())
+                dictionary[epoch]['max_output'].extend(max_outputs.flatten().tolist())
+                if self.reweight:
+                    dictionary[epoch]['weight'].extend(weights.flatten().tolist())
+
                 acc = (torch.argmax(outputs, 1) == observed_label).type(torch.float)
                 running_acc += acc.mean().item()
 
@@ -320,11 +360,6 @@ class PyTorchTrainer:
 
                     if self.reweight and epoch > self.warmup:
                         with torch.no_grad():
-                            print('GRAD')
-                            print(self.alpha.grad)
-                            print(self.beta.grad)
-                            print(self.delta.grad)
-
                             self.alpha -= self.alpha_lr * (self.alpha.grad + self.alpha_wd*self.alpha)
                             self.alpha.data.clamp_(min=1.0)
                             self.alpha.grad.zero_()
@@ -429,28 +464,42 @@ class PyTorchTrainer:
             if self.data_uncert is not None:
                 print("data_uncert compute")
                 self.data_uncert.updates(net=self.model, device=self.device)
+                self.data_uncert.compute_scores(datamaps=False)
+                dictionary[epoch]['dataiq'].extend(convert_lst(self.data_uncert._scores))
+                self.data_uncert.compute_scores(datamaps=True)
+                dictionary[epoch]['datamaps'].extend(convert_lst(self.data_uncert._scores))
 
             if self.el2n is not None:
                 print("el2n")
                 self.el2n.updates(logits=logits, targets=targets)
+                self.el2n.compute_scores()
+                dictionary[epoch]['el2n'].extend(convert_lst(self.el2n._scores))
 
             if self.forgetting is not None:
                 print("forgetting")
                 self.forgetting.updates(
                     logits=logits, targets=targets, probs=probs, indices=indices
                 )
+                self.forgetting.compute_scores()
+                dictionary[epoch]['forgetting'].extend(convert_lst(self.forgetting._scores))
 
             if self.grand is not None:
                 print("grand")
                 self.grand.updates(net=self.model, device=self.device)
+                self.grand.compute_scores()
+                dictionary[epoch]['grand'].extend(convert_lst(self.grand._scores))
 
-            if self.vog is not None and epoch % 2 == 0 and epoch < 6:
+            if self.vog is not None: # and epoch % 2 == 0 and epoch < 6:
                 print("vog")
                 self.vog.updates(net=self.model, device=self.device)
+                self.vog.compute_scores()
+                dictionary[epoch]['vog'].extend(convert_lst(self.vog._scores))
 
             if self.loss is not None:
                 print("loss")
                 self.loss.updates(logits=logits, targets=targets)
+                self.loss.compute_scores()
+                dictionary[epoch]['loss'].extend(convert_lst(self.loss._scores))
 
         # These HCMs are applied after training
         if self.prototypicality is not None:
@@ -474,6 +523,11 @@ class PyTorchTrainer:
             self.detector.updates(
                 data_uncert_class=self.data_uncert.data_eval, device=self.device
             )
+
+        pd.DataFrame(dictionary)
+        store = pd.HDFStore(self.metainfo.replace(':', '').replace('.', '') + '.h5')
+        store['df'] = df  # save it
+        #store['df']  # load it
 
     def get_intermediate_outputs(self, net, dataloader, device):
         """

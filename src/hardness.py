@@ -30,8 +30,7 @@ class Hardness_Base:
 
     @property
     def scores(self):
-        if self._scores is None:
-            self.compute_scores()
+        self.compute_scores()
         return self._scores
 
 
