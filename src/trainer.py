@@ -247,7 +247,7 @@ class PyTorchTrainer:
             val_running_top5_acc = 0.0
             test_running_top5_acc = 0.0
             dictionary[epoch] = {'index': [], 'predicted_output': [], 'max_output': [],
-            'predicted_label': [] 'true_label': [], 'observed_label': [],
+            'predicted_label': [], 'true_label': [], 'observed_label': [],
             'aum': [], 'dataiq': [], 'datamaps': [], 'el2n': [], 'grand': [], 'forgetting': [], 'vog': [], 'loss': []}
             if self.reweight:
                 dictionary[epoch]['alpha'] = []
