@@ -411,7 +411,7 @@ class PyTorchTrainer:
                 test_running_top1_acc += test_top1_acc.mean().item()
                 test_running_top5_acc += test_top5_acc.mean().item()
 
-                test_ce = cross_entropy(test_outputs, test_true_label, self.num_classes)
+                test_true_ce = cross_entropy(test_outputs, test_true_label, self.num_classes)
                 test_running_true_ce += test_true_ce.mean().item()
                 test_running_loss += test_loss.mean().item()
 
