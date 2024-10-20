@@ -289,7 +289,10 @@ class PyTorchTrainer:
                 dictionary[epoch]['predicted_output'].extend(correct_outputs.flatten().tolist())
                 dictionary[epoch]['max_output'].extend(max_outputs.flatten().tolist())
                 if self.reweight:
-                    dictionary[epoch]['weight'].extend(weights.flatten().tolist())
+                    if epoch > self.warmup:
+                        dictionary[epoch]['weight'].extend(weights.flatten().tolist())
+                    else:
+                        dictionary[epoch]['weight'].extend([1]*len(indices))
 
                 acc = (torch.argmax(outputs, 1) == observed_label).type(torch.float)
                 running_acc += acc.mean().item()
