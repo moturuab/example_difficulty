@@ -230,13 +230,16 @@ class PyTorchTrainer:
         c = 0
         dictionary = {}
         for epoch in range(self.epochs):
+            print('EPOCH ' + str(epoch))
             self.model.train()
             running_loss = 0.0
             val_running_loss = 0.0
             test_running_loss = 0.0
-            running_ce = 0.0
-            val_running_ce = 0.0
-            test_running_ce = 0.0
+            running_observed_ce = 0.0
+            val_running_observed_ce = 0.0
+            running_true_ce = 0.0
+            val_running_true_ce = 0.0
+            test_running_true_ce = 0.0
             running_acc = 0.0
             val_running_acc = 0.0
             test_running_acc = 0.0
@@ -303,17 +306,14 @@ class PyTorchTrainer:
                 running_top1_acc += top1_acc.mean().item()
                 running_top5_acc += top5_acc.mean().item()
                 
-                print('TRAIN')
-                print(train_loss)
-                print(acc.mean())
-                print(cross_entropy(outputs, observed_label, self.num_classes))
-                train_ce = cross_entropy(outputs, observed_label, self.num_classes)
-                running_ce += train_ce.mean().item()
+                train_observed_ce = cross_entropy(outputs, observed_label, self.num_classes)
+                train_true_ce = cross_entropy(outputs, true_label, self.num_classes)
+                running_observed_ce += train_observed_ce.mean().item()
+                running_true_ce += train_true_ce.mean().item()
 
                 train_loss.mean().backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad()
-
                 running_loss += train_loss.mean().item()
 
                 for j, val_data in enumerate(val_dataloader_unshuffled):
@@ -337,12 +337,14 @@ class PyTorchTrainer:
                         correct_outputs, max_outputs, weights, val_loss = self.criterion(val_outputs, val_true_label, epoch=epoch)
                         val_acc = (torch.argmax(val_outputs, 1) == val_true_label).type(torch.float)
                         val_topk_acc = accuracy(val_outputs, val_true_label)
-                        val_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
+                        val_observed_ce = cross_entropy(val_outputs, val_observed_label, self.num_classes)
+                        val_true_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
                     else:
                         correct_outputs, max_outputs, weights, val_loss = self.criterion(val_outputs, val_observed_label, epoch=epoch)
                         val_acc = (torch.argmax(val_outputs, 1) == val_observed_label).type(torch.float)
                         val_topk_acc = accuracy(val_outputs, val_observed_label)
-                        val_ce = cross_entropy(val_outputs, val_observed_label, self.num_classes)
+                        val_observed_ce = cross_entropy(val_outputs, val_observed_label, self.num_classes)
+                        val_true_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
                     
                     val_running_acc += val_acc.mean().item()
 
@@ -351,14 +353,10 @@ class PyTorchTrainer:
                     val_running_top1_acc += val_top1_acc.mean().item()
                     val_running_top5_acc += val_top5_acc.mean().item()
 
-                    print('VAL')
-                    print(val_loss)
-                    print(val_acc.mean())
-                    print(cross_entropy(val_outputs, val_observed_label, self.num_classes))
-                    print(cross_entropy(val_outputs, val_true_label, self.num_classes))
-                    val_running_ce += val_ce.mean().item()
-                    val_loss.mean().backward()
+                    val_running_observed_ce += val_observed_ce.mean().item()
+                    val_running_true_ce += val_true_ce.mean().item()
 
+                    val_loss.mean().backward()
                     val_running_loss += val_loss.mean().item()
 
                     if self.reweight and epoch > self.warmup:
@@ -413,22 +411,19 @@ class PyTorchTrainer:
                 test_running_top1_acc += test_top1_acc.mean().item()
                 test_running_top5_acc += test_top5_acc.mean().item()
 
-                print('TEST')
-                print(test_loss)
-                print(test_acc.mean())
-                print(cross_entropy(test_outputs, test_observed_label, self.num_classes))
-                print(cross_entropy(test_outputs, test_true_label, self.num_classes))
                 test_ce = cross_entropy(test_outputs, test_true_label, self.num_classes)
-                test_running_ce += test_ce.mean().item()
+                test_running_true_ce += test_true_ce.mean().item()
                 test_running_loss += test_loss.mean().item()
 
             self.model.train()
             epoch_loss = running_loss / len(dataloader)
             val_epoch_loss = val_running_loss / len(dataloader)
             test_epoch_loss = test_running_loss / len(test_dataloader)
-            epoch_ce = running_ce / len(dataloader)
-            val_epoch_ce = val_running_ce / len(dataloader)
-            test_epoch_ce = test_running_ce / len(test_dataloader)
+            epoch_observed_ce = running_observed_ce / len(dataloader)
+            val_epoch_observed_ce = val_running_observed_ce / len(dataloader)
+            epoch_true_ce = running_true_ce / len(dataloader)
+            val_epoch_true_ce = val_running_true_ce / len(dataloader)
+            test_epoch_true_ce = test_running_true_ce / len(test_dataloader)
             epoch_acc = running_acc / len(dataloader)
             val_epoch_acc = val_running_acc / len(dataloader)
             test_epoch_acc = test_running_acc / len(test_dataloader)
@@ -441,9 +436,11 @@ class PyTorchTrainer:
             wandb.log({"train_loss": epoch_loss, "epoch": epoch})
             wandb.log({"val_loss": val_epoch_loss, "epoch": epoch})
             wandb.log({"test_loss": test_epoch_loss, "epoch": epoch})
-            wandb.log({"train_ce": epoch_ce, "epoch": epoch})
-            wandb.log({"val_ce": val_epoch_ce, "epoch": epoch})
-            wandb.log({"test_ce": test_epoch_ce, "epoch": epoch})
+            wandb.log({"train_observed_ce": epoch_observed_ce, "epoch": epoch})
+            wandb.log({"val_observed_ce": val_epoch_observed_ce, "epoch": epoch})
+            wandb.log({"train_true_ce": epoch_true_ce, "epoch": epoch})
+            wandb.log({"val_true_ce": val_epoch_true_ce, "epoch": epoch})
+            wandb.log({"test_true_ce": test_epoch_true_ce, "epoch": epoch})
             wandb.log({"train_acc": epoch_acc, "epoch": epoch})
             wandb.log({"val_acc": val_epoch_acc, "epoch": epoch})
             wandb.log({"test_acc": test_epoch_acc, "epoch": epoch})
