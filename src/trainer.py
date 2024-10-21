@@ -264,9 +264,9 @@ class PyTorchTrainer:
                 dictionary[epoch]['true_label'].extend(true_label.flatten().tolist())
                 dictionary[epoch]['observed_label'].extend(observed_label.flatten().tolist())
                 if self.reweight:
-                    dictionary[epoch]['alpha'].extend([self.alpha]*len(indices))
-                    dictionary[epoch]['beta'].extend([self.beta]*len(indices))
-                    dictionary[epoch]['delta'].extend([self.delta]*len(indices))
+                    dictionary[epoch]['alpha'].extend([self.alpha.detach().item()]*len(indices))
+                    dictionary[epoch]['beta'].extend([self.beta.detach().item()]*len(indices))
+                    dictionary[epoch]['delta'].extend([self.delta.detach().item()]*len(indices))
 
                 inputs = inputs.to(self.device)
                 true_label = true_label.to(self.device)
@@ -289,14 +289,20 @@ class PyTorchTrainer:
                 dictionary[epoch]['predicted_label'].extend(torch.argmax(outputs, 1).flatten().tolist())
                 observed_label = observed_label.long()
 
-                correct_outputs, max_outputs, weights, train_loss = self.criterion(outputs, observed_label, epoch=epoch)
+                correct_outputs, max_outputs, alpha_weights, beta_weights, delta_weights, weights, train_loss = self.criterion(outputs, observed_label, epoch=epoch)
                 dictionary[epoch]['predicted_output'].extend(correct_outputs.flatten().tolist())
                 dictionary[epoch]['max_output'].extend(max_outputs.flatten().tolist())
                 if self.reweight:
                     if epoch > self.warmup:
                         dictionary[epoch]['weight'].extend(weights.flatten().tolist())
+                        dictionary[epoch]['alpha_weight'].extend(weights.flatten().tolist())
+                        dictionary[epoch]['beta_weight'].extend(weights.flatten().tolist())
+                        dictionary[epoch]['delta_weight'].extend(weights.flatten().tolist())
                     else:
                         dictionary[epoch]['weight'].extend([1]*len(indices))
+                        dictionary[epoch]['alpha_weight'].extend([0]*len(indices))
+                        dictionary[epoch]['beta_weight'].extend([0]*len(indices))
+                        dictionary[epoch]['delta_weight'].extend([0]*len(indices))
 
                 acc = (torch.argmax(outputs, 1) == observed_label).type(torch.float)
                 running_acc += acc.mean().item()
@@ -335,13 +341,13 @@ class PyTorchTrainer:
                     val_observed_label = val_observed_label.long()
 
                     if self.clean_val:
-                        correct_outputs, max_outputs, weights, val_loss = self.criterion(val_outputs, val_true_label, epoch=epoch)
+                        correct_outputs, max_outputs, alpha_weights, beta_weights, delta_weights, weights, val_loss = self.criterion(val_outputs, val_true_label, epoch=epoch)
                         val_acc = (torch.argmax(val_outputs, 1) == val_true_label).type(torch.float)
                         val_topk_acc = accuracy(val_outputs, val_true_label)
                         val_observed_ce = cross_entropy(val_outputs, val_observed_label, self.num_classes)
                         val_true_ce = cross_entropy(val_outputs, val_true_label, self.num_classes)
                     else:
-                        correct_outputs, max_outputs, weights, val_loss = self.criterion(val_outputs, val_observed_label, epoch=epoch)
+                        correct_outputs, max_outputs, alpha_weights, beta_weights, delta_weights, weights, val_loss = self.criterion(val_outputs, val_observed_label, epoch=epoch)
                         val_acc = (torch.argmax(val_outputs, 1) == val_observed_label).type(torch.float)
                         val_topk_acc = accuracy(val_outputs, val_observed_label)
                         val_observed_ce = cross_entropy(val_outputs, val_observed_label, self.num_classes)
@@ -402,7 +408,7 @@ class PyTorchTrainer:
                 test_outputs = test_outputs.float()
                 test_observed_label = test_observed_label.long()
                 test_true_label = test_true_label.long()
-                correct_outputs, max_outputs, weights, test_loss = self.criterion(test_outputs, test_true_label, epoch=epoch)
+                correct_outputs, max_outputs, alpha_weights, beta_weights, delta_weights, weights, test_loss = self.criterion(test_outputs, test_true_label, epoch=epoch)
                 test_acc = (torch.argmax(test_outputs, 1) == test_true_label).type(torch.float)
                 test_running_acc += test_acc.mean().item()
 
@@ -416,7 +422,6 @@ class PyTorchTrainer:
                 test_running_true_ce += test_true_ce.mean().item()
                 test_running_loss += test_loss.mean().item()
 
-            self.model.train()
             epoch_loss = running_loss / len(dataloader)
             val_epoch_loss = val_running_loss / len(dataloader)
             test_epoch_loss = test_running_loss / len(test_dataloader)
@@ -527,11 +532,29 @@ class PyTorchTrainer:
                 data_uncert_class=self.data_uncert.data_eval, device=self.device
             )
 
+        if self.reweight:
+            results = {}
+            for w in ['alpha_weight', 'beta_weight', 'delta_weight', 'weight']:
+                metrics = {}
+                threshold_flag = (~self.flag_ids.astype(bool)).astype(int)
+                if w is not 'beta_weights': # low weights for good samples
+                    auc_roc = roc_auc_score(y_true=self.flag_ids, y_score=dictionary[epoch][w])
+                else: # high weights for good samples
+                    auc_roc = roc_auc_score(y_true=threshold_flag, y_score=dictionary[epoch][w])
+
+                auc_prc = average_precision_score(
+                    y_true=threshold_flag, y_score=raw_scores
+                )
+
+                metrics["auc_roc"] = auc_roc
+                metrics["auc_prc"] = auc_prc
+
+                results[n] = metrics
+                
+            wandb.log(results)
         df = pd.DataFrame(dictionary)
-        store = pd.HDFStore(self.metainfo.replace(':', '').replace('.', '') + '.h5')
-        store['df'] = df  # save it
-        #store['df']  # load it
-        print('finished')
+        store = pd.HDFStore('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '.h5')
+        store['df'] = df
 
     def get_intermediate_outputs(self, net, dataloader, device):
         """

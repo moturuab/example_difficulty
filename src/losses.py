@@ -23,10 +23,11 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         return encoded_targets
 
     def weights(self, correct_outputs, max_outputs):
-        weights = (self.sigmoid(self.alpha*correct_outputs - max_outputs) + 
-            self.sigmoid(-(self.beta*correct_outputs - max_outputs)) + 
-            torch.exp(-(-(self.delta*correct_outputs - max_outputs))**2/2))
-        return weights
+        alpha_weights = self.sigmoid(self.alpha*correct_outputs - max_outputs)
+        beta_weights = self.sigmoid(-(self.beta*correct_outputs - max_outputs))
+        delta_weights = torch.exp(-(-(self.delta*correct_outputs - max_outputs))**2/2)
+        weights = alpha_weights + beta_weights + delta_weights
+        return alpha_weights, beta_weights, delta_weights, weights
 
     def forward(self, outputs, targets, epoch=-1):
         softmax_outputs = self.softmax(outputs)
@@ -37,11 +38,11 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         max_outputs = softmax_outputs.gather(1, torch.argmax(softmax_outputs, dim=1).unsqueeze(1)).squeeze(1)
 
         if self.reweight and epoch > self.warmup:
-            weights = self.weights(correct_outputs, max_outputs)
+            alpha_weights, beta_weights, delta_weights, weights = self.weights(correct_outputs, max_outputs)
             weighted_loss = weights * loss
-            return correct_outputs, max_outputs, weights, weighted_loss.mean()
+            return correct_outputs, max_outputs, alpha_weights, beta_weights, delta_weights, weights, weighted_loss.mean()
         else:
-            return correct_outputs, max_outputs, None, loss.mean()
+            return correct_outputs, max_outputs, None, None, None, None, loss.mean()
 
 class WeightedFocalLoss(nn.CrossEntropyLoss):
     def __init__(self, reweight=True, alpha=None, beta=None, delta=None, gamma=None, num_classes=2, warmup=0, device=None):
@@ -61,8 +62,8 @@ class WeightedFocalLoss(nn.CrossEntropyLoss):
         focal_loss = (1 - torch.exp(- cross_entropy_loss)) ** self.gamma * cross_entropy_loss
         encoded_targets = criterion.encode(targets)
         if self.reweight and epoch > self.warmup:
-            weights = criterion.weights(outputs, encoded_targets)
+            alpha_weights, beta_weights, delta_weights, weights = criterion.weights(outputs, encoded_targets)
             weighted_focal_loss = weights * focal_loss
-            return correct_outputs, max_outputs, weights, weighted_focal_loss.mean()
+            return correct_outputs, max_outputs, alpha_weights, beta_weights, delta_weights, weights, weighted_focal_loss.mean()
         else:
-            return correct_outputs, max_outputs, None, focal_loss.mean()
+            return correct_outputs, max_outputs, None, None, None, None, focal_loss.mean()
