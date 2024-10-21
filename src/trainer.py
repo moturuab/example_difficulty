@@ -544,7 +544,7 @@ class PyTorchTrainer:
                     self.loss.compute_scores()
                     dictionary[epoch]['loss'].extend(convert_lst(self.loss._scores))
             
-            if epoch % save_every == 0:
+            if epoch % save_every == 0 or epoch == self.warmup + 1:
                 if epoch == 0:
                     os.mkdir('dictionaries/' + self.metainfo.replace(':', '').replace('.', ''))
                 df = pd.DataFrame(dictionary)
