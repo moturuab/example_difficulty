@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import pandas as pd
+import time
 
 from sklearn.metrics import (
     accuracy_score,
@@ -239,6 +240,7 @@ class PyTorchTrainer:
         # Set model to training mode
         self.optimizer.lr = self.lr
         c = 0
+        save_every = 5
         for epoch in range(self.epochs):
             print(f"Epoch {epoch+1}/{self.epochs}")
 
@@ -261,29 +263,31 @@ class PyTorchTrainer:
             running_top5_acc = 0.0
             val_running_top5_acc = 0.0
             test_running_top5_acc = 0.0
-            dictionary = {}
-            dictionary[epoch] = {'index': [], 'predicted_output': [], 'max_output': [],
-            'predicted_label': [], 'true_label': [], 'observed_label': [],
-            'aum': [], 'dataiq': [], 'datamaps': [], 'dataiq_conf': [], 'datamaps_conf': [],
-            'el2n': [], 'grand': [], 'forgetting': [], 'vog': [], 
-            'loss': []}
-            if self.reweight:
-                dictionary[epoch]['alpha'] = []
-                dictionary[epoch]['beta'] = []
-                dictionary[epoch]['delta'] = []
-                dictionary[epoch]['alpha_weight'] = []
-                dictionary[epoch]['beta_weight'] = []
-                dictionary[epoch]['delta_weight'] = []
-                dictionary[epoch]['weight'] = []
+            if epoch % save_every == 0:
+                dictionary = {}
+                dictionary[epoch] = {'index': [], 'predicted_output': [], 'max_output': [],
+                'predicted_label': [], 'true_label': [], 'observed_label': [],
+                'aum': [], 'dataiq': [], 'datamaps': [], 'dataiq_conf': [], 'datamaps_conf': [],
+                'el2n': [], 'grand': [], 'forgetting': [], 'vog': [], 
+                'loss': []}
+                if self.reweight:
+                    dictionary[epoch]['alpha'] = []
+                    dictionary[epoch]['beta'] = []
+                    dictionary[epoch]['delta'] = []
+                    dictionary[epoch]['alpha_weight'] = []
+                    dictionary[epoch]['beta_weight'] = []
+                    dictionary[epoch]['delta_weight'] = []
+                    dictionary[epoch]['weight'] = []
             for i, data in enumerate(dataloader_unshuffled):
                 inputs, true_label, observed_label, indices = data
-                dictionary[epoch]['index'].extend(indices.flatten().tolist())
-                dictionary[epoch]['true_label'].extend(true_label.flatten().tolist())
-                dictionary[epoch]['observed_label'].extend(observed_label.flatten().tolist())
-                if self.reweight:
-                    dictionary[epoch]['alpha'].extend([self.alpha.detach().item()]*len(indices))
-                    dictionary[epoch]['beta'].extend([self.beta.detach().item()]*len(indices))
-                    dictionary[epoch]['delta'].extend([self.delta.detach().item()]*len(indices))
+                if epoch % save_every == 0:
+                    dictionary[epoch]['index'].extend(indices.flatten().tolist())
+                    dictionary[epoch]['true_label'].extend(true_label.flatten().tolist())
+                    dictionary[epoch]['observed_label'].extend(observed_label.flatten().tolist())
+                    if self.reweight:
+                        dictionary[epoch]['alpha'].extend([self.alpha.detach().item()]*len(indices))
+                        dictionary[epoch]['beta'].extend([self.beta.detach().item()]*len(indices))
+                        dictionary[epoch]['delta'].extend([self.delta.detach().item()]*len(indices))
 
                 inputs = inputs.to(self.device)
                 true_label = true_label.to(self.device)
@@ -303,23 +307,25 @@ class PyTorchTrainer:
                     )
 
                 outputs = outputs.float()
-                dictionary[epoch]['predicted_label'].extend(torch.argmax(outputs, 1).flatten().tolist())
+                if epoch % save_every == 0:
+                    dictionary[epoch]['predicted_label'].extend(torch.argmax(outputs, 1).flatten().tolist())
                 observed_label = observed_label.long()
 
                 correct_outputs, max_outputs, alpha_weights, beta_weights, delta_weights, weights, train_loss = self.criterion(outputs, observed_label, epoch=epoch)
-                dictionary[epoch]['predicted_output'].extend(correct_outputs.flatten().tolist())
-                dictionary[epoch]['max_output'].extend(max_outputs.flatten().tolist())
-                if self.reweight:
-                    if epoch > self.warmup:
-                        dictionary[epoch]['weight'].extend(weights.flatten().tolist())
-                        dictionary[epoch]['alpha_weight'].extend(alpha_weights.flatten().tolist())
-                        dictionary[epoch]['beta_weight'].extend(beta_weights.flatten().tolist())
-                        dictionary[epoch]['delta_weight'].extend(delta_weights.flatten().tolist())
-                    else:
-                        dictionary[epoch]['weight'].extend([1]*len(indices))
-                        dictionary[epoch]['alpha_weight'].extend([0]*len(indices))
-                        dictionary[epoch]['beta_weight'].extend([0]*len(indices))
-                        dictionary[epoch]['delta_weight'].extend([0]*len(indices))
+                if epoch % save_every == 0:
+                    dictionary[epoch]['predicted_output'].extend(correct_outputs.flatten().tolist())
+                    dictionary[epoch]['max_output'].extend(max_outputs.flatten().tolist())
+                    if self.reweight:
+                        if epoch > self.warmup:
+                            dictionary[epoch]['weight'].extend(weights.flatten().tolist())
+                            dictionary[epoch]['alpha_weight'].extend(alpha_weights.flatten().tolist())
+                            dictionary[epoch]['beta_weight'].extend(beta_weights.flatten().tolist())
+                            dictionary[epoch]['delta_weight'].extend(delta_weights.flatten().tolist())
+                        else:
+                            dictionary[epoch]['weight'].extend([1]*len(indices))
+                            dictionary[epoch]['alpha_weight'].extend([0]*len(indices))
+                            dictionary[epoch]['beta_weight'].extend([0]*len(indices))
+                            dictionary[epoch]['delta_weight'].extend([0]*len(indices))
 
                 acc = (torch.argmax(outputs, 1) == observed_label).type(torch.float)
                 running_acc += acc.mean().item()
@@ -492,50 +498,59 @@ class PyTorchTrainer:
                 )
 
             if self.aum is not None:
-                self.aum.compute_scores()
-                dictionary[epoch]['aum'].extend(convert_lst(self.aum._scores))
+                if epoch % save_every == 0:
+                    self.aum.compute_scores()
+                    dictionary[epoch]['aum'].extend(convert_lst(self.aum._scores))
 
             if self.data_uncert is not None:
                 self.data_uncert.updates(net=self.model, device=self.device)
-                self.data_uncert.compute_scores(datamaps=False)
-                dictionary[epoch]['dataiq'].extend(convert_lst(self.data_uncert._scores[0]))
-                dictionary[epoch]['dataiq_conf'].extend(convert_lst(self.data_uncert._scores[1]))
-                self.data_uncert.compute_scores(datamaps=True)
-                dictionary[epoch]['datamaps'].extend(convert_lst(self.data_uncert._scores[0]))
-                dictionary[epoch]['datamaps_conf'].extend(convert_lst(self.data_uncert._scores[1]))
+                if epoch % save_every == 0:
+                    self.data_uncert.compute_scores(datamaps=False)
+                    dictionary[epoch]['dataiq'].extend(convert_lst(self.data_uncert._scores[0]))
+                    dictionary[epoch]['dataiq_conf'].extend(convert_lst(self.data_uncert._scores[1]))
+                    self.data_uncert.compute_scores(datamaps=True)
+                    dictionary[epoch]['datamaps'].extend(convert_lst(self.data_uncert._scores[0]))
+                    dictionary[epoch]['datamaps_conf'].extend(convert_lst(self.data_uncert._scores[1]))
 
             if self.el2n is not None:
                 self.el2n.updates(logits=logits, targets=targets)
-                self.el2n.compute_scores()
-                dictionary[epoch]['el2n'].extend(convert_lst(self.el2n._scores))
+                if epoch % save_every == 0:
+                    self.el2n.compute_scores()
+                    dictionary[epoch]['el2n'].extend(convert_lst(self.el2n._scores))
 
             if self.forgetting is not None:
                 self.forgetting.updates(
                     logits=logits, targets=targets, probs=probs, indices=indices
                 )
-                self.forgetting.compute_scores()
-                dictionary[epoch]['forgetting'].extend(convert_lst(self.forgetting._scores))
+                if epoch % save_every == 0:
+                    self.forgetting.compute_scores()
+                    dictionary[epoch]['forgetting'].extend(convert_lst(self.forgetting._scores))
 
             if self.grand is not None:
                 self.grand.updates(net=self.model, device=self.device)
-                self.grand.compute_scores()
-                dictionary[epoch]['grand'].extend(convert_lst(self.grand._scores))
+                if epoch % save_every == 0:
+                    self.grand.compute_scores()
+                    dictionary[epoch]['grand'].extend(convert_lst(self.grand._scores))
 
             if self.vog is not None: # and epoch % 2 == 0 and epoch < 6:
                 self.vog.updates(net=self.model, device=self.device)
-                self.vog.compute_scores()
-                dictionary[epoch]['vog'].extend(convert_lst(self.vog._scores))
+                if epoch % save_every == 0:
+                    self.vog.compute_scores()
+                    dictionary[epoch]['vog'].extend(convert_lst(self.vog._scores))
 
             if self.loss is not None:
                 self.loss.updates(logits=logits, targets=targets)
-                self.loss.compute_scores()
-                dictionary[epoch]['loss'].extend(convert_lst(self.loss._scores))
-
-            if epoch == 0:
-                os.mkdir('dictionaries/' + self.metainfo.replace(':', '').replace('.', ''))
-            df = pd.DataFrame(dictionary)
-            store = pd.HDFStore('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '/' + str(epoch) + '.h5')
-            store['df'] = df
+                if epoch % save_every == 0:
+                    self.loss.compute_scores()
+                    dictionary[epoch]['loss'].extend(convert_lst(self.loss._scores))
+            
+            if epoch % save_every == 0:
+                if epoch == 0:
+                    os.mkdir('dictionaries/' + self.metainfo.replace(':', '').replace('.', ''))
+                df = pd.DataFrame(dictionary)
+                store = pd.HDFStore('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '/' + str(epoch) + '.h5')
+                store['df'] = df
+                time.sleep(30)
 
         '''
         # These HCMs are applied after training
