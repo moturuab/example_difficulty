@@ -522,7 +522,7 @@ class PyTorchTrainer:
                 data_uncert_class=self.data_uncert.data_eval, device=self.device
             )
 
-        pd.DataFrame(dictionary)
+        df = pd.DataFrame(dictionary)
         store = pd.HDFStore(self.metainfo.replace(':', '').replace('.', '') + '.h5')
         store['df'] = df  # save it
         #store['df']  # load it
