@@ -257,6 +257,9 @@ class PyTorchTrainer:
                 dictionary[epoch]['alpha'] = []
                 dictionary[epoch]['beta'] = []
                 dictionary[epoch]['delta'] = []
+                dictionary[epoch]['alpha_weight'] = []
+                dictionary[epoch]['beta_weight'] = []
+                dictionary[epoch]['delta_weight'] = []
                 dictionary[epoch]['weight'] = []
             for i, data in enumerate(dataloader_unshuffled):
                 inputs, true_label, observed_label, indices = data
@@ -550,7 +553,7 @@ class PyTorchTrainer:
                 metrics["auc_prc"] = auc_prc
 
                 results[n] = metrics
-                
+
             wandb.log(results)
         df = pd.DataFrame(dictionary)
         store = pd.HDFStore('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '.h5')
