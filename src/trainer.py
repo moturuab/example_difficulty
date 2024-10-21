@@ -567,10 +567,10 @@ class PyTorchTrainer:
                 metrics["auc_roc"] = auc_roc
                 metrics["auc_prc"] = auc_prc
 
-                results[n] = metrics
+                results[w] = metrics
 
             wandb.log(results)
-            
+
         df = pd.DataFrame(dictionary)
         store = pd.HDFStore('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '.h5')
         store['df'] = df
