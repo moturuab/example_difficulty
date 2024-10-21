@@ -699,7 +699,7 @@ def main(args):
         eval_dict, raw_scores_dict = eval.compute_results()
         # add sleep in case of machine latency
         time.sleep(10)
-        print(eval_dict)
+        
         wandb.log(eval_dict)
 
         scores_dict = {
