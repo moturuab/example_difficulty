@@ -251,7 +251,8 @@ class PyTorchTrainer:
             test_running_top5_acc = 0.0
             dictionary[epoch] = {'index': [], 'predicted_output': [], 'max_output': [],
             'predicted_label': [], 'true_label': [], 'observed_label': [],
-            'aum': [], 'dataiq': [], 'datamaps': [], 'el2n': [], 'grand': [], 'forgetting': [], 'vog': [], 'loss': []}
+            'aum': [], 'dataiq': [], 'datamaps': [], 'dataiq_conf': [], 'datamaps_conf': [],
+            'el2n': [], 'grand': [], 'forgetting': [], 'vog': [], 'loss': []}
             if self.reweight:
                 dictionary[epoch]['alpha'] = []
                 dictionary[epoch]['beta'] = []
@@ -453,6 +454,7 @@ class PyTorchTrainer:
             print(f"Epoch {epoch+1}/{self.epochs}: Train Loss={epoch_loss:.4f} | Val Loss={val_epoch_loss:.4f} | Test Loss={test_epoch_loss:.4f}")
 
             # streamline repeated computation across methods
+            print('compute scores')
             if any(
                 method in self.characterization_methods
                 for method in ["el2n", "cleanlab", "forgetting", "loss"]
@@ -462,21 +464,20 @@ class PyTorchTrainer:
                 )
 
             if self.data_uncert is not None:
-                print("data_uncert compute")
                 self.data_uncert.updates(net=self.model, device=self.device)
                 self.data_uncert.compute_scores(datamaps=False)
-                dictionary[epoch]['dataiq'].extend(convert_lst(self.data_uncert._scores))
+                dictionary[epoch]['dataiq'].extend(convert_lst(self.data_uncert._scores[0]))
+                dictionary[epoch]['dataiq_conf'].extend(convert_lst(self.data_uncert._scores[1]))
                 self.data_uncert.compute_scores(datamaps=True)
-                dictionary[epoch]['datamaps'].extend(convert_lst(self.data_uncert._scores))
+                dictionary[epoch]['datamaps'].extend(convert_lst(self.data_uncert._scores[0]))
+                dictionary[epoch]['datamaps_conf'].extend(convert_lst(self.data_uncert._scores[1]))
 
             if self.el2n is not None:
-                print("el2n")
                 self.el2n.updates(logits=logits, targets=targets)
                 self.el2n.compute_scores()
                 dictionary[epoch]['el2n'].extend(convert_lst(self.el2n._scores))
 
             if self.forgetting is not None:
-                print("forgetting")
                 self.forgetting.updates(
                     logits=logits, targets=targets, probs=probs, indices=indices
                 )
@@ -484,42 +485,34 @@ class PyTorchTrainer:
                 dictionary[epoch]['forgetting'].extend(convert_lst(self.forgetting._scores))
 
             if self.grand is not None:
-                print("grand")
                 self.grand.updates(net=self.model, device=self.device)
                 self.grand.compute_scores()
                 dictionary[epoch]['grand'].extend(convert_lst(self.grand._scores))
 
             if self.vog is not None: # and epoch % 2 == 0 and epoch < 6:
-                print("vog")
                 self.vog.updates(net=self.model, device=self.device)
                 self.vog.compute_scores()
                 dictionary[epoch]['vog'].extend(convert_lst(self.vog._scores))
 
             if self.loss is not None:
-                print("loss")
                 self.loss.updates(logits=logits, targets=targets)
                 self.loss.compute_scores()
                 dictionary[epoch]['loss'].extend(convert_lst(self.loss._scores))
 
         # These HCMs are applied after training
         if self.prototypicality is not None:
-            print("prototypicality")
             self.prototypicality.updates(net=self.model, device=self.device)
 
         if self.allsh is not None:
-            print("allsh")
             self.allsh.updates(net=self.model, device=self.device)
 
         if self.conf_agree is not None:
-            print("conf_agree")
             self.conf_agree.updates(net=self.model, device=self.device)
 
         if self.cleanlab is not None:
-            print("cleanlab")
             self.cleanlab.updates(logits=logits, targets=targets, probs=probs)
 
         if self.detector is not None:
-            print("detector")
             self.detector.updates(
                 data_uncert_class=self.data_uncert.data_eval, device=self.device
             )
