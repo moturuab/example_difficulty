@@ -469,6 +469,10 @@ class PyTorchTrainer:
                     net=self.model, device=self.device, dataloader=dataloader_unshuffled
                 )
 
+            if self.aum is not None:
+                self.aum.compute_scores()
+                dictionary[epoch]['aum'].extend(convert_lst(self.aum._scores))
+
             if self.data_uncert is not None:
                 self.data_uncert.updates(net=self.model, device=self.device)
                 self.data_uncert.compute_scores(datamaps=False)
