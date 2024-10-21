@@ -5,6 +5,15 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import pandas as pd
 
+from sklearn.metrics import (
+    accuracy_score,
+    average_precision_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
+
 from .temperature_scaling import ModelWithTemperature
 
 from .hardness import *
@@ -561,6 +570,7 @@ class PyTorchTrainer:
                 results[n] = metrics
 
             wandb.log(results)
+            
         df = pd.DataFrame(dictionary)
         store = pd.HDFStore('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '.h5')
         store['df'] = df
