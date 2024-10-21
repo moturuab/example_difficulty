@@ -89,7 +89,7 @@ class PyTorchTrainer:
             "grand",
             #"cleanlab",
             "forgetting",
-            "vog",
+            #"vog",
             #"prototypicality",
             #"allsh",
             "loss",
@@ -265,7 +265,8 @@ class PyTorchTrainer:
             dictionary[epoch] = {'index': [], 'predicted_output': [], 'max_output': [],
             'predicted_label': [], 'true_label': [], 'observed_label': [],
             'aum': [], 'dataiq': [], 'datamaps': [], 'dataiq_conf': [], 'datamaps_conf': [],
-            'el2n': [], 'grand': [], 'forgetting': [], 'vog': [], 'loss': []}
+            'el2n': [], 'grand': [], 'forgetting': [], #'vog': [], 
+            'loss': []}
             if self.reweight:
                 dictionary[epoch]['alpha'] = []
                 dictionary[epoch]['beta'] = []
