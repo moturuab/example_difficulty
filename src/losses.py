@@ -7,7 +7,7 @@ class WeightedCrossEntropyLoss(nn.CrossEntropyLoss):
         super(nn.CrossEntropyLoss, self).__init__()
         self.reweight = reweight
         self.alpha = alpha
-        self.beta=beta
+        self.beta = beta
         self.delta = delta
         self.warmup = warmup
         self.num_classes = num_classes

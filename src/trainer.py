@@ -55,6 +55,7 @@ class PyTorchTrainer:
         delta: nn.Module,
         criterion: nn.Module,
         optimizer: optim.Optimizer,
+        flag_ids=None,
         device: torch.device = None,
         lr: float = 0.001,
         alpha_lr: float = 0.01,
@@ -116,6 +117,7 @@ class PyTorchTrainer:
         self.alpha = alpha
         self.beta = beta
         self.delta = delta
+        self.flag_ids = flag_ids
         self.criterion = criterion
         self.optimizer = optimizer
         self.device = device
@@ -231,7 +233,9 @@ class PyTorchTrainer:
         dictionary = {}
         for epoch in range(self.epochs):
             print(f"Epoch {epoch+1}/{self.epochs}")
+
             self.model.train()
+
             running_loss = 0.0
             val_running_loss = 0.0
             test_running_loss = 0.0
@@ -517,6 +521,7 @@ class PyTorchTrainer:
                 self.loss.compute_scores()
                 dictionary[epoch]['loss'].extend(convert_lst(self.loss._scores))
 
+        '''
         # These HCMs are applied after training
         if self.prototypicality is not None:
             self.prototypicality.updates(net=self.model, device=self.device)
@@ -534,6 +539,7 @@ class PyTorchTrainer:
             self.detector.updates(
                 data_uncert_class=self.data_uncert.data_eval, device=self.device
             )
+        '''
 
         if self.reweight:
             results = {}

@@ -660,6 +660,7 @@ def main(args):
             alpha=alpha,
             beta=beta,
             delta=delta,
+            flag_ids=train_flag_ids,
             criterion=criterion,
             optimizer=optimizer,
             lr=lr,
