@@ -385,7 +385,7 @@ class PyTorchTrainer:
 
             if self.calibrate:
                 scaled_model = ModelWithTemperature(self.model)
-                _, before_temperature_nll, before_temperature_ece, after_temperature_nll, after_temperature_ece = scaled_model.set_temperature(val_dataloader)
+                _, before_temperature_nll, before_temperature_ece, after_temperature_nll, after_temperature_ece, opt_temp = scaled_model.set_temperature(val_dataloader)
 
             self.model.eval()
             for k, test_data in enumerate(test_dataloader_unshuffled):
@@ -439,6 +439,7 @@ class PyTorchTrainer:
                 wandb.log({"before_temperature_ece": before_temperature_ece, "epoch": epoch})
                 wandb.log({"after_temperature_nll": after_temperature_nll, "epoch": epoch})
                 wandb.log({"after_temperature_ece": after_temperature_ece, "epoch": epoch})
+                wandb.log({"opt_temp": opt_temp, "epoch": epoch})
             wandb.log({"train_loss": epoch_loss, "epoch": epoch})
             wandb.log({"val_loss": val_epoch_loss, "epoch": epoch})
             wandb.log({"test_loss": test_epoch_loss, "epoch": epoch})

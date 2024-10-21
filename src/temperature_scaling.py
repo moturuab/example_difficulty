@@ -72,7 +72,7 @@ class ModelWithTemperature(nn.Module):
         print('Optimal temperature: %.3f' % self.temperature.item())
         print('After temperature - NLL: %.3f, ECE: %.3f' % (after_temperature_nll, after_temperature_ece))
 
-        return self, before_temperature_nll, before_temperature_ece, after_temperature_nll, after_temperature_ece
+        return self, before_temperature_nll, before_temperature_ece, after_temperature_nll, after_temperature_ece, self.temperature.item()
 
 
 class _ECELoss(nn.Module):
