@@ -532,14 +532,10 @@ class PyTorchTrainer:
                 dictionary[epoch]['loss'].extend(convert_lst(self.loss._scores))
 
             if epoch == 0:
-                df = pd.DataFrame(dictionary)
-                store = pd.HDFStore('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '.h5')
-                store['df'] = df
-            else:
-                df2 = pd.DataFrame(dictionary)
-                store = pd.HDFStore('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '.h5')
-                df1 = store['df']
-                store['df'] = pd.concat([df1, df2], axis=1)
+                os.mkdir('dictionaries/' + self.metainfo.replace(':', '').replace('.', ''))
+            df = pd.DataFrame(dictionary)
+            store = pd.HDFStore('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '/' + str(epoch) + '.h5')
+            store['df'] = df
 
         '''
         # These HCMs are applied after training
