@@ -311,9 +311,9 @@ class PyTorchTrainer:
                 if self.reweight:
                     if epoch > self.warmup:
                         dictionary[epoch]['weight'].extend(weights.flatten().tolist())
-                        dictionary[epoch]['alpha_weight'].extend(weights.flatten().tolist())
-                        dictionary[epoch]['beta_weight'].extend(weights.flatten().tolist())
-                        dictionary[epoch]['delta_weight'].extend(weights.flatten().tolist())
+                        dictionary[epoch]['alpha_weight'].extend(alpha_weights.flatten().tolist())
+                        dictionary[epoch]['beta_weight'].extend(beta_weights.flatten().tolist())
+                        dictionary[epoch]['delta_weight'].extend(delta_weights.flatten().tolist())
                     else:
                         dictionary[epoch]['weight'].extend([1]*len(indices))
                         dictionary[epoch]['alpha_weight'].extend([0]*len(indices))
