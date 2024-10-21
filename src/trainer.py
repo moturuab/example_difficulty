@@ -385,15 +385,15 @@ class PyTorchTrainer:
                     if self.reweight and epoch > self.warmup:
                         with torch.no_grad():
                             self.alpha -= self.alpha_lr * (self.alpha.grad + self.alpha_wd*self.alpha)
-                            self.alpha.data.clamp_(min=1.0)
+                            self.alpha.data.clamp_(min=self.delta.detach().item())
                             self.alpha.grad.zero_()
 
                             self.beta -= self.beta_lr * (self.beta.grad + self.beta_wd*self.beta)
-                            self.beta.data.clamp_(min=1.0)
+                            self.beta.data.clamp_(max=self.delta.detach().item())
                             self.beta.grad.zero_()
 
                             self.delta -= self.delta_lr * (self.delta.grad + self.delta_wd*self.delta)
-                            self.delta.data.clamp_(max=self.beta.detach().item())
+                            self.delta.data.clamp_(min=self.beta.detach().item(), max=self.alpha.detach().item())
                             self.delta.grad.zero_()
 
                             wandb.log({"alpha": self.alpha.detach().item(), "step": c})
