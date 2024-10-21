@@ -393,7 +393,7 @@ class PyTorchTrainer:
                             self.beta.grad.zero_()
 
                             self.delta -= self.delta_lr * (self.delta.grad + self.delta_wd*self.delta)
-                            self.delta.data.clamp_(min=1.0)
+                            self.delta.data.clamp_(max=self.beta.detach().item())
                             self.delta.grad.zero_()
 
                             wandb.log({"alpha": self.alpha.detach().item(), "step": c})
