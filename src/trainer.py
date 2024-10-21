@@ -561,7 +561,7 @@ class PyTorchTrainer:
                     auc_roc = roc_auc_score(y_true=threshold_flag, y_score=dictionary[epoch][w])
 
                 auc_prc = average_precision_score(
-                    y_true=threshold_flag, y_score=raw_scores
+                    y_true=threshold_flag, y_score=dictionary[epoch][w]
                 )
 
                 metrics["auc_roc"] = auc_roc
