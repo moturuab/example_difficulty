@@ -230,7 +230,7 @@ class PyTorchTrainer:
         c = 0
         dictionary = {}
         for epoch in range(self.epochs):
-            print('EPOCH ' + str(epoch+1) + '/' + str(self.epochs))
+            print(f"Epoch {epoch+1}/{self.epochs}")
             self.model.train()
             running_loss = 0.0
             val_running_loss = 0.0
@@ -457,10 +457,10 @@ class PyTorchTrainer:
             wandb.log({"train_top5_acc": epoch_top5_acc, "epoch": epoch})
             wandb.log({"val_top5_acc": val_epoch_top5_acc, "epoch": epoch})
             wandb.log({"test_top5_acc": test_epoch_top5_acc, "epoch": epoch})
-            print(f"Epoch {epoch+1}/{self.epochs}: Train Loss={epoch_loss:.4f} | Val Loss={val_epoch_loss:.4f} | Test Loss={test_epoch_loss:.4f}")
+            print(f"Train Loss={epoch_loss:.4f} | Val Loss={val_epoch_loss:.4f} | Test Loss={test_epoch_loss:.4f}")
 
             # streamline repeated computation across methods
-            print('compute scores')
+            #print('computing scores')
             if any(
                 method in self.characterization_methods
                 for method in ["el2n", "cleanlab", "forgetting", "loss"]
