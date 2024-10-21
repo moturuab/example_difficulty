@@ -527,6 +527,7 @@ class PyTorchTrainer:
         store = pd.HDFStore(self.metainfo.replace(':', '').replace('.', '') + '.h5')
         store['df'] = df  # save it
         #store['df']  # load it
+        print('saved dict')
 
     def get_intermediate_outputs(self, net, dataloader, device):
         """
