@@ -62,7 +62,7 @@ class WeightedFocalLoss(nn.CrossEntropyLoss):
         focal_loss = (1 - torch.exp(- cross_entropy_loss)) ** self.gamma * cross_entropy_loss
         encoded_targets = criterion.encode(targets)
         if self.reweight and epoch > self.warmup:
-            alpha_weights, beta_weights, delta_weights, weights = criterion.weights(outputs, encoded_targets)
+            alpha_weights, beta_weights, delta_weights, weights = criterion.weights(correct_outputs, max_outputs)
             weighted_focal_loss = weights * focal_loss
             return correct_outputs, max_outputs, alpha_weights, beta_weights, delta_weights, weights, weighted_focal_loss.mean()
         else:
