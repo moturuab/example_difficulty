@@ -548,7 +548,7 @@ class PyTorchTrainer:
                 if epoch == 0:
                     os.mkdir('dictionaries/' + self.metainfo.replace(':', '').replace('.', ''))
                 df = pd.DataFrame(dictionary)
-                df.to_hdf('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '/' + str(epoch) + '.h5')  
+                df.to_hdf('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '/' + str(epoch) + '.h5', key=str(epoch))  
                 #pd.read_hdf('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '/' + str(epoch) + '.h5')
                 #time.sleep(30)
 
