@@ -230,7 +230,7 @@ class PyTorchTrainer:
         c = 0
         dictionary = {}
         for epoch in range(self.epochs):
-            print('EPOCH ' + str(epoch))
+            print('EPOCH ' + str(epoch+1) + '/' + str(self.epochs))
             self.model.train()
             running_loss = 0.0
             val_running_loss = 0.0
