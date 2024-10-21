@@ -390,7 +390,7 @@ class PyTorchTrainer:
                             self.alpha.grad.zero_()
 
                             self.beta -= self.beta_lr * (self.beta.grad + self.beta_wd*self.beta)
-                            self.beta.data.clamp_(max=self.delta.detach().item())
+                            #self.beta.data.clamp_()
                             self.beta.grad.zero_()
 
                             self.delta -= self.delta_lr * (self.delta.grad + self.delta_wd*self.delta)
