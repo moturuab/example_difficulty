@@ -548,9 +548,9 @@ class PyTorchTrainer:
                 if epoch == 0:
                     os.mkdir('dictionaries/' + self.metainfo.replace(':', '').replace('.', ''))
                 df = pd.DataFrame(dictionary)
-                store = pd.HDFStore('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '/' + str(epoch) + '.h5')
-                store['df'] = df
-                time.sleep(30)
+                df.to_hdf('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '/' + str(epoch) + '.h5')  
+                #pd.read_hdf('dictionaries/' + self.metainfo.replace(':', '').replace('.', '') + '/' + str(epoch) + '.h5')
+                #time.sleep(30)
 
         '''
         # These HCMs are applied after training
