@@ -513,7 +513,7 @@ class XrayMultiFormatDataLoader:
         self.dataloader = DataLoader(
             self.perturbed_dataset,
             batch_size=batch_size,
-            shuffle=True,
+            shuffle=False,
             num_workers=num_workers,
         )
 

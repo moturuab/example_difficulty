@@ -175,7 +175,7 @@ class PyTorchTrainer:
 
         self.forgetting = (
             Forgetting_Class(
-                dataloader=dataloader_unshuffled, total_samples=self.total_samples
+                dataloader=dataloader_unshuffled, total_samples=len(dataloader_unshuffled)
             )
             if "forgetting" in self.characterization_methods
             else None
@@ -183,7 +183,7 @@ class PyTorchTrainer:
 
         self.vog = (
             VOG_Class(
-                dataloader=dataloader_unshuffled, total_samples=self.total_samples
+                dataloader=dataloader_unshuffled, total_samples=self.len(dataloader_unshuffled)
             )
             if "vog" in self.characterization_methods
             else None
@@ -367,11 +367,10 @@ class PyTorchTrainer:
                             self.alpha.grad.zero_()
 
                             self.beta -= self.beta_lr * (self.beta.grad + self.beta_wd*self.beta)
-                            self.beta.data.clamp_(min=1.0)
                             self.beta.grad.zero_()
 
                             self.delta -= self.delta_lr * (self.delta.grad + self.delta_wd*self.delta)
-                            self.delta.data.clamp_(min=1.0)
+                            #self.delta.data.clamp_(max=self.beta)
                             self.delta.grad.zero_()
 
                             wandb.log({"alpha": self.alpha.detach().item(), "step": c})
