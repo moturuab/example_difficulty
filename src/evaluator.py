@@ -100,8 +100,6 @@ class Evaluator:
             if method in score_methods:
 
                 raw_scores = self.hardness_dict[method].scores
-                print(len(raw_scores))
-                print(len(self.flag_ids))
 
                 if method == "dataiq" or method == "datamaps":
                     if method == "dataiq":
