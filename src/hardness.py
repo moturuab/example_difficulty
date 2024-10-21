@@ -259,7 +259,7 @@ class GRAND_Class(Hardness_Base):
         ft_compute_grad = grad(compute_loss_stateless_model)
         ft_compute_sample_grad = vmap(ft_compute_grad, in_dims=(None, None, 0, 0))
 
-        print("Evaluating GRAND scores...")
+        #print("Evaluating GRAND scores...")
         grad_norms = []
 
         for data in self.dataloader:
@@ -359,7 +359,7 @@ class Prototypicality_Class(Hardness_Base):
 
         # Initialize accumulators for embeddings and counts for each label
         embeddings_dict = {i: [] for i in range(self.num_classes)}
-        print("computing mean embeddings...")
+        #print("computing mean embeddings...")
         for batch_idx, data in enumerate(self.dataloader):
             x, _, y, _ = data
             x = x.to(device)
@@ -378,7 +378,7 @@ class Prototypicality_Class(Hardness_Base):
         }
 
         # Compute the cosine distance between each item in the dataloader and each key's mean in embeddings_sum
-        print("Computing Cosine Distances...")
+        #print("Computing Cosine Distances...")
         for batch_idx, data in enumerate(self.dataloader):
             x, _, y, _ = data
             x = x.to(device)
