@@ -175,7 +175,7 @@ class PyTorchTrainer:
 
         self.forgetting = (
             Forgetting_Class(
-                dataloader=dataloader_unshuffled, total_samples=len(dataloader_unshuffled)
+                dataloader=dataloader_unshuffled, total_samples=self.total_samples
             )
             if "forgetting" in self.characterization_methods
             else None
@@ -183,7 +183,7 @@ class PyTorchTrainer:
 
         self.vog = (
             VOG_Class(
-                dataloader=dataloader_unshuffled, total_samples=self.len(dataloader_unshuffled)
+                dataloader=dataloader_unshuffled, total_samples=self.total_samples
             )
             if "vog" in self.characterization_methods
             else None

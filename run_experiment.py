@@ -672,7 +672,7 @@ def main(args):
             delta_wd=delta_wd,
             warmup=warmup, 
             epochs=epochs,
-            total_samples=total_samples,
+            total_samples=len(temp_train_idx),
             num_classes=num_classes,
             reweight=reweight,
             clean_val=clean_val,
