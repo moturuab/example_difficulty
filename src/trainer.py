@@ -346,7 +346,7 @@ class PyTorchTrainer:
                 self.optimizer.zero_grad()
                 running_loss += train_loss.mean().item()
 
-                for j, val_data in enumerate(val_dataloader_unshuffled):
+                for j, val_data in enumerate(val_dataloader): # TRY SHUFFLED
                     val_inputs, val_true_label, val_observed_label, val_indices = val_data
 
                     if self.reweight and epoch > self.warmup:

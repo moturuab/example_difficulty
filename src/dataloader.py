@@ -594,7 +594,7 @@ class MultiFormatDataLoader:
         self.dataloader = DataLoader(
             self.perturbed_dataset,
             batch_size=batch_size,
-            shuffle=False,
+            shuffle=True,
             num_workers=num_workers,
         )
         self.dataloader_unshuffled = DataLoader(
